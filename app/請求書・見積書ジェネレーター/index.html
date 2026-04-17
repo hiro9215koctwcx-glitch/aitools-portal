@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>&#35531;&#27714;&#26360;&#12539;&#35211;&#31309;&#26360;&#12472;&#12455;&#12493;&#12524;&#12540;&#12479;&#12540;</title>
+<style>
+  :root {
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --accent-soft: #eff6ff;
+    --border: #e5e7eb;
+    --text: #111827;
+    --muted: #6b7280;
+    --bg: #f9fafb;
+    --card: #fff;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app-header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 1.25rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: var(--shadow);
+  }
+  .app-header h1 { margin: 0; font-size: 1.35rem; font-weight: 700; }
+  .app-header p { margin: 0.35rem 0 0; font-size: 0.875rem; color: var(--muted); }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 1.25rem 1rem 2.5rem; }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+    gap: 1.25rem;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+  .panel {
+    background: var(--card);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 1.25rem;
+  }
+  .panel h2 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .panel h2::before {
+    content: "";
+    width: 4px;
+    height: 1em;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+  .toggle { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+  .toggle button {
+    flex: 1;
+    padding: 0.65rem 1rem;
+    border: 2px solid var(--border);
+    background: var(--card);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--muted);
+    transition: border-color 0.15s, background 0.15s, color 0.15s;
+    font-family: inherit;
+  }
+  .toggle button:hover { border-color: var(--accent); color: var(--accent); }
+  .toggle button.is-on {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .field { margin-bottom: 0.9rem; }
+  .field > label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 0.35rem;
+  }
+  .row-in { display: flex; gap: 0.4rem; align-items: stretch; }
+  .row-in input { flex: 1; min-width: 0; }
+  input, textarea {
+    padding: 0.55rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+  .mic {
+    flex-shrink: 0;
+    width: 42px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    padding: 0;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .mic:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .mic.rec {
+    background: #fef2f2;
+    border-color: #ef4444;
+    color: #ef4444;
+    animation: pulse 1.1s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.72; } }
+  .btn {
+    padding: 0.5rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    border: none;
+    transition: background 0.15s, transform 0.08s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-ghost {
+    background: #fff;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-del {
+    background: #fff;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+  }
+  .btn-del:hover { background: #fef2f2; }
+  .line-grid {
+    display: grid;
+    grid-template-columns: 1fr 76px 92px auto;
+    gap: 0.45rem;
+    align-items: start;
+    margin-bottom: 0.65rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px dashed var(--border);
+  }
+  @media (max-width: 600px) {
+    .line-grid { grid-template-columns: 1fr 1fr; }
+    .line-grid .span-all { grid-column: 1 / -1; }
+  }
+  .sub-hint {
+    font-size: 0.8rem;
+    color: var(--muted);
+    padding-top: 0.25rem;
+    white-space: nowrap;
+  }
+  .sum-box {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--accent-soft);
+    border-radius: var(--radius);
+    border: 1px solid #bfdbfe;
+    font-size: 0.9rem;
+  }
+  .sum-box .r { display: flex; justify-content: space-between; margin-bottom: 0.35rem; }
+  .sum-box .r strong { font-weight: 700; font-size: 1.05rem; padding-top: 0.4rem; margin-top: 0.35rem; border-top: 1px solid #93c5fd; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; }
+  .note { font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; }
+  .saved { margin-top: 1.5rem; }
+  .saved-list { display: flex; flex-direction: column; gap: 0.5rem; max-height: 220px; overflow-y: auto; }
+  .saved-row { display: flex; gap: 0.5rem; align-items: stretch; }
+  .saved-row button.load {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .saved-row button.load:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .saved-row button.load .t { font-weight: 600; font-size: 0.9rem; }
+  .saved-row button.load .d { font-size: 0.75rem; color: var(--muted); }
+  .saved-row button.rm {
+    flex-shrink: 0;
+    padding: 0.35rem 0.55rem;
+    font-size: 0.75rem;
+    border: 1px solid #fecaca;
+    background: #fff;
+    color: #dc2626;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .saved-row button.rm:hover { background: #fef2f2; }
+  .pv-stick { position: sticky; top: 5.5rem; }
+  @media (max-width: 900px) { .pv-stick { position: static; } }
+  .pv-shell { background: #e5e7eb; border-radius: var(--radius); padding: 1rem; }
+  .a4 {
+    width: 100%;
+    max-width: 210mm;
+    margin: 0 auto;
+    aspect-ratio: 210 / 297;
+    background: #fff;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    border-radius: 2px;
+    padding: 8%;
+    font-size: clamp(10px, 2.1vw, 13px);
+    color: #1f2937;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  @media (min-width: 901px) { .a4 { font-size: 11px; } }
+  .pv-h {
+    text-align: center;
+    font-size: 1.55em;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.75em;
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 0.35em;
+  }
+  .pv-meta { font-size: 0.92em; margin-bottom: 0.9em; }
+  .pv-blk { display: flex; gap: 1em; margin-bottom: 0.9em; }
+  .pv-to {
+    flex: 1;
+    border: 1px solid #d1d5db;
+    padding: 0.6em;
+    border-radius: 4px;
+    min-height: 4.2em;
+  }
+  .pv-to .lb { font-size: 0.78em; color: #6b7280; margin-bottom: 0.2em; }
+  .pv-fr { flex: 1; text-align: right; font-size: 0.88em; line-height: 1.45; }
+  .pv-fr .co { font-weight: 700; }
+  table.pv { width: 100%; border-collapse: collapse; font-size: 0.86em; }
+  .pv th, .pv td { border: 1px solid #d1d5db; padding: 0.42em 0.48em; }
+  .pv th { background: #f3f4f6; font-weight: 600; text-align: left; }
+  .pv .n { text-align: right; white-space: nowrap; }
+  .pv-sum { margin-top: 0.65em; margin-left: auto; width: 56%; font-size: 0.9em; }
+  .pv-sum .r { display: flex; justify-content: space-between; padding: 0.22em 0; }
+  .pv-sum .g {
+    font-weight: 800;
+    border-top: 2px solid var(--accent);
+    margin-top: 0.35em;
+    padding-top: 0.35em;
+  }
+  @media print {
+    body { background: #fff; }
+    .no-print { display: none !important; }
+    .wrap { padding: 0; max-width: none; }
+    .layout { display: block; }
+    .pv-shell { padding: 0; background: #fff; box-shadow: none; }
+    .panel.preview { border: none; box-shadow: none; }
+    .a4 {
+      max-width: none;
+      width: 100%;
+      aspect-ratio: auto;
+      box-shadow: none;
+      padding: 12mm;
+      font-size: 11pt;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header no-print">
+  <h1>&#35531;&#27714;&#26360;&#12539;&#35211;&#31309;&#26360;&#12472;&#12455;&#12493;&#12524;&#12540;&#12479;&#12540;</h1>
+  <p>&#35441;&#12377;&#12384;&#12369;&#12391;&#12289;&#26360;&#39006;&#12364;&#23436;&#25104;&#12290;</p>
+</header>
+
+<div class="wrap">
+  <div class="layout">
+    <div class="panel no-print">
+      <div class="toggle" role="group" aria-label="&#26360;&#39006;&#12479;&#15012;&#15735;">
+        <button type="button" id="tInv" class="is-on">&#35531;&#27714;&#26360;</button>
+        <button type="button" id="tEst">&#35211;&#31309;&#26360;</button>
+      </div>
+
+      <h2>&#22522;&#26412;&#24773;&#22577;</h2>
+      <div class="field">
+        <label for="dDate">&#30330;&#34892;&#26085;</label>
+        <input type="date" id="dDate">
+      </div>
+      <div class="field">
+        <label for="dNo">&#26360;&#39006;&#30058;&#21495;</label>
+        <input type="text" id="dNo" readonly style="background:#f3f4f6">
+      </div>
+      <div class="field">
+        <label for="toCo">&#23451;&#20808;&#20250;&#31038;&#21517;</label>
+        <div class="row-in">
+          <input type="text" id="toCo" autocomplete="organization" placeholder="&#26666;&#24335;&#20250;&#31038;&#12469;&#12531;&#12503;&#12523;">
+          <button type="button" class="mic" data-target="toCo" title="&#38899;&#22768;&#20837;&#21147;" aria-label="&#23451;&#20808;&#20250;&#31038;&#21517;"></button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="toNm">&#23451;&#20808;&#25285;&#24403;&#32773;&#21517;</label>
+        <div class="row-in">
+          <input type="text" id="toNm" autocomplete="name" placeholder="&#23665;&#30000; &#22826;&#37070;">
+          <button type="button" class="mic" data-target="toNm" title="&#38899;&#22768;&#20837;&#21147;" aria-label="&#23451;&#20808;&#25285;&#24403;&#32773;&#21517;"></button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="myCo">&#33258;&#20998;&#12398;&#20250;&#31038;&#21517;</label>
+        <div class="row-in">
+          <input type="text" id="myCo">
+          <button type="button" class="mic" data-target="myCo" title="&#38899;&#22768;&#20837;&#21147;" aria-label="&#20250;&#31038;&#21517;"></button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="myNm">&#33258;&#20998;&#12398;&#27663;&#21517;</label>
+        <div class="row-in">
+          <input type="text" id="myNm" placeholder="&#25285;&#24403;&#32773;&#21517;">
+          <button type="button" class="mic" data-target="myNm" title="&#38899;&#22768;&#20837;&#21147;" aria-label="&#27663;&#21517;"></button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="mail">&#12513;&#12540;&#12523;</label>
+        <div class="row-in">
+          <input type="email" id="mail" autocomplete="email" placeholder="mail@example.com">
+          <button type="button" class="mic" data-target="mail" title="&#38899;&#22768;&#20837;&#21147;" aria-label="&#12513;&#12540;&#12523;"></button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="tel">&#38651;&#35441;</label>
+        <div class="row-in">
+          <input type="tel" id="tel" autocomplete="tel" placeholder="03-1234-5678">
+          <button type="button" class="mic" data-target="tel" title="&#38899;&#22768;&#20837;&#21147;" aria-label="&#38651;&#35441;"></button>
+        </div>
+      </div>
+
+      <h2 style="margin-top:1.5rem">&#26126;&#32048;</h2>
+      <div style="margin-bottom:0.6rem">
+        <button type="button" class="btn btn-ghost" id="addLine">&#34892;&#12434;&#36861;&#21152;</button>
+      </div>
+      <div id="lines"></div>
+
+      <div class="sum-box">
+        <div class="r"><span>&#23567;&#35336;&#65288;&#31246;&#25244;&#65289;</span><span id="sSub">&#165;0</span></div>
+        <div class="r"><span>&#28040;&#36027;&#31246;&#65288;10%&#65289;</span><span id="sTax">&#165;0</span></div>
+        <div class="r"><strong>&#21512;&#35336;&#65288;&#31246;&#36796;&#65289;</strong><strong id="sTot">&#165;0</strong></div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="doPdf">PDF&#12391;&#20445;&#23384;</button>
+        <button type="button" class="btn btn-ghost" id="doSave">&#29694;&#22312;&#12398;&#20869;&#23481;&#12434;&#20445;&#23384;</button>
+        <button type="button" class="btn btn-ghost" id="doNew">&#26032;&#35215;&#26360;&#39006;</button>
+      </div>
+      <p class="note">&#12300;PDF&#12391;&#20445;&#23384;&#12301;&#12399;&#21360;&#21047;&#12480;&#12452;&#12450;&#12525;&#12464;&#12364;&#38283;&#12365;&#12414;&#12377;&#12290;&#36865;&#20449;&#20808;&#12391;&#12300;PDF&#12395;&#20445;&#23384;&#12301;&#12434;&#36984;&#12403;&#12414;&#12377;&#12290;&#38899;&#22768;&#20837;&#21147;&#12399; Chrome / Edge &#31561;&#65288;HTTPS &#12414;&#12383;&#12399; localhost&#65289;&#12391;&#12372;&#21033;&#29992;&#12367;&#12384;&#12373;&#12356;&#12290;</p>
+
+      <div class="saved">
+        <h2>&#20445;&#23384;&#12375;&#12383;&#26360;&#39006;</h2>
+        <div class="saved-list" id="sList"></div>
+      </div>
+    </div>
+
+    <div class="panel preview">
+      <h2 class="no-print">&#12503;&#12524;&#12499;&#12517;&#12540;</h2>
+      <div class="pv-stick">
+        <div class="pv-shell">
+          <div class="a4" id="pvRoot">
+            <div class="pv-h" id="pvH">&#35531; &#27714; &#26360;</div>
+            <div class="pv-meta">
+              <div>&#30330;&#34892;&#26085;&#65306;<span id="pvD">&#8212;</span></div>
+              <div>No. <span id="pvN">&#8212;</span></div>
+            </div>
+            <div class="pv-blk">
+              <div class="pv-to">
+                <div class="lb">&#23451;&#20808;</div>
+                <div id="pvCo">&#8212;</div>
+                <div id="pvNm">&#8212;</div>
+              </div>
+              <div class="pv-fr">
+                <div class="co" id="pvMyC">&#8212;</div>
+                <div id="pvMyN">&#8212;</div>
+                <div id="pvM">&#8212;</div>
+                <div id="pvT">&#8212;</div>
+              </div>
+            </div>
+            <table class="pv">
+              <thead>
+                <tr>
+                  <th style="width:40%">&#21697;&#30446;</th>
+                  <th class="n">&#25968;&#37327;</th>
+                  <th class="n">&#21336;&#20385;</th>
+                  <th class="n">&#37329;&#38989;</th>
+                </tr>
+              </thead>
+              <tbody id="pvBody"></tbody>
+            </table>
+            <div class="pv-sum">
+              <div class="r"><span>&#23567;&#35336;&#65288;&#31246;&#25244;&#65289;</span><span id="pSub">&#165;0</span></div>
+              <div class="r"><span>&#28040;&#36027;&#31246;&#65288;10%&#65289;</span><span id="pTax">&#165;0</span></div>
+              <div class="r g"><span>&#21512;&#35336;&#65288;&#31246;&#36796;&#65289;</span><span id="pTot">&#165;0</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var MIC = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
+  var LS_DOC = "invgen_v2_docs";
+  var KEY_INV_CTR = "invoice_counter";
+  var KEY_EST_CTR = "estimate_counter";
+  var LS_SEQ_LEGACY = "invgen_v2_seq";
+
+  var kind = "inv";
+  var lineSeq = 0;
+  var recog = null;
+  var recBtn = null;
+
+  function yen(n) {
+    return "\u00a5" + Math.round(n).toLocaleString("ja-JP");
+  }
+
+  function today() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  function $(id) { return document.getElementById(id); }
+
+  function migrateLegacySeq() {
+    if (localStorage.getItem(KEY_INV_CTR) != null || localStorage.getItem(KEY_EST_CTR) != null) {
+      return;
+    }
+    try {
+      var j = localStorage.getItem(LS_SEQ_LEGACY);
+      if (!j) return;
+      var s = JSON.parse(j);
+      if (s.inv != null && !isNaN(parseInt(s.inv, 10))) {
+        localStorage.setItem(KEY_INV_CTR, String(parseInt(s.inv, 10)));
+      }
+      if (s.est != null && !isNaN(parseInt(s.est, 10))) {
+        localStorage.setItem(KEY_EST_CTR, String(parseInt(s.est, 10)));
+      }
+    } catch (e) {}
+  }
+
+  function getCounter(k) {
+    var key = k === "inv" ? KEY_INV_CTR : KEY_EST_CTR;
+    var v = localStorage.getItem(key);
+    if (v == null || v === "") return 0;
+    var n = parseInt(v, 10);
+    return isNaN(n) ? 0 : n;
+  }
+
+  /** Increments the persistent counter and returns a new unique number (INV-00001 / EST-00001). */
+  function issueNextNumber(k) {
+    var key = k === "inv" ? KEY_INV_CTR : KEY_EST_CTR;
+    var n = getCounter(k) + 1;
+    localStorage.setItem(key, String(n));
+    var p = k === "inv" ? "INV" : "EST";
+    return p + "-" + String(n).padStart(5, "0");
+  }
+
+  function setKind(k) {
+    kind = k;
+    $("tInv").classList.toggle("is-on", k === "inv");
+    $("tEst").classList.toggle("is-on", k === "est");
+    $("pvH").textContent = k === "inv" ? "\u8acb \u6c42 \u66f8" : "\u898b \u7a4d \u66f8";
+    render();
+  }
+
+  function linesFromDom() {
+    return [].map.call(document.querySelectorAll(".line"), function (el) {
+      return {
+        name: el.querySelector(".ln-name").value.trim(),
+        qty: parseFloat(el.querySelector(".ln-qty").value) || 0,
+        price: parseFloat(el.querySelector(".ln-price").value) || 0
+      };
+    });
+  }
+
+  function totals(rows) {
+    var sub = 0;
+    rows.forEach(function (r) { sub += r.qty * r.price; });
+    var tax = Math.floor(sub * 0.1);
+    return { sub: sub, tax: tax, tot: sub + tax };
+  }
+
+  function render() {
+    var rows = linesFromDom();
+    var t = totals(rows);
+
+    $("sSub").textContent = $("pSub").textContent = yen(t.sub);
+    $("sTax").textContent = $("pTax").textContent = yen(t.tax);
+    $("sTot").textContent = $("pTot").textContent = yen(t.tot);
+
+    $("pvD").textContent = $("dDate").value || "\u2014";
+    $("pvN").textContent = $("dNo").value || "\u2014";
+    $("pvCo").textContent = $("toCo").value || "\u2014";
+    $("pvNm").textContent = $("toNm").value ? $("toNm").value + " \u69d8" : "\u2014";
+    $("pvMyC").textContent = $("myCo").value || "\u2014";
+    $("pvMyN").textContent = $("myNm").value || "\u2014";
+    $("pvM").textContent = $("mail").value || "\u2014";
+    $("pvT").textContent = $("tel").value || "\u2014";
+
+    var tb = $("pvBody");
+    tb.textContent = "";
+    rows.forEach(function (r) {
+      var tr = document.createElement("tr");
+      var line = r.qty * r.price;
+      var esc = function (s) {
+        var x = document.createElement("span");
+        x.textContent = s;
+        return x.innerHTML;
+      };
+      tr.innerHTML =
+        "<td>" + esc(r.name || "\u2014") + "</td>" +
+        '<td class="n">' + esc(String(r.qty)) + "</td>" +
+        '<td class="n">' + esc(yen(r.price)) + "</td>" +
+        '<td class="n">' + esc(yen(line)) + "</td>";
+      tb.appendChild(tr);
+    });
+  }
+
+  function subLine(el) {
+    var q = parseFloat(el.querySelector(".ln-qty").value) || 0;
+    var p = parseFloat(el.querySelector(".ln-price").value) || 0;
+    el.querySelector(".ln-sub").textContent = yen(q * p);
+  }
+
+  function addLine(data) {
+    var id = ++lineSeq;
+    var wrap = document.createElement("div");
+    wrap.className = "line";
+    wrap.dataset.id = String(id);
+    var nm = data && data.name ? data.name : "";
+    var q = data && data.qty != null ? data.qty : 1;
+    var pr = data && data.price != null ? data.price : 0;
+
+    wrap.innerHTML =
+      '<div class="field span-all" style="margin:0">' +
+      '<label>\u54c1\u76ee\u540d</label>' +
+      '<div class="row-in">' +
+      '<input type="text" class="ln-name" placeholder="\u54c1\u76ee">' +
+      '<button type="button" class="mic ln-mn" title="\u97f3\u58f0\u5165\u529b"></button></div></div>' +
+      '<div class="field" style="margin:0"><label>\u6570\u91cf</label>' +
+      '<div class="row-in">' +
+      '<input type="number" class="ln-qty" min="0" step="1">' +
+      '<button type="button" class="mic ln-mq" title="\u97f3\u58f0\u5165\u529b"></button></div></div>' +
+      '<div class="field" style="margin:0"><label>\u5358\u4fa1</label>' +
+      '<div class="row-in">' +
+      '<input type="number" class="ln-price" min="0" step="1">' +
+      '<button type="button" class="mic ln-mp" title="\u97f3\u58f0\u5165\u529b"></button></div></div>' +
+      '<div class="sub-hint">\u5c0f\u8a08 <span class="ln-sub">\u00a50</span></div>' +
+      '<div class="span-all" style="display:flex;justify-content:flex-end;margin-top:0.2rem">' +
+      '<button type="button" class="btn btn-del ln-rm">\u3053\u306e\u884c\u3092\u524a\u9664</button></div>';
+
+    wrap.querySelector(".ln-name").value = nm;
+    wrap.querySelector(".ln-qty").value = q;
+    wrap.querySelector(".ln-price").value = pr;
+    wrap.querySelectorAll(".mic").forEach(function (b) { b.innerHTML = MIC; });
+
+    $("lines").appendChild(wrap);
+
+    wrap.querySelectorAll(".ln-name, .ln-qty, .ln-price").forEach(function (inp) {
+      inp.addEventListener("input", function () { subLine(wrap); render(); });
+    });
+    wrap.querySelector(".ln-rm").addEventListener("click", function () {
+      wrap.remove();
+      render();
+    });
+    wrap.querySelector(".ln-mn").addEventListener("click", function () {
+      listen(wrap.querySelector(".ln-name"), wrap.querySelector(".ln-mn"));
+    });
+    wrap.querySelector(".ln-mq").addEventListener("click", function () {
+      listen(wrap.querySelector(".ln-qty"), wrap.querySelector(".ln-mq"));
+    });
+    wrap.querySelector(".ln-mp").addEventListener("click", function () {
+      listen(wrap.querySelector(".ln-price"), wrap.querySelector(".ln-mp"));
+    });
+    subLine(wrap);
+  }
+
+  function SR() {
+    return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  }
+
+  function stopMic() {
+    if (recBtn) {
+      recBtn.classList.remove("rec");
+      recBtn = null;
+    }
+  }
+
+  function listen(input, btn) {
+    var Ctor = SR();
+    if (!Ctor) {
+      alert("\u3053\u306e\u74b0\u5883\u3067\u306f\u97f3\u58f0\u8a8d\u8b58\u304c\u4f7f\u7528\u3067\u304d\u307e\u305b\u3093\u3002Chrome / Edge \u3092\u304a\u8a66\u3057\u304f\u3060\u3055\u3044\u3002");
+      return;
+    }
+    if (recog) {
+      try { recog.stop(); } catch (e) {}
+    }
+    stopMic();
+    recBtn = btn;
+    btn.classList.add("rec");
+    recog = new Ctor();
+    recog.lang = "ja-JP";
+    recog.continuous = false;
+    recog.interimResults = false;
+    recog.onresult = function (ev) {
+      var tx = ev.results[0][0].transcript;
+      if (input.type === "number") {
+        var n = tx.replace(/[^\d.]/g, "");
+        input.value = n || input.value;
+      } else {
+        input.value = tx;
+      }
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      var line = input.closest(".line");
+      if (line) subLine(line);
+      render();
+    };
+    recog.onerror = stopMic;
+    recog.onend = stopMic;
+    try { recog.start(); } catch (e) { stopMic(); }
+  }
+
+  document.querySelectorAll(".mic[data-target]").forEach(function (btn) {
+    btn.innerHTML = MIC;
+    btn.addEventListener("click", function () {
+      var id = btn.getAttribute("data-target");
+      var el = $(id);
+      if (el) listen(el, btn);
+    });
+  });
+
+  function state() {
+    return {
+      kind: kind,
+      dDate: $("dDate").value,
+      dNo: $("dNo").value,
+      toCo: $("toCo").value,
+      toNm: $("toNm").value,
+      myCo: $("myCo").value,
+      myNm: $("myNm").value,
+      mail: $("mail").value,
+      tel: $("tel").value,
+      lines: linesFromDom()
+    };
+  }
+
+  function apply(st) {
+    kind = st.kind === "est" ? "est" : "inv";
+    setKind(kind);
+    $("dDate").value = st.dDate || today();
+    $("dNo").value = st.dNo || "";
+    $("toCo").value = st.toCo || "";
+    $("toNm").value = st.toNm || "";
+    $("myCo").value = st.myCo || "";
+    $("myNm").value = st.myNm || "";
+    $("mail").value = st.mail || "";
+    $("tel").value = st.tel || "";
+    $("lines").textContent = "";
+    lineSeq = 0;
+    var L = st.lines && st.lines.length ? st.lines : [{ name: "", qty: 1, price: 0 }];
+    L.forEach(function (x) { addLine(x); });
+    render();
+  }
+
+  function loadAll() {
+    try {
+      var j = localStorage.getItem(LS_DOC);
+      return j ? JSON.parse(j) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveAll(a) {
+    localStorage.setItem(LS_DOC, JSON.stringify(a));
+  }
+
+  function drawList() {
+    var box = $("sList");
+    box.textContent = "";
+    var arr = loadAll();
+    if (!arr.length) {
+      var p = document.createElement("p");
+      p.className = "note";
+      p.textContent = "\u4fdd\u5b58\u3055\u308c\u305f\u66f8\u985e\u306f\u307e\u3060\u3042\u308a\u307e\u305b\u3093\u3002";
+      box.appendChild(p);
+      return;
+    }
+    arr.slice().reverse().forEach(function (doc) {
+      var row = document.createElement("div");
+      row.className = "saved-row";
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "load";
+      var title = (doc.kind === "est" ? "\u898b\u7a4d\u66f8" : "\u8acb\u6c42\u66f8") + " " + (doc.dNo || "");
+      var dt = doc.savedAt ? new Date(doc.savedAt).toLocaleString("ja-JP") : "";
+      b.innerHTML = "<div><div class=\"t\"></div><div class=\"d\"></div></div>";
+      b.querySelector(".t").textContent = title;
+      b.querySelector(".d").textContent = dt + " \u00b7 " + (doc.toCo || "\uff08\u5b9b\u5148\u306a\u3057\uff09");
+      b.addEventListener("click", function () { apply(doc); });
+      var r = document.createElement("button");
+      r.type = "button";
+      r.className = "rm";
+      r.textContent = "\u524a\u9664";
+      r.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        saveAll(loadAll().filter(function (x) { return x.id !== doc.id; }));
+        drawList();
+      });
+      row.appendChild(b);
+      row.appendChild(r);
+      box.appendChild(row);
+    });
+  }
+
+  function fresh() {
+    $("dDate").value = today();
+    $("dNo").value = "";
+    $("toCo").value = $("toNm").value = $("myCo").value = $("myNm").value = "";
+    $("mail").value = $("tel").value = "";
+    $("lines").textContent = "";
+    lineSeq = 0;
+    addLine({ name: "", qty: 1, price: 0 });
+    render();
+  }
+
+  $("tInv").addEventListener("click", function () {
+    setKind("inv");
+    render();
+  });
+  $("tEst").addEventListener("click", function () {
+    setKind("est");
+    render();
+  });
+
+  ["input", "change"].forEach(function (ev) {
+    $("dDate").addEventListener(ev, render);
+  });
+  ["toCo", "toNm", "myCo", "myNm", "mail", "tel"].forEach(function (id) {
+    $(id).addEventListener("input", render);
+  });
+
+  $("addLine").addEventListener("click", function () {
+    addLine({ name: "", qty: 1, price: 0 });
+    render();
+  });
+
+  $("doPdf").addEventListener("click", function () { window.print(); });
+
+  $("doSave").addEventListener("click", function () {
+    var num = issueNextNumber(kind);
+    $("dNo").value = num;
+    var a = loadAll();
+    var o = state();
+    o.id = "d_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
+    o.savedAt = new Date().toISOString();
+    a.push(o);
+    saveAll(a);
+    drawList();
+    render();
+    alert("\u4fdd\u5b58\u3057\u307e\u3057\u305f\u3002");
+  });
+
+  $("doNew").addEventListener("click", function () {
+    if (confirm("\u5165\u529b\u4e2d\u306e\u5185\u5bb9\u304c\u30af\u30ea\u30a2\u3055\u308c\u307e\u3059\u3002\u3088\u308d\u3057\u3044\u3067\u3059\u304b\uff1f")) {
+      fresh();
+    }
+  });
+
+  migrateLegacySeq();
+
+  $("dDate").value = today();
+  $("dNo").value = "";
+  addLine({ name: "", qty: 1, price: 0 });
+  render();
+  drawList();
+})();
+</script>
+</body>
+</html>

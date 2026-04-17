@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日報・週報ジェネレーター</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #1e293b;
+    background: #f8fafc;
+    min-height: 100vh;
+  }
+  .app-header {
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 1px 3px rgba(30, 64, 175, 0.06);
+  }
+  .app-header h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1E40AF;
+    letter-spacing: 0.02em;
+  }
+  .app-header p {
+    margin: 0.35rem 0 0;
+    font-size: 0.9rem;
+    color: #64748b;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1.25rem 1.5rem 2.5rem;
+    align-items: start;
+  }
+  @media (max-width: 960px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 520px) {
+    .field-group .input-row:has(textarea) {
+      flex-direction: column;
+    }
+    .field-group .input-row:has(textarea) .btn-mic {
+      width: 100%;
+      min-height: 44px;
+    }
+  }
+  .panel {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    padding: 1.25rem 1.35rem;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  }
+  .panel h2 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1E40AF;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #1E40AF;
+  }
+  .type-switch {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .type-switch button {
+    flex: 1;
+    padding: 0.65rem 1rem;
+    border: 2px solid #cbd5e1;
+    background: #fff;
+    color: #475569;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .type-switch button:hover {
+    border-color: #1E40AF;
+    color: #1E40AF;
+  }
+  .type-switch button.active {
+    background: #1E40AF;
+    border-color: #1E40AF;
+    color: #fff;
+  }
+  .field-group {
+    margin-bottom: 1rem;
+  }
+  .field-group label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 0.35rem;
+  }
+  .input-row {
+    display: flex;
+    gap: 0.4rem;
+    align-items: stretch;
+  }
+  .input-row input[type="text"],
+  .input-row input[type="date"] {
+    flex: 1;
+    min-width: 0;
+  }
+  input[type="text"],
+  input[type="date"],
+  textarea {
+    width: 100%;
+    padding: 0.55rem 0.65rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: #fff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  input:focus,
+  textarea:focus {
+    outline: none;
+    border-color: #1E40AF;
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+  }
+  textarea {
+    min-height: 88px;
+    resize: vertical;
+  }
+  .btn-mic {
+    flex-shrink: 0;
+    width: 42px;
+    min-width: 42px;
+    border: 1px solid #cbd5e1;
+    background: #f1f5f9;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .btn-mic:hover {
+    background: #e2e8f0;
+    border-color: #94a3b8;
+  }
+  .btn-mic.listening {
+    background: #fef2f2;
+    border-color: #ef4444;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  .btn-mic:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.75; }
+  }
+  .section-daily,
+  .section-weekly {
+    display: none;
+  }
+  .section-daily.visible,
+  .section-weekly.visible {
+    display: block;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+  }
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.55rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-primary {
+    background: #1E40AF;
+    color: #fff;
+  }
+  .btn-primary:hover {
+    opacity: 0.92;
+  }
+  .btn-secondary {
+    background: #fff;
+    color: #1E40AF;
+    border: 2px solid #1E40AF;
+  }
+  .btn-secondary:hover {
+    background: #eff6ff;
+  }
+  .voice-hint {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 0.35rem;
+  }
+  .voice-hint.error {
+    color: #dc2626;
+  }
+  /* プレビュー（画面表示） */
+  .preview-doc {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1.75rem 2rem;
+    min-height: 420px;
+    color: #0f172a;
+  }
+  .preview-doc .doc-title {
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #1E40AF;
+    color: #1E40AF;
+  }
+  .preview-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.35rem 1.25rem;
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+  }
+  .preview-meta dt {
+    font-weight: 600;
+    color: #475569;
+    margin: 0;
+  }
+  .preview-meta dd {
+    margin: 0;
+    border-bottom: 1px dotted #cbd5e1;
+    padding-bottom: 0.2rem;
+  }
+  .preview-section {
+    margin-bottom: 1.1rem;
+  }
+  .preview-section h3 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1E40AF;
+    margin: 0 0 0.4rem;
+    padding-left: 0.5rem;
+    border-left: 3px solid #1E40AF;
+  }
+  .preview-section .body {
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #334155;
+    padding-left: 0.65rem;
+    min-height: 1.2em;
+  }
+  .preview-section .body.empty {
+    color: #94a3b8;
+    font-style: italic;
+  }
+  /* 保存一覧 */
+  .saved-panel {
+    grid-column: 1 / -1;
+    margin-top: 0.25rem;
+  }
+  .saved-panel h2 {
+    margin-bottom: 0.75rem;
+  }
+  .saved-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .saved-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    flex-wrap: wrap;
+  }
+  .saved-item button.load {
+    flex: 1;
+    min-width: 200px;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: #1e293b;
+    padding: 0;
+  }
+  .saved-item button.load:hover {
+    color: #1E40AF;
+    text-decoration: underline;
+  }
+  .saved-item .meta {
+    font-size: 0.78rem;
+    color: #64748b;
+  }
+  .saved-item .btn-delete {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #fecaca;
+    background: #fff;
+    color: #b91c1c;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+  }
+  .saved-item .btn-delete:hover {
+    background: #fef2f2;
+  }
+  .empty-saved {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+  .template-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .template-actions .btn-secondary {
+    flex: 1;
+    min-width: 140px;
+  }
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+  }
+  .modal-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+  }
+  .modal-box {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    max-width: 520px;
+    width: 100%;
+    max-height: min(80vh, 560px);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 1.15rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .modal-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1E40AF;
+  }
+  .modal-close {
+    padding: 0.35rem 0.65rem;
+    border: none;
+    background: #f1f5f9;
+    color: #475569;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .modal-close:hover {
+    background: #e2e8f0;
+  }
+  .modal-body {
+    padding: 1rem 1.15rem 1.25rem;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .modal-empty {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 1.5rem 0.5rem;
+  }
+  .template-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .template-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 0.75rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    flex-wrap: wrap;
+  }
+  .template-item .apply-tpl {
+    flex: 1;
+    min-width: 160px;
+    text-align: left;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1e293b;
+    padding: 0;
+  }
+  .template-item .apply-tpl:hover {
+    color: #1E40AF;
+    text-decoration: underline;
+  }
+  .template-item .tpl-meta {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: #64748b;
+    margin-top: 0.2rem;
+  }
+  .template-item .btn-delete-tpl {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #fecaca;
+    background: #fff;
+    color: #b91c1c;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+  }
+  .template-item .btn-delete-tpl:hover {
+    background: #fef2f2;
+  }
+  .preview-salutation {
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: #334155;
+    margin: 0 0 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  @media print {
+    body { background: #fff; }
+    .app-header,
+    .layout > .panel:first-child,
+    .saved-panel,
+    .modal-backdrop,
+    .no-print {
+      display: none !important;
+    }
+    .layout {
+      display: block;
+      max-width: none;
+      padding: 0;
+    }
+    .layout > .panel:last-of-type {
+      border: none;
+      box-shadow: none;
+      padding: 0;
+    }
+    .preview-doc {
+      border: none;
+      min-height: auto;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>日報・週報ジェネレーター</h1>
+  <p>話すだけで、報告書が完成。</p>
+</header>
+
+<div class="layout">
+  <div class="panel">
+    <h2>入力</h2>
+
+    <div class="template-actions no-print">
+      <button type="button" class="btn-secondary" id="btnTemplatePick">テンプレートを使う</button>
+      <button type="button" class="btn-secondary" id="btnTemplateSave">テンプレートとして保存</button>
+    </div>
+
+    <div class="type-switch no-print">
+      <button type="button" id="btnDaily" class="active" aria-pressed="true">日報</button>
+      <button type="button" id="btnWeekly" aria-pressed="false">週報</button>
+    </div>
+
+    <div class="field-group">
+      <label for="inputName">氏名</label>
+      <div class="input-row">
+        <input type="text" id="inputName" name="name" placeholder="山田 太郎" autocomplete="name">
+        <button type="button" class="btn-mic" data-target="inputName" title="音声入力" aria-label="氏名を音声入力">🎤</button>
+      </div>
+    </div>
+    <div class="field-group">
+      <label for="inputDept">部署名</label>
+      <div class="input-row">
+        <input type="text" id="inputDept" name="dept" placeholder="営業部">
+        <button type="button" class="btn-mic" data-target="inputDept" title="音声入力" aria-label="部署名を音声入力">🎤</button>
+      </div>
+    </div>
+    <div class="field-group">
+      <label for="inputTo">宛先（上司・提出先）</label>
+      <div class="input-row">
+        <input type="text" id="inputTo" name="to" placeholder="部長">
+        <button type="button" class="btn-mic" data-target="inputTo" title="音声入力" aria-label="宛先を音声入力">🎤</button>
+      </div>
+    </div>
+    <div class="field-group">
+      <label for="inputDate">日付</label>
+      <input type="date" id="inputDate" name="date">
+    </div>
+
+    <div class="section-daily visible" id="sectionDaily">
+      <div class="field-group">
+        <label for="dailyWork">本日の作業内容</label>
+        <div class="input-row">
+          <textarea id="dailyWork" placeholder="業務内容を入力"></textarea>
+          <button type="button" class="btn-mic" data-target="dailyWork" title="音声入力" aria-label="本日の作業内容を音声入力">🎤</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="dailyAchieve">達成したこと</label>
+        <div class="input-row">
+          <textarea id="dailyAchieve" placeholder="達成内容を入力"></textarea>
+          <button type="button" class="btn-mic" data-target="dailyAchieve" title="音声入力" aria-label="達成したことを音声入力">🎤</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="dailyIssue">課題・問題点</label>
+        <div class="input-row">
+          <textarea id="dailyIssue" placeholder="課題があれば入力"></textarea>
+          <button type="button" class="btn-mic" data-target="dailyIssue" title="音声入力" aria-label="課題・問題点を音声入力">🎤</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="dailyTomorrow">明日の予定</label>
+        <div class="input-row">
+          <textarea id="dailyTomorrow" placeholder="翌日の予定を入力"></textarea>
+          <button type="button" class="btn-mic" data-target="dailyTomorrow" title="音声入力" aria-label="明日の予定を音声入力">🎤</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="dailyOther">その他連絡事項</label>
+        <div class="input-row">
+          <textarea id="dailyOther" placeholder="連絡事項があれば入力"></textarea>
+          <button type="button" class="btn-mic" data-target="dailyOther" title="音声入力" aria-label="その他連絡事項を音声入力">🎤</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-weekly" id="sectionWeekly">
+      <div class="field-group">
+        <label for="weeklyWork">今週の作業内容</label>
+        <div class="input-row">
+          <textarea id="weeklyWork" placeholder="今週の業務内容を入力"></textarea>
+          <button type="button" class="btn-mic" data-target="weeklyWork" title="音声入力" aria-label="今週の作業内容を音声入力">🎤</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="weeklyAchieve">今週の達成・成果</label>
+        <div class="input-row">
+          <textarea id="weeklyAchieve" placeholder="達成・成果を入力"></textarea>
+          <button type="button" class="btn-mic" data-target="weeklyAchieve" title="音声入力" aria-label="今週の達成・成果を音声入力">🎤</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="weeklyIssue">課題・改善点</label>
+        <div class="input-row">
+          <textarea id="weeklyIssue" placeholder="課題・改善点を入力"></textarea>
+          <button type="button" class="btn-mic" data-target="weeklyIssue" title="音声入力" aria-label="課題・改善点を音声入力">🎤</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="weeklyNext">来週の予定・目標</label>
+        <div class="input-row">
+          <textarea id="weeklyNext" placeholder="来週の予定・目標を入力"></textarea>
+          <button type="button" class="btn-mic" data-target="weeklyNext" title="音声入力" aria-label="来週の予定・目標を音声入力">🎤</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="weeklyOther">その他連絡事項</label>
+        <div class="input-row">
+          <textarea id="weeklyOther" placeholder="連絡事項があれば入力"></textarea>
+          <button type="button" class="btn-mic" data-target="weeklyOther" title="音声入力" aria-label="その他連絡事項を音声入力">🎤</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="voice-hint" id="voiceHint">マイクボタンで日本語の音声入力ができます（対応ブラウザのみ）。</p>
+
+    <div class="actions no-print">
+      <button type="button" class="btn-primary" id="btnCopy">コピーする</button>
+      <button type="button" class="btn-secondary" id="btnPrint">PDFで保存</button>
+      <button type="button" class="btn-secondary" id="btnSave">保存する</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>プレビュー</h2>
+    <div class="preview-doc" id="previewDoc">
+      <p class="preview-salutation" id="pvSalutation" hidden></p>
+      <p class="doc-title" id="previewTitle">日報</p>
+      <dl class="preview-meta">
+        <dt>宛先</dt>
+        <dd id="pvTo">—</dd>
+        <dt>氏名</dt>
+        <dd id="pvName">—</dd>
+        <dt>部署</dt>
+        <dd id="pvDept">—</dd>
+        <dt>日付</dt>
+        <dd id="pvDate">—</dd>
+      </dl>
+      <div id="previewSections"></div>
+    </div>
+  </div>
+
+  <div class="panel saved-panel">
+    <h2>過去の報告書</h2>
+    <p class="empty-saved" id="emptySaved">保存された報告書はまだありません。</p>
+    <ul class="saved-list" id="savedList" hidden></ul>
+  </div>
+</div>
+
+<div class="modal-backdrop no-print" id="templateModal" role="dialog" aria-modal="true" aria-labelledby="templateModalTitle" hidden>
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="templateModalTitle">保存済みテンプレート</h3>
+      <button type="button" class="modal-close" id="templateModalClose">閉じる</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-empty" id="templateModalEmpty">テンプレートはまだありません。「テンプレートとして保存」から登録できます。</p>
+      <ul class="template-list" id="templateModalList" hidden></ul>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var STORAGE_KEY = 'reportGenerator_v1';
+  var TEMPLATE_STORAGE_KEY = 'reportTemplates_v1';
+
+  var reportType = 'daily';
+  var recognition = null;
+  var listeningBtn = null;
+
+  var els = {
+    btnDaily: document.getElementById('btnDaily'),
+    btnWeekly: document.getElementById('btnWeekly'),
+    sectionDaily: document.getElementById('sectionDaily'),
+    sectionWeekly: document.getElementById('sectionWeekly'),
+    inputName: document.getElementById('inputName'),
+    inputDept: document.getElementById('inputDept'),
+    inputTo: document.getElementById('inputTo'),
+    inputDate: document.getElementById('inputDate'),
+    dailyWork: document.getElementById('dailyWork'),
+    dailyAchieve: document.getElementById('dailyAchieve'),
+    dailyIssue: document.getElementById('dailyIssue'),
+    dailyTomorrow: document.getElementById('dailyTomorrow'),
+    dailyOther: document.getElementById('dailyOther'),
+    weeklyWork: document.getElementById('weeklyWork'),
+    weeklyAchieve: document.getElementById('weeklyAchieve'),
+    weeklyIssue: document.getElementById('weeklyIssue'),
+    weeklyNext: document.getElementById('weeklyNext'),
+    weeklyOther: document.getElementById('weeklyOther'),
+    previewTitle: document.getElementById('previewTitle'),
+    pvSalutation: document.getElementById('pvSalutation'),
+    pvTo: document.getElementById('pvTo'),
+    pvName: document.getElementById('pvName'),
+    pvDept: document.getElementById('pvDept'),
+    pvDate: document.getElementById('pvDate'),
+    previewSections: document.getElementById('previewSections'),
+    voiceHint: document.getElementById('voiceHint'),
+    btnCopy: document.getElementById('btnCopy'),
+    btnPrint: document.getElementById('btnPrint'),
+    btnSave: document.getElementById('btnSave'),
+    savedList: document.getElementById('savedList'),
+    emptySaved: document.getElementById('emptySaved'),
+    btnTemplatePick: document.getElementById('btnTemplatePick'),
+    btnTemplateSave: document.getElementById('btnTemplateSave'),
+    templateModal: document.getElementById('templateModal'),
+    templateModalClose: document.getElementById('templateModalClose'),
+    templateModalEmpty: document.getElementById('templateModalEmpty'),
+    templateModalList: document.getElementById('templateModalList')
+  };
+
+  var dailyLabels = [
+    { id: 'dailyWork', title: '本日の作業内容' },
+    { id: 'dailyAchieve', title: '達成したこと' },
+    { id: 'dailyIssue', title: '課題・問題点' },
+    { id: 'dailyTomorrow', title: '明日の予定' },
+    { id: 'dailyOther', title: 'その他連絡事項' }
+  ];
+
+  var weeklyLabels = [
+    { id: 'weeklyWork', title: '今週の作業内容' },
+    { id: 'weeklyAchieve', title: '今週の達成・成果' },
+    { id: 'weeklyIssue', title: '課題・改善点' },
+    { id: 'weeklyNext', title: '来週の予定・目標' },
+    { id: 'weeklyOther', title: 'その他連絡事項' }
+  ];
+
+  function todayISODate() {
+    var d = new Date();
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function setReportType(type) {
+    reportType = type;
+    var isDaily = type === 'daily';
+    els.btnDaily.classList.toggle('active', isDaily);
+    els.btnDaily.setAttribute('aria-pressed', isDaily ? 'true' : 'false');
+    els.btnWeekly.classList.toggle('active', !isDaily);
+    els.btnWeekly.setAttribute('aria-pressed', !isDaily ? 'true' : 'false');
+    els.sectionDaily.classList.toggle('visible', isDaily);
+    els.sectionWeekly.classList.toggle('visible', !isDaily);
+    updatePreview();
+  }
+
+  function formatDisplayDate(iso) {
+    if (!iso) return '—';
+    var parts = iso.split('-');
+    if (parts.length !== 3) return iso;
+    return parts[0] + '年' + String(Number(parts[1])) + '月' + String(Number(parts[2])) + '日';
+  }
+
+  function getFieldValue(id) {
+    var el = document.getElementById(id);
+    return el ? (el.value || '').trim() : '';
+  }
+
+  function salutationText() {
+    var to = (els.inputTo.value || '').trim();
+    if (!to) return '';
+    if (reportType === 'daily') {
+      return to + '様\u3000お疲れ様です。以下、本日の日報をご報告いたします。';
+    }
+    return to + '様\u3000お疲れ様です。以下、週報をご報告いたします。';
+  }
+
+  function updatePreview() {
+    els.previewTitle.textContent = reportType === 'daily' ? '日報' : '週報';
+    var to = (els.inputTo.value || '').trim();
+    var sal = salutationText();
+    if (sal) {
+      els.pvSalutation.textContent = sal;
+      els.pvSalutation.hidden = false;
+    } else {
+      els.pvSalutation.textContent = '';
+      els.pvSalutation.hidden = true;
+    }
+    var name = (els.inputName.value || '').trim();
+    var dept = (els.inputDept.value || '').trim();
+    var dateVal = els.inputDate.value;
+    els.pvTo.textContent = to || '—';
+    els.pvName.textContent = name || '—';
+    els.pvDept.textContent = dept || '—';
+    els.pvDate.textContent = dateVal ? formatDisplayDate(dateVal) : '—';
+
+    var defs = reportType === 'daily' ? dailyLabels : weeklyLabels;
+    var html = '';
+    for (var i = 0; i < defs.length; i++) {
+      var def = defs[i];
+      var text = getFieldValue(def.id);
+      var emptyClass = text ? '' : ' empty';
+      var display = text || '（未入力）';
+      html += '<div class="preview-section"><h3>' + escapeHtml(def.title) + '</h3>';
+      html += '<div class="body' + emptyClass + '">' + escapeHtml(display) + '</div></div>';
+    }
+    els.previewSections.innerHTML = html;
+  }
+
+  function escapeHtml(s) {
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  function buildPlainText() {
+    var lines = [];
+    var sal = salutationText();
+    if (sal) {
+      lines.push(sal);
+      lines.push('');
+    }
+    lines.push(els.previewTitle.textContent);
+    lines.push('');
+    lines.push('宛先：' + (els.inputTo.value || '').trim());
+    lines.push('氏名：' + (els.inputName.value || '').trim());
+    lines.push('部署：' + (els.inputDept.value || '').trim());
+    lines.push('日付：' + (els.inputDate.value ? formatDisplayDate(els.inputDate.value) : ''));
+    lines.push('');
+    var defs = reportType === 'daily' ? dailyLabels : weeklyLabels;
+    for (var i = 0; i < defs.length; i++) {
+      var def = defs[i];
+      lines.push('■ ' + def.title);
+      lines.push(getFieldValue(def.id) || '（未入力）');
+      lines.push('');
+    }
+    return lines.join('\n').replace(/\n+$/, '');
+  }
+
+  function initSpeech() {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      els.voiceHint.textContent = 'お使いのブラウザは音声認識に未対応です。Chrome などをご利用ください。';
+      els.voiceHint.classList.add('error');
+      var mics = document.querySelectorAll('.btn-mic');
+      for (var i = 0; i < mics.length; i++) mics[i].disabled = true;
+      return;
+    }
+    recognition = new SR();
+    recognition.lang = 'ja-JP';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = function (event) {
+      if (!listeningBtn) return;
+      var targetId = listeningBtn.getAttribute('data-target');
+      var el = document.getElementById(targetId);
+      if (!el) return;
+      var transcript = '';
+      for (var i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') {
+        var cur = el.value;
+        el.value = cur ? cur + transcript : transcript;
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    };
+
+    recognition.onerror = function (e) {
+      if (listeningBtn) listeningBtn.classList.remove('listening');
+      listeningBtn = null;
+      if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+        els.voiceHint.textContent = 'マイクの使用が拒否されました。ブラウザの設定で許可してください。';
+        els.voiceHint.classList.add('error');
+      }
+    };
+
+    recognition.onend = function () {
+      if (listeningBtn) listeningBtn.classList.remove('listening');
+      listeningBtn = null;
+    };
+  }
+
+  function toggleMic(btn) {
+    if (!recognition) return;
+    if (listeningBtn === btn) {
+      try { recognition.stop(); } catch (e) {}
+      return;
+    }
+    if (listeningBtn) {
+      try { recognition.stop(); } catch (e) {}
+    }
+    listeningBtn = btn;
+    btn.classList.add('listening');
+    try {
+      recognition.start();
+    } catch (e) {
+      btn.classList.remove('listening');
+      listeningBtn = null;
+    }
+  }
+
+  function collectState() {
+    return {
+      type: reportType,
+      name: els.inputName.value,
+      dept: els.inputDept.value,
+      to: els.inputTo.value,
+      date: els.inputDate.value,
+      daily: {
+        work: els.dailyWork.value,
+        achieve: els.dailyAchieve.value,
+        issue: els.dailyIssue.value,
+        tomorrow: els.dailyTomorrow.value,
+        other: els.dailyOther.value
+      },
+      weekly: {
+        work: els.weeklyWork.value,
+        achieve: els.weeklyAchieve.value,
+        issue: els.weeklyIssue.value,
+        next: els.weeklyNext.value,
+        other: els.weeklyOther.value
+      }
+    };
+  }
+
+  function applyState(data) {
+    if (!data) return;
+    setReportType(data.type === 'weekly' ? 'weekly' : 'daily');
+    els.inputName.value = data.name || '';
+    els.inputDept.value = data.dept || '';
+    els.inputTo.value = data.to != null ? data.to : '';
+    els.inputDate.value = data.date || todayISODate();
+    if (data.daily) {
+      els.dailyWork.value = data.daily.work || '';
+      els.dailyAchieve.value = data.daily.achieve || '';
+      els.dailyIssue.value = data.daily.issue || '';
+      els.dailyTomorrow.value = data.daily.tomorrow || '';
+      els.dailyOther.value = data.daily.other || '';
+    }
+    if (data.weekly) {
+      els.weeklyWork.value = data.weekly.work || '';
+      els.weeklyAchieve.value = data.weekly.achieve || '';
+      els.weeklyIssue.value = data.weekly.issue || '';
+      els.weeklyNext.value = data.weekly.next || '';
+      els.weeklyOther.value = data.weekly.other || '';
+    }
+    updatePreview();
+  }
+
+  function loadSavedList() {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    var list = [];
+    try {
+      list = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(list)) list = [];
+    } catch (e) {
+      list = [];
+    }
+    return list;
+  }
+
+  function saveSavedList(list) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+
+  function renderSavedList() {
+    var list = loadSavedList();
+    els.savedList.innerHTML = '';
+    if (list.length === 0) {
+      els.emptySaved.hidden = false;
+      els.savedList.hidden = true;
+      return;
+    }
+    els.emptySaved.hidden = true;
+    els.savedList.hidden = false;
+    for (var i = list.length - 1; i >= 0; i--) {
+      (function (item) {
+        var li = document.createElement('li');
+        li.className = 'saved-item';
+        var typeLabel = item.payload.type === 'weekly' ? '週報' : '日報';
+        var dateStr = item.payload.date ? formatDisplayDate(item.payload.date) : '';
+        var nameStr = (item.payload.name || '').trim() || '（氏名なし）';
+        var loadBtn = document.createElement('button');
+        loadBtn.type = 'button';
+        loadBtn.className = 'load';
+        loadBtn.innerHTML = '<strong>' + escapeHtml(typeLabel) + '</strong> · ' + escapeHtml(nameStr) +
+          ' <span class="meta">' + escapeHtml(dateStr) + ' · ' + escapeHtml(formatSavedAt(item.savedAt)) + '</span>';
+        loadBtn.addEventListener('click', function () {
+          applyState(item.payload);
+        });
+        var delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'btn-delete';
+        delBtn.textContent = '削除';
+        delBtn.addEventListener('click', function () {
+          if (!confirm('この報告書を削除しますか？')) return;
+          var next = loadSavedList().filter(function (x) { return x.id !== item.id; });
+          saveSavedList(next);
+          renderSavedList();
+        });
+        li.appendChild(loadBtn);
+        li.appendChild(delBtn);
+        els.savedList.appendChild(li);
+      })(list[i]);
+    }
+  }
+
+  function formatSavedAt(iso) {
+    if (!iso) return '';
+    try {
+      var d = new Date(iso);
+      return d.toLocaleString('ja-JP', { dateStyle: 'short', timeStyle: 'short' });
+    } catch (e) {
+      return iso;
+    }
+  }
+
+  function loadTemplateList() {
+    var raw = localStorage.getItem(TEMPLATE_STORAGE_KEY);
+    var list = [];
+    try {
+      list = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(list)) list = [];
+    } catch (e) {
+      list = [];
+    }
+    return list;
+  }
+
+  function saveTemplateList(list) {
+    localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(list));
+  }
+
+  function openTemplateModal() {
+    renderTemplateModalList();
+    els.templateModal.removeAttribute('hidden');
+    els.templateModal.classList.add('open');
+  }
+
+  function closeTemplateModal() {
+    els.templateModal.classList.remove('open');
+    els.templateModal.setAttribute('hidden', '');
+  }
+
+  function renderTemplateModalList() {
+    var list = loadTemplateList();
+    els.templateModalList.innerHTML = '';
+    if (list.length === 0) {
+      els.templateModalEmpty.hidden = false;
+      els.templateModalList.hidden = true;
+      return;
+    }
+    els.templateModalEmpty.hidden = true;
+    els.templateModalList.hidden = false;
+    for (var i = list.length - 1; i >= 0; i--) {
+      (function (item) {
+        var li = document.createElement('li');
+        li.className = 'template-item';
+        var typeLabel = item.payload && item.payload.type === 'weekly' ? '週報' : '日報';
+        var applyBtn = document.createElement('button');
+        applyBtn.type = 'button';
+        applyBtn.className = 'apply-tpl';
+        applyBtn.innerHTML = escapeHtml(item.name) + '<span class="tpl-meta">' + escapeHtml(typeLabel) + ' · ' +
+          escapeHtml(formatSavedAt(item.savedAt)) + '</span>';
+        applyBtn.addEventListener('click', function () {
+          if (item.payload) applyState(item.payload);
+          closeTemplateModal();
+        });
+        var delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'btn-delete-tpl';
+        delBtn.textContent = '削除';
+        delBtn.addEventListener('click', function () {
+          if (!confirm('テンプレート「' + item.name + '」を削除しますか？')) return;
+          var next = loadTemplateList().filter(function (x) { return x.id !== item.id; });
+          saveTemplateList(next);
+          renderTemplateModalList();
+        });
+        li.appendChild(applyBtn);
+        li.appendChild(delBtn);
+        els.templateModalList.appendChild(li);
+      })(list[i]);
+    }
+  }
+
+  function bindInputs() {
+    var ids = ['inputName', 'inputDept', 'inputTo', 'inputDate',
+      'dailyWork', 'dailyAchieve', 'dailyIssue', 'dailyTomorrow', 'dailyOther',
+      'weeklyWork', 'weeklyAchieve', 'weeklyIssue', 'weeklyNext', 'weeklyOther'];
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (el) el.addEventListener('input', updatePreview);
+    }
+  }
+
+  els.btnDaily.addEventListener('click', function () { setReportType('daily'); });
+  els.btnWeekly.addEventListener('click', function () { setReportType('weekly'); });
+
+  document.querySelectorAll('.btn-mic').forEach(function (btn) {
+    btn.addEventListener('click', function () { toggleMic(btn); });
+  });
+
+  els.btnCopy.addEventListener('click', function () {
+    var text = buildPlainText();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        alert('クリップボードにコピーしました。');
+      }).catch(function () {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  });
+
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      alert('クリップボードにコピーしました。');
+    } catch (e) {
+      alert('コピーに失敗しました。');
+    }
+    document.body.removeChild(ta);
+  }
+
+  els.btnPrint.addEventListener('click', function () {
+    window.print();
+  });
+
+  els.btnSave.addEventListener('click', function () {
+    var payload = collectState();
+    var list = loadSavedList();
+    var id = 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+    list.push({ id: id, savedAt: new Date().toISOString(), payload: payload });
+    saveSavedList(list);
+    renderSavedList();
+    alert('保存しました。');
+  });
+
+  els.btnTemplatePick.addEventListener('click', function () {
+    openTemplateModal();
+  });
+
+  els.btnTemplateSave.addEventListener('click', function () {
+    var name = window.prompt('テンプレート名を入力してください', '');
+    if (name === null) return;
+    name = (name || '').trim();
+    if (!name) {
+      alert('テンプレート名を入力してください。');
+      return;
+    }
+    var payload = collectState();
+    var list = loadTemplateList();
+    var id = 'tpl_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9);
+    list.push({ id: id, name: name, savedAt: new Date().toISOString(), payload: payload });
+    saveTemplateList(list);
+    alert('テンプレートを保存しました。');
+  });
+
+  els.templateModalClose.addEventListener('click', function () {
+    closeTemplateModal();
+  });
+
+  els.templateModal.addEventListener('click', function (e) {
+    if (e.target === els.templateModal) closeTemplateModal();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (els.templateModal.classList.contains('open')) closeTemplateModal();
+  });
+
+  els.inputDate.value = todayISODate();
+  bindInputs();
+  initSpeech();
+  updatePreview();
+  renderSavedList();
+})();
+</script>
+</body>
+</html>

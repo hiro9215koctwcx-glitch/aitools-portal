@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>セキュリティ上の問題・事故対応マニュアル生成ツール</title>
+  <style>
+    :root {
+      --navy: #1B2A4A;
+      --navy-light: #243a63;
+      --accent: #c62828;
+      --accent-soft: rgba(198, 40, 40, 0.15);
+      --text: #e8ecf4;
+      --muted: #9aa8c4;
+      --white: #ffffff;
+      --radius: 12px;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      --step-duration: 0.45s;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif;
+      background: linear-gradient(160deg, var(--navy) 0%, #0f1829 100%);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .app-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 6.5rem;
+    }
+
+    header.hero {
+      text-align: center;
+      padding: 1.5rem 0 1rem;
+    }
+
+    header.hero h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(1.35rem, 4vw, 1.75rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    header.hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--accent-soft);
+      color: #ff8a80;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      margin-bottom: 0.75rem;
+      border: 1px solid rgba(198, 40, 40, 0.35);
+    }
+
+    .stepper {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin: 1.5rem 0 1.25rem;
+    }
+
+    .step-dot {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+
+    .step-dot::after {
+      content: "";
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.12);
+      z-index: 0;
+    }
+
+    .step-dot:last-child::after {
+      display: none;
+    }
+
+    .step-dot span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--navy-light);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      font-size: 0.8rem;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+      transition: background var(--step-duration), border-color var(--step-duration), transform var(--step-duration);
+    }
+
+    .step-dot.active span {
+      background: var(--accent);
+      border-color: #ff5252;
+      transform: scale(1.08);
+    }
+
+    .step-dot.done span {
+      background: #2e7d32;
+      border-color: #66bb6a;
+    }
+
+    .step-dot small {
+      display: block;
+      margin-top: 0.35rem;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    .card {
+      background: var(--navy-light);
+      border-radius: var(--radius);
+      padding: 1.35rem 1.25rem;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .step-panel {
+      display: none;
+      opacity: 0;
+      transform: translateY(16px);
+    }
+
+    .step-panel.visible {
+      display: block;
+      animation: stepIn var(--step-duration) ease forwards;
+    }
+
+    @keyframes stepIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .step-panel h2 {
+      margin: 0 0 1rem;
+      font-size: 1.1rem;
+      color: var(--white);
+      border-left: 4px solid var(--accent);
+      padding-left: 0.65rem;
+    }
+
+    fieldset {
+      border: none;
+      margin: 0 0 1rem;
+      padding: 0;
+    }
+
+    legend {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .opt {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.65rem 0.75rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .opt:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .opt:has(input:checked) {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .opt input {
+      margin-top: 0.25rem;
+      accent-color: var(--accent);
+    }
+
+    .opt span.label {
+      font-size: 0.92rem;
+    }
+
+    .nav-btns {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    button, .btn-link {
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--white);
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(198, 40, 40, 0.45);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.08);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .error-msg {
+      color: #ff8a80;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
+    #resultSection {
+      display: none;
+    }
+
+    #resultSection.show {
+      display: block;
+      animation: stepIn var(--step-duration) ease forwards;
+    }
+
+    .manual-print {
+      background: var(--white);
+      color: #1a1a1a;
+      border-radius: var(--radius);
+      padding: 1.5rem 1.25rem;
+      margin-top: 1rem;
+      border: 1px solid #ddd;
+    }
+
+    .manual-print h2,
+    .manual-print h3 {
+      color: var(--navy);
+    }
+
+    .manual-print h2 {
+      font-size: 1.35rem;
+      margin: 0 0 0.25rem;
+      border-bottom: 3px solid var(--accent);
+      padding-bottom: 0.35rem;
+    }
+
+    .manual-print .meta {
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 1.25rem;
+    }
+
+    .manual-print section {
+      margin-bottom: 1.35rem;
+    }
+
+    .manual-print h3 {
+      font-size: 1.05rem;
+      margin: 0 0 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .manual-print ol, .manual-print ul {
+      margin: 0.35rem 0 0;
+      padding-left: 1.25rem;
+    }
+
+    .manual-print li {
+      margin-bottom: 0.35rem;
+    }
+
+    .contact-block {
+      background: #f5f7fa;
+      border-left: 4px solid var(--navy);
+      padding: 0.65rem 0.85rem;
+      margin-bottom: 0.65rem;
+      border-radius: 0 6px 6px 0;
+    }
+
+    .contact-block strong {
+      display: block;
+      color: var(--navy);
+    }
+
+    .contact-block a {
+      color: #1565c0;
+      word-break: break-all;
+    }
+
+    .priority {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      font-size: 0.7rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      margin-right: 0.35rem;
+      vertical-align: middle;
+    }
+
+    .record-sheet {
+      border: 1px dashed #999;
+      padding: 1rem;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+
+    .record-sheet label {
+      display: block;
+      font-size: 0.8rem;
+      color: #444;
+      margin-top: 0.5rem;
+    }
+
+    .record-sheet input, .record-sheet textarea {
+      width: 100%;
+      margin-top: 0.2rem;
+      padding: 0.45rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+
+    .record-sheet textarea {
+      min-height: 72px;
+      resize: vertical;
+    }
+
+    .emergency-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--navy);
+      border-top: 3px solid var(--accent);
+      padding: 0.65rem 0.75rem;
+      z-index: 100;
+      box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .emergency-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem 1rem;
+      font-size: 0.78rem;
+    }
+
+    .emergency-inner a {
+      color: #90caf9;
+      text-decoration: none;
+    }
+
+    .emergency-inner a:hover {
+      text-decoration: underline;
+    }
+
+    .emergency-item {
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .emergency-item strong {
+      color: #ffab91;
+    }
+
+    @media (max-width: 520px) {
+      .emergency-inner {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .emergency-item {
+        white-space: normal;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+        color: black;
+      }
+
+      .hero,
+      .stepper,
+      #formSection,
+      .emergency-bar,
+      .no-print {
+        display: none !important;
+      }
+
+      .app-wrap {
+        padding: 0;
+        max-width: none;
+      }
+
+      #resultSection {
+        display: block !important;
+      }
+
+      #resultSection.show {
+        display: block !important;
+      }
+
+      .manual-print {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-wrap">
+    <header class="hero">
+      <span class="badge">小規模事業者向け</span>
+      <h1>セキュリティ上の問題・事故対応マニュアル生成ツール</h1>
+      <p>サイバー攻撃（インターネットを通じた悪意ある攻撃のことです）や情報漏洩が起きたときに、業種・規模・事案の種類を選ぶだけで、今すぐ使える対応のたたき台が完成します。</p>
+    </header>
+
+    <div class="stepper" id="stepper" aria-hidden="true">
+      <div class="step-dot active" data-step="1"><span>1</span><small>事業情報</small></div>
+      <div class="step-dot" data-step="2"><span>2</span><small>事案の種類</small></div>
+      <div class="step-dot" data-step="3"><span>3</span><small>現在の状況</small></div>
+    </div>
+
+    <section id="formSection">
+      <div class="card">
+        <form id="mainForm" novalidate>
+          <div class="step-panel visible" data-step="1">
+            <h2>STEP 1：事業情報</h2>
+            <fieldset>
+              <legend>業種</legend>
+              <div class="options" id="industryOpts"></div>
+            </fieldset>
+            <fieldset>
+              <legend>従業員数</legend>
+              <div class="options" id="employeeOpts"></div>
+            </fieldset>
+            <fieldset>
+              <legend>顧客情報の保有</legend>
+              <div class="options" id="customerOpts"></div>
+            </fieldset>
+            <div class="nav-btns">
+              <button type="button" class="btn-primary" id="next1">次へ</button>
+            </div>
+          </div>
+
+          <div class="step-panel" data-step="2">
+            <h2>STEP 2：セキュリティ上の問題・事故の種類（複数選択可）</h2>
+            <div class="options" id="incidentOpts"></div>
+            <p class="error-msg" id="incidentErr">1つ以上選んでください。</p>
+            <div class="nav-btns">
+              <button type="button" class="btn-secondary" id="back2">戻る</button>
+              <button type="button" class="btn-primary" id="next2">次へ</button>
+            </div>
+          </div>
+
+          <div class="step-panel" data-step="3">
+            <h2>STEP 3：現在の状況</h2>
+            <fieldset>
+              <legend>被害に気づいた時間</legend>
+              <div class="options" id="timingOpts"></div>
+            </fieldset>
+            <fieldset>
+              <legend>インターネットに繋がっているか</legend>
+              <div class="options" id="internetOpts"></div>
+            </fieldset>
+            <fieldset>
+              <legend>バックアップがあるか</legend>
+              <div class="options" id="backupOpts"></div>
+            </fieldset>
+            <div class="nav-btns">
+              <button type="button" class="btn-secondary" id="back3">戻る</button>
+              <button type="submit" class="btn-primary" id="generateBtn">マニュアルを生成</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="resultSection">
+      <div class="card no-print" style="margin-top:1rem;">
+        <div class="nav-btns" style="margin:0;">
+          <button type="button" class="btn-primary" id="printBtn">PDFで保存（印刷）</button>
+          <button type="button" class="btn-secondary" id="resetBtn">もう一度作る</button>
+        </div>
+      </div>
+      <div id="manualOutput" class="manual-print"></div>
+    </section>
+  </div>
+
+  <footer class="emergency-bar no-print" role="contentinfo">
+    <div class="emergency-inner">
+      <span class="emergency-item"><strong>警察サイバー犯罪相談窓口</strong> #9110</span>
+      <span class="emergency-item"><strong>IPA 情報セキュリティ安心相談窓口</strong> 03-5978-7509</span>
+      <span class="emergency-item"><strong>迷惑メール相談センター</strong> 03-5974-0068</span>
+    </div>
+  </footer>
+
+  <script>
+(function () {
+  const DATA = {
+    industries: [
+      { id: "food", label: "飲食店" },
+      { id: "retail", label: "小売店" },
+      { id: "beauty", label: "美容室" },
+      { id: "medical", label: "医療" },
+      { id: "construction", label: "建設" },
+      { id: "other", label: "その他" }
+    ],
+    employees: [
+      { id: "1", label: "1人" },
+      { id: "2-5", label: "2〜5人" },
+      { id: "6-20", label: "6〜20人" },
+      { id: "21+", label: "21人以上" }
+    ],
+    customerData: [
+      { id: "yes", label: "あり" },
+      { id: "no", label: "なし" }
+    ],
+    incidents: [
+      { id: "malware", label: "🦠 悪意のあるウイルスプログラムによる感染" },
+      { id: "phishing", label: "📧 偽サイトや偽メールで情報を盗む手口にかかり、メールを開いてしまった（なお、この手口をフィッシングと呼ぶこともあります）" },
+      { id: "breach", label: "🔓 許可なくシステムに侵入されること（不正アクセス）・アカウント乗っ取り" },
+      { id: "dataloss", label: "💾 データの消失・破損" },
+      { id: "device", label: "📱 スマホ・パソコンの紛失・盗難" },
+      { id: "leak", label: "📋 顧客情報の漏洩" },
+      { id: "fraud", label: "💳 不正決済・振り込め詐欺被害" }
+    ],
+    timing: [
+      { id: "now", label: "今すぐ" },
+      { id: "hours", label: "数時間前" },
+      { id: "days", label: "数日前" }
+    ],
+    internet: [
+      { id: "yes", label: "はい" },
+      { id: "no", label: "いいえ" }
+    ],
+    backup: [
+      { id: "yes", label: "あり" },
+      { id: "no", label: "なし" },
+      { id: "unknown", label: "不明" }
+    ]
+  };
+
+  const INCIDENT_IMMEDIATE = {
+    malware: [
+      "すぐにインターネット接続を切る（LANケーブルを抜く・Wi‑Fiをオフ）",
+      "他のパソコン・スマホ・共有ストレージへの接続を遮断する",
+      "感染が疑われる端末の電源を切らない（証拠保全のため。必要なら専門家の指示まで待つ）",
+      "別端末からログインできるサービスについて、従業員全員にパスワード変更を指示する",
+      "経営者・責任者・IT担当（または委託先）へ直ちに報告する"
+    ],
+    phishing: [
+      "該当メールのリンクは開かず、添付ファイルは実行しない",
+      "誤ってパスワードや認証コードを入力した場合は、直ちにサービス側でパスワード変更・ログアウトを行う",
+      "同様のメールを社内・家族に展開しないよう周知する",
+      "メールは削除せず保存し、ヘッダ情報の保全方法を専門家に確認する",
+      "必要に応じて利用中のメール・クラウドのセキュリティ通知を確認する"
+    ],
+    breach: [
+      "許可なくシステムに侵入されること（不正アクセス）が疑われるアカウントのパスワードを、別端末から変更する（二要素認証を有効化）",
+      "同じパスワードを使い回しているサービスはすべて変更する",
+      "不審なログイン履歴・端末登録を確認し、未知のものは削除する（ログイン履歴とは、いつ・どこから入ったかの記録のことです）",
+      "銀行・決済サービスに連絡し、取引停止や再発行を相談する",
+      "ログ（パソコンの操作履歴・記録のことです）やアクセス記録の保全を意識し、安易な初期化をしない"
+    ],
+    dataloss: [
+      "これ以上の上書き・フォーマットを避け、該当機器の利用を最小限にする",
+      "バックアップ媒体があれば、別の読み取り専用環境でコピー可否を確認する",
+      "RAIDやNASの場合はメーカー・サポートに復旧可否を問い合わせる（RAID／NASは、複数台の記録装置を組み合わせてデータを保存する仕組みのことです）",
+      "ファイルを人質にとるウイルスの可能性がある場合は支払いせず、専門機関に相談する",
+      "業務への影響範囲（顧客対応・請求等）を経営者と共有する"
+    ],
+    device: [
+      "端末の紛失・盗難を警察に届け出る（受理番号を記録）",
+      "キャリア・端末の「探す」機能で遠隔ロック・消去の可否を確認する（消去はデータ復旧不能のため慎重に）",
+      "メール・SNS・決済・業務アプリのパスワード変更とセッション終了を行う",
+      "社用の場合は顧客データの入っていないか確認し、漏洩の可能性があれば別途対応する",
+      "再発防止のため、画面ロック・暗号化・二要素認証の設定を見直す"
+    ],
+    leak: [
+      "漏えい・滅失の事実関係（いつ・誰の・どのデータか）をメモし、関係資料を保全する",
+      "社内での情報共有範囲を限定し、SNS等への投稿を控える",
+      "個人情報保護委員会への報告・本人通知の要否を確認する（※義務・期限は事案により異なります）",
+      "顧客対応用の連絡窓口と説明文面のたたき台を経営者と決める",
+      "再発防止としてアクセス権限と保管方法（紙・USB・クラウド）を点検する"
+    ],
+    fraud: [
+      "追加の振込・カード決済を直ちに止め、金融機関・カード会社の専用窓口に連絡する",
+      "詐欺サイト・アプリは開かず、スクリーンショットや取引履歴を保存する",
+      "警察への相談・届出と、必要に応じた被害届の手続きを検討する",
+      "同じ手口で従業員・家族が狙われないよう注意喚起する",
+      "口座・カードの再発行、取引パスワード変更を優先する"
+    ]
+  };
+
+  const RECOVERY = {
+    malware: [
+      "専門業者またはIPA等の相談窓口と連携し、感染範囲の切り分けを行う",
+      "クリーンな端末からバックアップの整合性を確認する",
+      "OS・ソフトウェアを最新にし、不要なリモート接続を無効化する",
+      "全アカウントのパスワードを一括で更新し、管理者権限を最小化する",
+      "再感染を防ぐため、メール添付・USBメディアの取り扱いルールを文書化する"
+    ],
+    phishing: [
+      "利用中のメール・ブラウザ・OSを最新版に更新する",
+      "偽サイトや偽メールで情報を盗む手口（フィッシングと呼ばれることがあります）の報告先（迷惑メール相談センター等）への連絡方法を確認する",
+      "社内で「疑わしいメール」の見分け方を短時間の共有会で説明する",
+      "メールのなりすまし対策（送信元の確認設定など）や外部メール警告の設定を検討する",
+      "重要取引は電話や対面でダブルチェックする運用にする"
+    ],
+    breach: [
+      "全端末で不正プログラムスキャンとOSパッチ適用を行う",
+      "ファイアウォール・VPN・Wi‑Fiの設定と接続ログ（パソコンの操作履歴・記録のことです）を確認する",
+      "特権アカウントの棚卸しと、不要アカウントの削除を行う",
+      "セキュリティ上の問題・事故の記録を残し、再発時の連絡フローを明文化する",
+      "クラウドの共有設定（リンク公開の有無）を点検する"
+    ],
+    dataloss: [
+      "バックアップからデータを元に戻す手順を文書化し、年1回以上テストで復元できるか確認する",
+      "重要データは、データを3箇所・2種類の方法・1箇所は別の場所に保存するルール（別の場所とは自社以外での保管・オフサイトのことです。いわゆる3‑2‑1ルール）を意識して保管する",
+      "自動バックアップの成否通知を有効にする",
+      "ファイルの変更履歴を記録・管理すること（バージョン管理：過去の版を残しておくことです）の保持期間やゴミ箱の保持期間を設定する",
+      "人為ミス対策として削除前の確認フローを設ける"
+    ],
+    device: [
+      "全社でスマホ・タブレットの一元管理や画面ロックのルールを統一する",
+      "業務用と私用の端末分離、または業務専用アプリの利用を検討する",
+      "紛失時手順（誰に連絡するか）を1枚にまとめて配布する",
+      "端末の暗号化が有効か各OSの設定で確認する",
+      "貸与端末の返却・初期化チェックリストを作る"
+    ],
+    leak: [
+      "個人情報の取扱い規程と保管台帳を整備する",
+      "アクセス権限を職務に応じて最小化し、定期的に棚卸しする",
+      "送付・転送時の誤送信対策（宛先自動補完の注意等）を徹底する",
+      "委託先との契約書に漏えい時の報告義務を明記する",
+      "紙媒体の施錠保管・廃棄（シュレッダー）ルールを決める"
+    ],
+    fraud: [
+      "振込・送金依頼は必ず電話で本人確認する（代表番号からかけ直す）",
+      "インターネットバンキングの取引限度額・通知設定を見直す",
+      "社内で「急ぎの振込」メールに騙されないルールを掲示する",
+      "公式アプリストア以外からアプリを入れない",
+      "定期的に取引明細を確認し、異常を早期発見する"
+    ]
+  };
+
+  const PREVENTION_BY_INDUSTRY = {
+    food: [
+      "POS・予約システムのIDを個人別にし、退職時に必ず削除する",
+      "店内Wi‑Fiと業務用ネットワークを分離する",
+      "キャッシュレス端末のPIN・管理者画面を客から見えない位置に置く",
+      "求人・客注文で届くUSBメディアは業務PCに挿さない",
+      "食材・仕入れ関係のなりすましメールに注意し、取引先と確認手段を決める"
+    ],
+    retail: [
+      "在庫・会計PCに娯楽サイト・私用メールを入れない",
+      "ECサイトの管理画面は二要素認証とIP制限を検討する",
+      "顧客DBのエクスポート権限を店長以上に限定する",
+      "セール期の偽サイト・偽SNS広告に注意し、公式URLを周知する",
+      "クレジット端末のセキュリティパッチを定期的に確認する"
+    ],
+    beauty: [
+      "予約アプリ・顧客カルテのバックアップを週次で確認する",
+      "施術写真・SNS投稿に顧客の同意範囲を明記する",
+      "タブレットの画面ロックと自動ログアウトを設定する",
+      "スタッフの私用スマホで顧客情報を扱わない",
+      "ポイントカード・会員情報の第三者提供方針を掲示する"
+    ],
+    medical: [
+      "診療録・検査データは医療情報システムのガイドラインに沿って管理する",
+      "送付・ファックスの宛先ダブルチェックを徹底する",
+      "端末の紛失時は速やかに管理者へ連絡するルールを徹底する",
+      "メールでカルテを送らない（暗号化メール等の導入を検討）",
+      "委託先（検査会社等）との秘密保持契約を確認する"
+    ],
+    construction: [
+      "現場事務所のPCと図面データのバックアップを取る",
+      "協力会社とのファイル共有は正規のクラウドのみに限定する",
+      "工事写真に個人が写り込まないよう配慮し、共有範囲を決める",
+      "見積・請求メールの改ざん・なりすましに注意し電話確認する",
+      "現場Wi‑Fiのパスワードを定期的に変更する"
+    ],
+    other: [
+      "クラウド・メール・会計ソフトの二要素認証を有効にする",
+      "「管理者だけ」に権限を集中させず、バックアップ担当を決める",
+      "OS・ブラウザ・Officeを自動更新にする",
+      "USBメモリ・フリーソフトの安易な利用を禁止する",
+      "年1回、パスワードと権限の棚卸しを行う。ホームページ等を公開している場合は、不正アクセスをブロックする防御システム（WAFのことです）の有無もホスティング会社などに確認する"
+    ]
+  };
+
+  function el(tag, props, children) {
+    const node = document.createElement(tag);
+    if (props) Object.assign(node, props);
+    if (children) children.forEach(function (c) {
+      if (typeof c === "string") node.appendChild(document.createTextNode(c));
+      else if (c) node.appendChild(c);
+    });
+    return node;
+  }
+
+  function renderRadioGroup(containerId, name, items) {
+    const container = document.getElementById(containerId);
+    items.forEach(function (item, i) {
+      const id = name + "_" + item.id;
+      const input = el("input", { type: "radio", name: name, value: item.id, id: id });
+      if (i === 0) input.checked = true;
+      const label = el("label", { className: "opt", htmlFor: id }, [
+        input,
+        el("span", { className: "label", textContent: item.label })
+      ]);
+      container.appendChild(label);
+    });
+  }
+
+  function renderCheckboxes(containerId, items) {
+    const container = document.getElementById(containerId);
+    items.forEach(function (item) {
+      const id = "inc_" + item.id;
+      const input = el("input", { type: "checkbox", name: "incidents", value: item.id, id: id });
+      const label = el("label", { className: "opt", htmlFor: id }, [
+        input,
+        el("span", { className: "label", textContent: item.label })
+      ]);
+      container.appendChild(label);
+    });
+  }
+
+  renderRadioGroup("industryOpts", "industry", DATA.industries);
+  renderRadioGroup("employeeOpts", "employees", DATA.employees);
+  renderRadioGroup("customerOpts", "customerData", DATA.customerData);
+  renderCheckboxes("incidentOpts", DATA.incidents);
+  renderRadioGroup("timingOpts", "timing", DATA.timing);
+  renderRadioGroup("internetOpts", "internet", DATA.internet);
+  renderRadioGroup("backupOpts", "backup", DATA.backup);
+
+  let currentStep = 1;
+
+  function setStep(n) {
+    currentStep = n;
+    document.querySelectorAll(".step-panel").forEach(function (p) {
+      const step = parseInt(p.dataset.step, 10);
+      p.classList.toggle("visible", step === n);
+    });
+    document.querySelectorAll(".step-dot").forEach(function (d) {
+      const step = parseInt(d.dataset.step, 10);
+      d.classList.toggle("active", step === n);
+      d.classList.toggle("done", step < n);
+    });
+  }
+
+  function getRadio(name) {
+    const r = document.querySelector("input[name=\"" + name + "\"]:checked");
+    return r ? r.value : null;
+  }
+
+  function getIncidents() {
+    return Array.prototype.map.call(
+      document.querySelectorAll("input[name=\"incidents\"]:checked"),
+      function (x) { return x.value; }
+    );
+  }
+
+  function labelOf(list, id) {
+    const f = list.find(function (x) { return x.id === id; });
+    return f ? f.label : id;
+  }
+
+  function uniquePush(arr, item, max) {
+    if (arr.indexOf(item) === -1) arr.push(item);
+    if (max && arr.length > max) arr.length = max;
+  }
+
+  function buildImmediateActions(incidents, internet, timing) {
+    const out = [];
+    const addFrom = function (key) {
+      (INCIDENT_IMMEDIATE[key] || []).forEach(function (line) {
+        uniquePush(out, line, 24);
+      });
+    };
+
+    incidents.forEach(addFrom);
+
+    if (internet === "yes" && (incidents.indexOf("malware") !== -1 || incidents.indexOf("breach") !== -1)) {
+      uniquePush(out, "インターネット接続中のまま作業を続けない（切る・隔離する）", 24);
+    }
+
+    if (timing === "days") {
+      uniquePush(out, "発覚が遅れた分、ログ（パソコンの操作履歴・記録のことです）やバックアップの時点を整理し、専門家に相談する", 24);
+    }
+
+    if (out.length < 3) {
+      uniquePush(out, "パニックにならず、状況をメモしながら上から順に対応する", 24);
+      uniquePush(out, "従業員に「安易に電源OFF・初期化しない」よう周知する", 24);
+    }
+
+    while (out.length < 3) {
+      uniquePush(out, "経営者・責任者へ状況と影響範囲を報告する", 24);
+    }
+    return out.slice(0, Math.min(5, out.length));
+  }
+
+  function buildRecovery(incidents) {
+    const blocks = [];
+    incidents.forEach(function (id) {
+      const title = labelOf(DATA.incidents, id);
+      const steps = RECOVERY[id] || ["専門家・IPA等の窓口に相談のうえ、状況に応じた復旧計画を立てる"];
+      blocks.push({ title: title, steps: steps });
+    });
+    return blocks;
+  }
+
+  function buildPrevention(industryId, employeesId) {
+    const base = PREVENTION_BY_INDUSTRY[industryId] || PREVENTION_BY_INDUSTRY.other;
+    const extra = [];
+    if (employeesId === "1") {
+      extra.push("クラウドのバックアップと二要素認証を自分用アカウントですべて有効にする");
+    } else if (employeesId === "21+") {
+      extra.push("情報セキュリティ担当（名簿・連絡先）を明確にし、年1回は簡易訓練を行う");
+    } else {
+      extra.push("少人数でも「バックアップ確認」と「怪しいメールの相談先」を決めておく");
+    }
+    const merged = base.concat(extra);
+    return merged.slice(0, 5);
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function renderManual(state) {
+    const industryLabel = labelOf(DATA.industries, state.industry);
+    const empLabel = labelOf(DATA.employees, state.employees);
+    const custLabel = labelOf(DATA.customerData, state.customerData);
+    const timingLabel = labelOf(DATA.timing, state.timing);
+    const netLabel = labelOf(DATA.internet, state.internet);
+    const backupLabel = labelOf(DATA.backup, state.backup);
+    const incLabels = state.incidents.map(function (id) { return labelOf(DATA.incidents, id); });
+
+    const immediate = buildImmediateActions(state.incidents, state.internet, state.timing);
+    const recoveryBlocks = buildRecovery(state.incidents);
+    const prevention = buildPrevention(state.industry, state.employees);
+
+    const hasLeak = state.incidents.indexOf("leak") !== -1 || (state.customerData === "yes" && (
+      state.incidents.indexOf("breach") !== -1 ||
+      state.incidents.indexOf("dataloss") !== -1 ||
+      state.incidents.indexOf("device") !== -1
+    ));
+
+    const contacts = [];
+    var p = 1;
+    contacts.push({
+      pri: p++,
+      title: "社内：経営者・責任者",
+      body: "まず社内で指揮系統を確保します。IT担当がいない場合は、信頼できる外部業者に早めに相談してください。"
+    });
+    contacts.push({
+      pri: p++,
+      title: "社内：IT担当・システム委託先",
+      body: "ログ（パソコンの操作履歴・記録のことです）の保全、端末の隔離、復旧作業の優先順位を決めます。安易な初期化は証拠が失われることがあります。"
+    });
+    if (hasLeak) {
+      contacts.push({
+        pri: p++,
+        title: "個人情報保護委員会（個人情報の漏えい等があった場合）",
+        body: "個人情報を取り扱う事業者には、<strong>個人情報保護法に基づく報告・本人通知等の義務</strong>が生じる場合があります。事実関係の整理後、早めに専門家・委員会のガイドラインを確認してください。<br>Web：<a href=\"https://www.ppc.go.jp/\" target=\"_blank\" rel=\"noopener\">https://www.ppc.go.jp/</a>"
+      });
+    }
+    if (state.incidents.indexOf("phishing") !== -1) {
+      contacts.push({
+        pri: p++,
+        title: "迷惑メール相談センター（偽サイトや偽メールで情報を盗む手口・フィッシング）",
+        body: "電話：<strong>03-5974-0068</strong>（平日 9:00〜17:00）"
+      });
+    }
+    contacts.push({
+      pri: p++,
+      title: "警察サイバー犯罪相談窓口",
+      body: "電話：<strong>#9110</strong>（警察庁公式サイトで最新情報をご確認ください）<br>参考：<a href=\"https://www.npa.go.jp/bureau/cyber/index.html\" target=\"_blank\" rel=\"noopener\">https://www.npa.go.jp/bureau/cyber/index.html</a>"
+    });
+    contacts.push({
+      pri: p++,
+      title: "IPA 情報セキュリティ安心相談窓口",
+      body: "電話：<strong>03-5978-7509</strong>（平日 10:00〜16:00）<br>Web：<a href=\"https://www.ipa.go.jp/security/security-advice/ipg-security-advice-contact.html\" target=\"_blank\" rel=\"noopener\">https://www.ipa.go.jp/security/security-advice/ipg-security-advice-contact.html</a>"
+    });
+
+    var html = "";
+    html += "<h2>セキュリティ上の問題・事故対応マニュアル</h2>";
+    html += "<div class=\"meta\">";
+    html += "作成日：" + escapeHtml(new Date().toLocaleString("ja-JP")) + "<br>";
+    html += "業種：" + escapeHtml(industryLabel) + "／従業員数：" + escapeHtml(empLabel) + "／顧客情報：" + escapeHtml(custLabel) + "<br>";
+    html += "気づいた時間：" + escapeHtml(timingLabel) + "／インターネット接続：" + escapeHtml(netLabel) + "／バックアップ：" + escapeHtml(backupLabel) + "<br>";
+    html += "該当する事案：" + escapeHtml(incLabels.join("、"));
+    html += "</div>";
+
+    html += "<section><h3>🚨 今すぐやること（最初の30分）</h3><ol>";
+    immediate.forEach(function (t) {
+      html += "<li>" + escapeHtml(t) + "</li>";
+    });
+    html += "</ol></section>";
+
+    html += "<section><h3>📞 連絡すべき相手（優先順位付き）</h3>";
+    contacts.forEach(function (c) {
+      html += "<div class=\"contact-block\"><span class=\"priority\">優先 " + c.pri + "</span><strong>" + escapeHtml(c.title) + "</strong><div>" + c.body + "</div></div>";
+    });
+    html += "<p style=\"font-size:0.85rem;color:#555;margin:0;\">※電話番号・手続きは変更される場合があります。必ず各公式サイトで最新情報を確認してください。</p>";
+    html += "</section>";
+
+    html += "<section><h3>🔧 復旧手順（順番に実施）</h3>";
+    recoveryBlocks.forEach(function (b) {
+      html += "<p><strong>" + escapeHtml(b.title) + "</strong></p><ol>";
+      b.steps.forEach(function (s) {
+        html += "<li>" + escapeHtml(s) + "</li>";
+      });
+      html += "</ol>";
+    });
+    html += "</section>";
+
+    html += "<section><h3>📋 再発防止策（業種・規模を踏まえた例）</h3><ol>";
+    prevention.forEach(function (t) {
+      html += "<li>" + escapeHtml(t) + "</li>";
+    });
+    html += "</ol></section>";
+
+    html += "<section><h3>📝 記録シート</h3><div class=\"record-sheet\">";
+    html += "<label>セキュリティ上の問題・事故の発生日時<br><input type=\"datetime-local\" name=\"rec_time\"></label>";
+    html += "<label>対応内容のメモ<br><textarea name=\"rec_actions\" placeholder=\"実施した対応、連絡先、証拠の保存場所など\"></textarea></label>";
+    html += "<label>担当者名<br><input type=\"text\" name=\"rec_person\" placeholder=\"氏名\"></label>";
+    html += "</div></section>";
+
+    return html;
+  }
+
+  document.getElementById("next1").addEventListener("click", function () {
+    setStep(2);
+  });
+  document.getElementById("back2").addEventListener("click", function () {
+    setStep(1);
+  });
+  document.getElementById("next2").addEventListener("click", function () {
+    var err = document.getElementById("incidentErr");
+    if (getIncidents().length === 0) {
+      err.classList.add("show");
+      return;
+    }
+    err.classList.remove("show");
+    setStep(3);
+  });
+  document.getElementById("back3").addEventListener("click", function () {
+    setStep(2);
+  });
+
+  document.getElementById("mainForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const state = {
+      industry: getRadio("industry"),
+      employees: getRadio("employees"),
+      customerData: getRadio("customerData"),
+      incidents: getIncidents(),
+      timing: getRadio("timing"),
+      internet: getRadio("internet"),
+      backup: getRadio("backup")
+    };
+    if (state.incidents.length === 0) {
+      document.getElementById("incidentErr").classList.add("show");
+      setStep(2);
+      return;
+    }
+    document.getElementById("manualOutput").innerHTML = renderManual(state);
+    document.getElementById("formSection").style.display = "none";
+    document.getElementById("stepper").style.display = "none";
+    document.getElementById("resultSection").classList.add("show");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  document.getElementById("printBtn").addEventListener("click", function () {
+    window.print();
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    document.getElementById("resultSection").classList.remove("show");
+    document.getElementById("manualOutput").innerHTML = "";
+    document.getElementById("formSection").style.display = "block";
+    document.getElementById("stepper").style.display = "flex";
+    setStep(1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+})();
+  </script>
+</body>
+</html>

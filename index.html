@@ -1,0 +1,1424 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="AIで、あなたの仕事をもっとラクに。簡単なアプリ導入から本格的なHP・業務効率化ツールまで、お気軽にご相談ください。" />
+    <title>AI × 人　つながるツール工房</title>
+    <style>
+      /* ========== Reset & Base ========== */
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --sky: #38BDF8;
+        --sky-light: #E0F5FE;
+        --sky-dark: #0EA5E9;
+        --green: #34D399;
+        --green-light: #D1FAE5;
+        --green-dark: #059669;
+        --white: #FFFFFF;
+        --gray-50: #F8FAFC;
+        --gray-100: #F1F5F9;
+        --gray-200: #E2E8F0;
+        --gray-500: #64748B;
+        --gray-700: #334155;
+        --gray-900: #0F172A;
+        --shadow-sm: 0 2px 8px rgba(15,23,42,0.06);
+        --shadow-md: 0 8px 24px rgba(15,23,42,0.10);
+        --shadow-lg: 0 16px 48px rgba(15,23,42,0.12);
+        --radius: 16px;
+        --radius-sm: 10px;
+      }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        font-family: 'Hiragino Maru Gothic ProN', 'Rounded Mplus 1c', 'M PLUS Rounded 1c', sans-serif;
+        background: var(--white);
+        color: var(--gray-900);
+        line-height: 1.7;
+        font-size: 16px;
+      }
+
+      img { max-width: 100%; display: block; }
+      a { text-decoration: none; color: inherit; }
+
+      /* ========== Typography ========== */
+      h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; line-height: 1.2; }
+      h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; }
+      h3 { font-size: 1.1rem; font-weight: 700; }
+
+      /* ========== Buttons ========== */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 14px 28px;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        border: none;
+        transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s;
+      }
+      .btn:hover { transform: translateY(-2px); opacity: 0.92; }
+      .btn:active { transform: translateY(0); }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--sky), var(--sky-dark));
+        color: var(--white);
+        box-shadow: 0 4px 16px rgba(56,189,248,0.35);
+      }
+      .btn-primary:hover { box-shadow: 0 8px 24px rgba(56,189,248,0.45); }
+
+      .btn-outline {
+        background: var(--white);
+        color: var(--sky-dark);
+        border: 2px solid var(--sky);
+        box-shadow: var(--shadow-sm);
+      }
+      .btn-outline:hover { background: var(--sky-light); }
+
+      .btn-green {
+        background: linear-gradient(135deg, var(--green), var(--green-dark));
+        color: var(--white);
+        box-shadow: 0 4px 16px rgba(52,211,153,0.35);
+        padding: 10px 22px;
+        font-size: 0.9rem;
+      }
+      .btn-green:hover { box-shadow: 0 8px 24px rgba(52,211,153,0.45); }
+
+      .btn-green-outline {
+        background: var(--white);
+        color: var(--green-dark);
+        border: 2px solid var(--green);
+        box-shadow: var(--shadow-sm);
+        padding: 10px 22px;
+        font-size: 0.9rem;
+      }
+      .btn-green-outline:hover { background: var(--green-light); }
+
+      /* ========== Layout ========== */
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      section { padding: 80px 0; }
+
+      .section-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--sky-dark);
+        background: var(--sky-light);
+        padding: 6px 16px;
+        border-radius: 50px;
+        margin-bottom: 16px;
+      }
+
+      .section-title {
+        margin-bottom: 12px;
+        color: var(--gray-900);
+      }
+
+      .section-sub {
+        color: var(--gray-500);
+        font-size: 1rem;
+        max-width: 560px;
+      }
+
+      .section-header { margin-bottom: 48px; }
+
+      /* ========== Nav ========== */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(255,255,255,0.88);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--gray-200);
+      }
+
+      .nav-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 24px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      .nav-logo {
+        font-weight: 800;
+        font-size: 1rem;
+        color: var(--gray-900);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .nav-logo .logo-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--sky), var(--green));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        list-style: none;
+      }
+
+      .nav-links a {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--gray-700);
+        transition: color 0.15s;
+      }
+      .nav-links a:hover { color: var(--sky-dark); }
+
+      .nav-cta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        gap: 5px;
+        cursor: pointer;
+        padding: 4px;
+        background: none;
+        border: none;
+      }
+      .hamburger span {
+        display: block;
+        width: 22px;
+        height: 2px;
+        background: var(--gray-700);
+        border-radius: 2px;
+        transition: all 0.25s;
+      }
+
+      .mobile-menu {
+        display: none;
+        flex-direction: column;
+        gap: 0;
+        background: var(--white);
+        border-top: 1px solid var(--gray-200);
+        padding: 8px 24px 16px;
+      }
+      .mobile-menu.open { display: flex; }
+      .mobile-menu a {
+        padding: 12px 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--gray-700);
+        border-bottom: 1px solid var(--gray-100);
+      }
+      .mobile-menu a:last-child { border-bottom: none; }
+
+      /* ========== Hero ========== */
+      #hero {
+        background: linear-gradient(160deg, var(--white) 0%, var(--sky-light) 40%, var(--green-light) 100%);
+        padding: 100px 0 80px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      #hero::before {
+        content: '';
+        position: absolute;
+        top: -100px; right: -150px;
+        width: 500px; height: 500px;
+        background: radial-gradient(circle, rgba(56,189,248,0.15) 0%, transparent 70%);
+        border-radius: 50%;
+      }
+
+      #hero::after {
+        content: '';
+        position: absolute;
+        bottom: -80px; left: -100px;
+        width: 400px; height: 400px;
+        background: radial-gradient(circle, rgba(52,211,153,0.12) 0%, transparent 70%);
+        border-radius: 50%;
+      }
+
+      .hero-inner {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 48px;
+      }
+
+      .hero-content { flex: 1; }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(135deg, var(--sky-light), var(--green-light));
+        border: 1px solid var(--sky);
+        border-radius: 50px;
+        padding: 6px 16px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--sky-dark);
+        margin-bottom: 24px;
+      }
+
+      .hero-title {
+        margin-bottom: 20px;
+        color: var(--gray-900);
+      }
+
+      .hero-title .accent {
+        background: linear-gradient(135deg, var(--sky-dark), var(--green-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero-sub {
+        font-size: 1.05rem;
+        color: var(--gray-500);
+        margin-bottom: 36px;
+        max-width: 500px;
+        line-height: 1.9;
+      }
+
+      .hero-buttons {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .hero-visual {
+        flex: 0 0 380px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .hero-card-stack {
+        position: relative;
+        width: 320px;
+        height: 280px;
+      }
+
+      .floating-card {
+        position: absolute;
+        background: var(--white);
+        border-radius: var(--radius);
+        padding: 20px;
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: float 4s ease-in-out infinite;
+      }
+
+      .floating-card:nth-child(1) { top: 0; left: 0; width: 200px; animation-delay: 0s; }
+      .floating-card:nth-child(2) { top: 80px; right: 0; width: 180px; animation-delay: 1s; }
+      .floating-card:nth-child(3) { bottom: 0; left: 30px; width: 220px; animation-delay: 2s; }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
+      }
+
+      .fc-icon {
+        width: 40px; height: 40px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+      .fc-icon.sky { background: var(--sky-light); }
+      .fc-icon.green { background: var(--green-light); }
+      .fc-icon.purple { background: #EDE9FE; }
+
+      .fc-text { font-size: 0.82rem; font-weight: 700; color: var(--gray-700); }
+      .fc-sub { font-size: 0.72rem; color: var(--gray-500); }
+
+      /* ========== About ========== */
+      #about { background: var(--gray-50); }
+
+      .about-inner {
+        display: flex;
+        align-items: center;
+        gap: 64px;
+      }
+
+      .about-avatar {
+        flex: 0 0 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .avatar-circle {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--sky), var(--green));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 72px;
+        box-shadow: 0 8px 32px rgba(56,189,248,0.3);
+      }
+
+      .avatar-name {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--gray-900);
+        text-align: center;
+      }
+
+      .avatar-role {
+        font-size: 0.85rem;
+        color: var(--sky-dark);
+        font-weight: 700;
+        text-align: center;
+        background: var(--sky-light);
+        padding: 4px 14px;
+        border-radius: 50px;
+      }
+
+      .about-content { flex: 1; }
+
+      .about-text {
+        font-size: 1rem;
+        color: var(--gray-700);
+        line-height: 2;
+        background: var(--white);
+        border-radius: var(--radius);
+        padding: 28px 32px;
+        border-left: 4px solid var(--sky);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .about-tags {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+
+      .tag {
+        font-size: 0.82rem;
+        font-weight: 700;
+        padding: 6px 14px;
+        border-radius: 50px;
+        background: var(--gray-100);
+        color: var(--gray-700);
+      }
+      .tag.sky { background: var(--sky-light); color: var(--sky-dark); }
+      .tag.green { background: var(--green-light); color: var(--green-dark); }
+
+      /* ========== Tools ========== */
+      #tools { background: var(--white); }
+
+      .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 24px;
+      }
+
+      .tool-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        padding: 28px;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--gray-200);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .tool-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      .tool-card-icon {
+        width: 52px; height: 52px;
+        border-radius: 14px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 26px;
+      }
+
+      .tool-card-title {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--gray-900);
+      }
+
+      .tool-card-desc {
+        font-size: 0.88rem;
+        color: var(--gray-500);
+        line-height: 1.8;
+        flex: 1;
+      }
+
+      .tool-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .badge-free {
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: var(--green-light);
+        color: var(--green-dark);
+        padding: 4px 12px;
+        border-radius: 50px;
+      }
+
+      .badge-soon {
+        font-size: 0.75rem;
+        font-weight: 700;
+        background: var(--gray-100);
+        color: var(--gray-500);
+        padding: 4px 12px;
+        border-radius: 50px;
+      }
+
+      .tool-card-footer--stack {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .tool-card-footer--stack .badge-free {
+        align-self: flex-start;
+      }
+      .tool-card-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+      }
+      .tool-card-actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .btn-excel {
+        background: var(--gray-100);
+        color: var(--gray-700);
+        border: 2px solid var(--gray-200);
+        box-shadow: var(--shadow-sm);
+        padding: 10px 22px;
+        font-size: 0.9rem;
+        font-weight: 700;
+      }
+      .btn-excel:hover {
+        background: var(--gray-200);
+        border-color: #CBD5E1;
+        opacity: 1;
+        box-shadow: var(--shadow-sm);
+      }
+
+      .tool-category {
+        margin-bottom: 32px;
+        padding: 28px 22px;
+        border-radius: var(--radius);
+      }
+      .tool-category:last-of-type {
+        margin-bottom: 0;
+      }
+      .tool-category--efficiency {
+        background: linear-gradient(180deg, rgba(209, 250, 229, 0.65) 0%, rgba(209, 250, 229, 0.22) 100%);
+        border: 1px solid rgba(5, 150, 105, 0.14);
+      }
+      .tool-category--visibility {
+        background: linear-gradient(180deg, rgba(224, 245, 254, 0.75) 0%, rgba(224, 245, 254, 0.28) 100%);
+        border: 1px solid rgba(14, 165, 233, 0.16);
+      }
+      .tool-category--security {
+        background: linear-gradient(180deg, rgba(30, 58, 95, 0.11) 0%, rgba(30, 58, 95, 0.04) 100%);
+        border: 1px solid rgba(30, 58, 95, 0.16);
+      }
+      .tool-category-heading {
+        font-size: clamp(1.12rem, 2.4vw, 1.32rem);
+        font-weight: 800;
+        color: var(--gray-900);
+        margin-bottom: 8px;
+        line-height: 1.35;
+      }
+      .tool-category-desc {
+        font-size: 0.92rem;
+        color: var(--gray-500);
+        margin-bottom: 22px;
+        max-width: 640px;
+        line-height: 1.75;
+      }
+      .tool-card--new {
+        position: relative;
+        padding-top: 44px;
+      }
+      .badge-new {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        z-index: 2;
+        font-size: 0.68rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #F59E0B, #D97706);
+        color: var(--white);
+        padding: 5px 11px;
+        border-radius: 50px;
+        letter-spacing: 0.04em;
+        box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35);
+      }
+
+      /* ========== Pricing ========== */
+      #pricing { background: var(--gray-50); }
+
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+        align-items: start;
+      }
+
+      .pricing-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        padding: 36px 28px;
+        box-shadow: var(--shadow-md);
+        border: 2px solid var(--gray-200);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
+      }
+      .pricing-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+      }
+
+      .pricing-card.featured {
+        border-color: var(--sky);
+        background: linear-gradient(160deg, var(--white), var(--sky-light));
+      }
+
+      .pricing-badge {
+        position: absolute;
+        top: -13px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, var(--sky), var(--sky-dark));
+        color: var(--white);
+        font-size: 0.75rem;
+        font-weight: 800;
+        padding: 4px 18px;
+        border-radius: 50px;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(56,189,248,0.4);
+      }
+
+      .plan-icon {
+        width: 56px; height: 56px;
+        border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 28px;
+      }
+      .plan-icon.sky { background: var(--sky-light); }
+      .plan-icon.green { background: var(--green-light); }
+      .plan-icon.purple { background: #EDE9FE; }
+
+      .plan-name {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: var(--gray-900);
+      }
+
+      .plan-price {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--sky-dark);
+        line-height: 1;
+      }
+      .plan-price span { font-size: 1rem; color: var(--gray-500); font-weight: 600; }
+
+      .plan-features {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .plan-features li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.9rem;
+        color: var(--gray-700);
+      }
+      .plan-features li::before {
+        content: '✓';
+        color: var(--green-dark);
+        font-weight: 800;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+
+      .plan-divider {
+        border: none;
+        border-top: 1px solid var(--gray-200);
+      }
+
+      /* ========== Contact ========== */
+      #contact {
+        background: linear-gradient(160deg, var(--sky-light) 0%, var(--green-light) 100%);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      #contact::before {
+        content: '';
+        position: absolute;
+        top: -80px; right: -80px;
+        width: 300px; height: 300px;
+        background: radial-gradient(circle, rgba(56,189,248,0.2) 0%, transparent 70%);
+        border-radius: 50%;
+      }
+
+      .contact-inner { position: relative; z-index: 1; }
+
+      .contact-title {
+        font-size: clamp(1.4rem, 3vw, 2rem);
+        font-weight: 800;
+        color: var(--gray-900);
+        margin-bottom: 16px;
+      }
+
+      .contact-sub {
+        color: var(--gray-500);
+        font-size: 1rem;
+        margin-bottom: 36px;
+      }
+
+      /* ========== Footer ========== */
+      footer {
+        background: var(--gray-900);
+        color: rgba(255,255,255,0.7);
+        text-align: center;
+        padding: 28px 24px;
+        font-size: 0.85rem;
+      }
+
+      footer .footer-logo {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--white);
+        margin-bottom: 8px;
+      }
+
+      /* ========== Responsive ========== */
+      @media (max-width: 900px) {
+        .hero-visual { display: none; }
+        .about-inner { flex-direction: column; gap: 32px; }
+        .about-avatar { flex: none; width: 100%; }
+      }
+
+      @media (max-width: 640px) {
+        section { padding: 56px 0; }
+        .nav-links, .nav-cta .btn { display: none; }
+        .hamburger { display: flex; }
+        .hero-buttons { flex-direction: column; align-items: flex-start; }
+        .btn { width: 100%; justify-content: center; }
+        .hero-buttons .btn { max-width: 320px; }
+        .tools-grid, .pricing-grid { grid-template-columns: 1fr; }
+        .about-text { padding: 20px; }
+        .tool-category { padding: 22px 16px; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- ===== NAV ===== -->
+    <nav>
+      <div class="nav-inner">
+        <a href="#hero" class="nav-logo">
+          <div class="logo-icon">🛠️</div>
+          <span>AI × 人　つながるツール工房</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#about">自己紹介</a></li>
+          <li><a href="#tools">ツール一覧</a></li>
+          <li><a href="#pricing">料金</a></li>
+          <li><a href="#contact">お問い合わせ</a></li>
+        </ul>
+        <div class="nav-cta">
+          <a href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener" class="btn btn-primary" style="padding:10px 20px;font-size:0.85rem;">ご依頼はこちら</a>
+        </div>
+        <button class="hamburger" id="hamburger" aria-label="メニューを開く">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+      <div class="mobile-menu" id="mobileMenu">
+        <a href="#about" onclick="closeMobileMenu()">自己紹介</a>
+        <a href="#tools" onclick="closeMobileMenu()">ツール一覧</a>
+        <a href="#pricing" onclick="closeMobileMenu()">料金</a>
+        <a href="#contact" onclick="closeMobileMenu()">お問い合わせ</a>
+        <a href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener">ご依頼はこちら →</a>
+      </div>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <section id="hero">
+      <div class="container">
+        <div class="hero-inner">
+          <div class="hero-content">
+            <div class="hero-badge">
+              🤖 AI × 人　つながるツール工房
+            </div>
+            <h1 class="hero-title">
+              AIで、あなたの仕事を<br>
+              <span class="accent">もっとラクに。</span>
+            </h1>
+            <p class="hero-sub">
+              簡単なアプリ導入から本格的なHP・業務効率化ツールまで、<br>
+              お気軽にご相談ください。
+            </p>
+            <div class="hero-buttons">
+              <a href="#tools" class="btn btn-primary">🔧 ツールを見る</a>
+              <a href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener" class="btn btn-outline">📋 ご依頼はこちら</a>
+            </div>
+          </div>
+
+          <div class="hero-visual">
+            <div class="hero-card-stack">
+              <div class="floating-card">
+                <div class="fc-icon sky">📅</div>
+                <div>
+                  <div class="fc-text">スケジュール管理</div>
+                  <div class="fc-sub">自動カレンダー表示</div>
+                </div>
+              </div>
+              <div class="floating-card">
+                <div class="fc-icon green">🤖</div>
+                <div>
+                  <div class="fc-text">AI業務効率化</div>
+                  <div class="fc-sub">作業を自動化</div>
+                </div>
+              </div>
+              <div class="floating-card">
+                <div class="fc-icon purple">📝</div>
+                <div>
+                  <div class="fc-text">メモ自動整理</div>
+                  <div class="fc-sub">3ブロックに分類</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ABOUT ===== -->
+    <section id="about">
+      <div class="container">
+        <div class="about-inner">
+          <div class="about-avatar">
+            <div class="avatar-circle">👨‍💻</div>
+            <div class="avatar-name">牛島 史裕</div>
+            <div class="avatar-role">AIトレーナー × ツール開発者</div>
+          </div>
+          <div class="about-content">
+            <div class="section-label">👋 About Me</div>
+            <h2 class="section-title">自己紹介</h2>
+            <div class="about-text">
+              AIを使って<strong>「あなたの仕事の悩み」を解決するツール</strong>を作ります。<br><br>
+              コード経験ゼロから独学でスタート。<br>
+              毎日1つ、誰かの役に立つものを作り続けています。
+            </div>
+            <div class="about-tags">
+              <span class="tag sky">🤖 AI活用</span>
+              <span class="tag green">🛠️ ツール開発</span>
+              <span class="tag">💡 独学スタート</span>
+              <span class="tag">📅 毎日1制作</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+<!-- ===== AI COMMAND CENTER DEMO ===== -->
+<section id="demo" style="background: linear-gradient(160deg, #0F172A 0%, #1E293B 100%); padding: 80px 0;">
+  <div class="container">
+    <div class="section-header" style="margin-bottom: 32px;">
+      <div class="section-label" style="background: rgba(56,189,248,0.15); color: var(--sky); border: 1px solid rgba(56,189,248,0.3);">🚀 DEMO</div>
+      <h2 class="section-title" style="color: #fff;">AIコマンドセンターを<br>体験してみてください</h2>
+      <p class="section-sub" style="color: rgba(255,255,255,0.6);">御社専用のAIアシスタントが、業務の質問に即答。実際に触って体験できます。</p>
+    </div>
+
+    <!-- デモフレーム -->
+    <div style="background: #1E293B; border: 1px solid rgba(56,189,248,0.2); border-radius: 20px; overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,0.4);">
+
+      <!-- フレームトップバー -->
+      <div style="background: #0F172A; padding: 12px 20px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div style="width:10px;height:10px;border-radius:50%;background:#EF4444;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#F59E0B;"></div>
+        <div style="width:10px;height:10px;border-radius:50%;background:#22C55E;"></div>
+        <div style="margin-left:12px;font-size:12px;color:rgba(255,255,255,0.4);">AIツール工房 — コマンドセンター デモ</div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:6px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#22C55E;animation:pulse 2s infinite;"></div>
+          <span style="font-size:11px;color:#22C55E;font-weight:700;">LIVE</span>
+        </div>
+      </div>
+
+      <!-- ポータル本体 -->
+      <div style="display:grid;grid-template-columns:180px 1fr 170px;height:420px;">
+
+        <!-- 左サイドバー -->
+        <div style="background:#1E293B;border-right:1px solid rgba(255,255,255,0.06);padding:16px 10px;display:flex;flex-direction:column;gap:4px;">
+          <div style="font-size:9px;color:rgba(255,255,255,0.3);padding:6px 8px 4px;letter-spacing:0.1em;text-transform:uppercase;">フォルダ</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;background:rgba(56,189,248,0.12);cursor:pointer;">
+            <span style="font-size:13px;">📁</span>
+            <span style="font-size:12px;color:#38BDF8;font-weight:600;">企業向け</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;cursor:pointer;">
+            <span style="font-size:13px;">📁</span>
+            <span style="font-size:12px;color:rgba(255,255,255,0.5);">小売・サービス業</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;cursor:pointer;">
+            <span style="font-size:13px;">📁</span>
+            <span style="font-size:12px;color:rgba(255,255,255,0.5);">士業・コンサル</span>
+          </div>
+          <div style="margin-top:12px;font-size:9px;color:rgba(255,255,255,0.3);padding:6px 8px 4px;letter-spacing:0.1em;text-transform:uppercase;">資料</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;cursor:pointer;">
+            <span style="font-size:13px;">📄</span>
+            <span style="font-size:12px;color:rgba(255,255,255,0.5);">会社案内</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;cursor:pointer;">
+            <span style="font-size:13px;">📄</span>
+            <span style="font-size:12px;color:rgba(255,255,255,0.5);">料金表</span>
+          </div>
+        </div>
+
+        <!-- 中央チャット -->
+        <div style="display:flex;flex-direction:column;">
+          <div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:8px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#22C55E;"></div>
+            <span style="font-size:13px;font-weight:600;color:#fff;">AIアシスタント</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.3);margin-left:auto;">企業向けモード</span>
+          </div>
+          <div id="demoChatArea" style="flex:1;padding:16px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;">
+            <div style="max-width:80%;background:rgba(255,255,255,0.08);border-radius:12px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,0.85);line-height:1.7;">
+              こんにちは！AIツール工房のAIアシスタントです。企業の業務効率化について、なんでもご質問ください😊
+            </div>
+          </div>
+          <div style="padding:10px 12px;border-top:1px solid rgba(255,255,255,0.06);display:flex;gap:8px;">
+            <input id="demoInput" type="text" placeholder="質問を入力してください…（例：売上管理を楽にしたい）"
+              style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:8px 12px;font-size:12px;color:#fff;outline:none;font-family:inherit;" />
+            <button onclick="sendDemoMessage()" style="background:linear-gradient(135deg,#38BDF8,#0EA5E9);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;">送信</button>
+          </div>
+        </div>
+
+        <!-- 右サイドバー -->
+        <div style="background:#1E293B;border-left:1px solid rgba(255,255,255,0.06);padding:16px 10px;overflow-y:auto;">
+          <div style="font-size:9px;color:rgba(255,255,255,0.3);padding:6px 8px 4px;letter-spacing:0.1em;text-transform:uppercase;">ツール</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);margin-bottom:6px;cursor:pointer;">
+            <div style="width:28px;height:28px;border-radius:6px;background:rgba(251,191,36,0.15);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">💰</div>
+            <div>
+              <div style="font-size:11px;font-weight:600;color:#fff;">お金の見える化</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.4);">売上・支出管理</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);margin-bottom:6px;cursor:pointer;">
+            <div style="width:28px;height:28px;border-radius:6px;background:rgba(56,189,248,0.15);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">⏱</div>
+            <div>
+              <div style="font-size:11px;font-weight:600;color:#fff;">時間の見える化</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.4);">シフト・工数管理</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);margin-bottom:6px;cursor:pointer;">
+            <div style="width:28px;height:28px;border-radius:6px;background:rgba(139,92,246,0.15);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">👥</div>
+            <div>
+              <div style="font-size:11px;font-weight:600;color:#fff;">お客様管理</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.4);">顧客情報・履歴</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CTAボタン -->
+    <div style="text-align:center;margin-top:32px;">
+      <p style="color:rgba(255,255,255,0.5);font-size:0.9rem;margin-bottom:16px;">
+        このようなシステムを、あなたの会社専用に構築できます
+      </p>
+      <a href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener"
+        class="btn btn-primary" style="font-size:1rem;padding:14px 32px;">
+        📋 導入について相談する
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+#demoInput::placeholder { color: rgba(255,255,255,0.3); }
+</style>
+
+<script>
+async function sendDemoMessage() {
+  const input = document.getElementById('demoInput');
+  const chatArea = document.getElementById('demoChatArea');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // ユーザーメッセージ
+  const userMsg = document.createElement('div');
+  userMsg.style.cssText = 'max-width:80%;background:linear-gradient(135deg,#38BDF8,#0EA5E9);border-radius:12px;padding:10px 14px;font-size:12px;color:#fff;line-height:1.7;align-self:flex-end;margin-left:auto;';
+  userMsg.textContent = text;
+  chatArea.appendChild(userMsg);
+  input.value = '';
+
+  // ローディング
+  const loading = document.createElement('div');
+  loading.style.cssText = 'max-width:80%;background:rgba(255,255,255,0.08);border-radius:12px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7;font-style:italic;';
+  loading.textContent = '考え中…';
+  chatArea.appendChild(loading);
+  chatArea.scrollTop = chatArea.scrollHeight;
+
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer OPENAI_API_KEY_HERE'
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: 'あなたは「AIツール工房」の業務効率化アシスタントです。中小企業・個人事業主の業務効率化を支援します。お金の見える化シート、時間の見える化シート、お客様管理シートの3つのツールを提供しています。100文字以内で簡潔に、親切に回答してください。' },
+          { role: 'user', content: text }
+        ]
+      })
+    });
+    const data = await res.json();
+    loading.remove();
+    const aiMsg = document.createElement('div');
+    aiMsg.style.cssText = 'max-width:80%;background:rgba(255,255,255,0.08);border-radius:12px;padding:10px 14px;font-size:12px;color:rgba(255,255,255,0.85);line-height:1.7;';
+    aiMsg.textContent = data.choices[0].message.content;
+    chatArea.appendChild(aiMsg);
+  } catch(e) {
+    loading.textContent = 'エラーが発生しました。';
+  }
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+document.getElementById('demoInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter'&& !e.isComposing) sendDemoMessage();
+});
+</script>
+
+    <!-- ===== TOOLS ===== -->
+    <section id="tools">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-label">🔧 Tools</div>
+          <h2 class="section-title">ツール一覧</h2>
+          <p class="section-sub">実際に使えるAIツールを無料で公開中。まずは試してみてください。</p>
+        </div>
+
+        <div class="tool-category tool-category--efficiency">
+          <h3 class="tool-category-heading">📊 業務効率化ツール</h3>
+          <p class="tool-category-desc">日々の業務をAIで自動化・効率化するツールです</p>
+          <div class="tools-grid">
+
+            <div class="tool-card">
+              <div class="tool-card-icon" style="background:var(--sky-light);">📅</div>
+              <div>
+                <div class="tool-card-title">案件スケジュール管理ツール</div>
+              </div>
+              <p class="tool-card-desc">
+                依頼書の情報を登録するだけで、カレンダーに自動表示。<br>
+                個人事業主・フリーランスの方に。
+              </p>
+              <div class="tool-card-footer">
+                <span class="badge-free">✅ 無料</span>
+                <a href="https://hiro9215koctwcx-glitch.github.io/schedule-tool-demo/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <div class="tool-card-icon" style="background:var(--green-light);">📓</div>
+              <div>
+                <div class="tool-card-title">毎日ジャーナル</div>
+              </div>
+              <p class="tool-card-desc">
+                毎日の気分・振り返り・目標を記録できるジャーナリングアプリ。<br>
+                継続記録・気分グラフ付き。
+              </p>
+              <div class="tool-card-footer">
+                <span class="badge-free">✅ 無料</span>
+                <a href="https://hiro9215koctwcx-glitch.github.io/journal-app/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <div class="tool-card-icon" style="background:#FEF3C7;">🧾</div>
+              <div>
+                <div class="tool-card-title">請求書・見積書ジェネレーター</div>
+              </div>
+              <p class="tool-card-desc">
+                話すだけで請求書・見積書が完成。消費税自動計算・PDF保存対応。
+              </p>
+              <div class="tool-card-footer">
+                <span class="badge-free">✅ 無料</span>
+                <a href="https://hiro9215koctwcx-glitch.github.io/invoice-app/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <div class="tool-card-icon" style="background:#EDE9FE;">👥</div>
+              <div>
+                <div class="tool-card-title">顧客・取引先管理ツール</div>
+              </div>
+              <p class="tool-card-desc">
+                顧客情報をカード形式で一覧管理。ステータス色分け・音声入力対応。
+              </p>
+              <div class="tool-card-footer">
+                <span class="badge-free">✅ 無料</span>
+                <a href="https://hiro9215koctwcx-glitch.github.io/customer-app/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <div class="tool-card-icon" style="background:var(--sky-light);">📊</div>
+              <div>
+                <div class="tool-card-title">プロジェクト管理ダッシュボード</div>
+              </div>
+              <p class="tool-card-desc">
+                複数案件の進捗を一目で把握。アラート・次のアクション自動表示。
+              </p>
+              <div class="tool-card-footer">
+                <span class="badge-free">✅ 無料</span>
+                <a href="https://hiro9215koctwcx-glitch.github.io/project-dashboard/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <div class="tool-card-icon" style="background:#FEF3C7;">📑</div>
+              <div>
+                <div class="tool-card-title">日報・週報ジェネレーター</div>
+              </div>
+              <p class="tool-card-desc">
+                話すだけで日報・週報が完成。<br>
+                テンプレート保存・PDF出力対応。
+              </p>
+              <div class="tool-card-footer">
+                <span class="badge-free">✅ 無料</span>
+                <a href="https://hiro9215koctwcx-glitch.github.io/report-app/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <div class="tool-card-icon" style="background:#EDE9FE;">🌐</div>
+              <div>
+                <div class="tool-card-title">HPテンプレート集</div>
+              </div>
+              <p class="tool-card-desc">
+                個人・企業向け3パターンのHPテンプレート。写真アップロード機能付き・すぐ使える。
+              </p>
+              <div class="tool-card-footer">
+                <span class="badge-free">✅ 無料</span>
+                <a href="https://hiro9215koctwcx-glitch.github.io/hp-templates/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="tool-category tool-category--visibility">
+          <h3 class="tool-category-heading">💰 お金・時間・顧客の見える化</h3>
+          <p class="tool-category-desc">数字で現状を把握して、次の行動を決めるツールです</p>
+          <div class="tools-grid">
+
+            <div class="tool-card">
+              <div class="tool-card-icon" style="background:#FEF3C7;">💰</div>
+              <div>
+                <div class="tool-card-title">お金の見える化シート</div>
+              </div>
+              <p class="tool-card-desc">
+                毎月の収入・支出を入力するだけ。利益とグラフが自動表示されます。
+              </p>
+              <div class="tool-card-footer tool-card-footer--stack">
+                <span class="badge-free">✅ 無料</span>
+                <div class="tool-card-actions">
+                  <a href="https://hiro9215koctwcx-glitch.github.io/money-tracker/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+                  <a href="../お金の見える化シート.xlsx" download class="btn btn-excel">Excelをダウンロード ↓</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <div class="tool-card-icon" style="background:var(--sky-light);">⏰</div>
+              <div>
+                <div class="tool-card-title">時間の見える化シート</div>
+              </div>
+              <p class="tool-card-desc">
+                週別に入力するだけで、時給換算・売上直結率・無駄時間がわかります。
+              </p>
+              <div class="tool-card-footer tool-card-footer--stack">
+                <span class="badge-free">✅ 無料</span>
+                <div class="tool-card-actions">
+                  <a href="https://hiro9215koctwcx-glitch.github.io/time-tracker/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+                  <a href="../時間の見える化シート.xlsx" download class="btn btn-excel">Excelをダウンロード ↓</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="tool-card">
+              <div class="tool-card-icon" style="background:#EDE9FE;">👥</div>
+              <div>
+                <div class="tool-card-title">お客様管理シート</div>
+              </div>
+              <p class="tool-card-desc">
+                顧客情報をステータスで色分け管理。集計・次のアクションも一目でわかります。
+              </p>
+              <div class="tool-card-footer tool-card-footer--stack">
+                <span class="badge-free">✅ 無料</span>
+                <div class="tool-card-actions">
+                  <a href="https://hiro9215koctwcx-glitch.github.io/customer-manager/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+                  <a href="../お客様管理シート.xlsx" download class="btn btn-excel">Excelをダウンロード ↓</a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="tool-category tool-category--security">
+          <h3 class="tool-category-heading">🔒 セキュリティ対策ツール</h3>
+          <p class="tool-category-desc">サイバー攻撃・情報漏洩から大切なデータを守るツールです</p>
+          <div class="tools-grid">
+
+            <div class="tool-card tool-card--new">
+              <span class="badge-new" aria-label="新着">🆕 NEW</span>
+              <div class="tool-card-icon" style="background:rgba(226,232,240,0.95);">🔒</div>
+              <div>
+                <div class="tool-card-title">情報漏洩リスク診断シート</div>
+              </div>
+              <p class="tool-card-desc">
+                10問に答えるだけで自社のセキュリティリスクがわかります。
+              </p>
+              <div class="tool-card-footer">
+                <span class="badge-free">✅ 無料</span>
+                <a href="https://hiro9215koctwcx-glitch.github.io/security-check/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+              </div>
+            </div>
+
+            <div class="tool-card tool-card--new">
+              <span class="badge-new" aria-label="新着">🆕 NEW</span>
+              <div class="tool-card-icon" style="background:rgba(226,232,240,0.95);">🔒</div>
+              <div>
+                <div class="tool-card-title">パスワード強度チェッカー</div>
+              </div>
+              <p class="tool-card-desc">
+                パスワードの強度を即判定。安全なパスワードの生成・保存もできます。
+              </p>
+              <div class="tool-card-footer">
+                <span class="badge-free">✅ 無料</span>
+                <a href="https://hiro9215koctwcx-glitch.github.io/password-checker/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+              </div>
+            </div>
+
+            <div class="tool-card tool-card--new">
+              <span class="badge-new" aria-label="新着">🆕 NEW</span>
+              <div class="tool-card-icon" style="background:rgba(226,232,240,0.95);">🔒</div>
+              <div>
+                <div class="tool-card-title">フィッシングメール判定ツール</div>
+              </div>
+              <p class="tool-card-desc">
+                怪しいメールの文章を貼り付けるだけで危険度を自動判定します。
+              </p>
+              <div class="tool-card-footer">
+                <span class="badge-free">✅ 無料</span>
+                <a href="https://hiro9215koctwcx-glitch.github.io/phishing-checker/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+              </div>
+            </div>
+
+            <div class="tool-card tool-card--new">
+              <span class="badge-new" aria-label="新着">🆕 NEW</span>
+              <div class="tool-card-icon" style="background:rgba(226,232,240,0.95);">🔒</div>
+              <div>
+                <div class="tool-card-title">インシデント対応マニュアル生成ツール</div>
+              </div>
+              <p class="tool-card-desc">
+                業種・規模を選ぶだけで、問題発生時の対応マニュアルを自動生成します。
+              </p>
+              <div class="tool-card-footer">
+                <span class="badge-free">✅ 無料</span>
+                <a href="https://hiro9215koctwcx-glitch.github.io/incident-manual/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== PRICING ===== -->
+    <section id="pricing">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-label">💰 Pricing</div>
+          <h2 class="section-title">料金プラン</h2>
+          <p class="section-sub">目的や予算に合わせてお選びください。まずはお気軽にご相談を。</p>
+        </div>
+
+        <div class="pricing-grid">
+
+          <!-- Light -->
+          <div class="pricing-card">
+            <div class="plan-icon sky">🌱</div>
+            <div>
+              <div class="plan-name">ライトプラン</div>
+              <div class="plan-price">30,000<span>円〜</span></div>
+            </div>
+            <hr class="plan-divider">
+            <ul class="plan-features">
+              <li>既存ツールのカスタマイズ</li>
+              <li>納品目安：3〜5日</li>
+              <li>小規模な改修・調整に最適</li>
+              <li>メールサポート付き</li>
+            </ul>
+            <a href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener" class="btn btn-outline" style="text-align:center;justify-content:center;">相談してみる</a>
+          </div>
+
+          <!-- Standard -->
+          <div class="pricing-card featured">
+            <div class="pricing-badge">⭐ 人気No.1</div>
+            <div class="plan-icon green">🚀</div>
+            <div>
+              <div class="plan-name">スタンダードプラン</div>
+              <div class="plan-price">100,000<span>円〜</span></div>
+            </div>
+            <hr class="plan-divider">
+            <ul class="plan-features">
+              <li>オリジナルAIツール開発</li>
+              <li>納品目安：2週間</li>
+              <li>要件定義〜納品まで対応</li>
+              <li>修正3回まで無料</li>
+              <li>納品後1週間サポート付き</li>
+            </ul>
+            <a href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener" class="btn btn-primary" style="text-align:center;justify-content:center;">相談してみる</a>
+          </div>
+
+          <!-- Enterprise -->
+          <div class="pricing-card">
+            <div class="plan-icon purple">🏢</div>
+            <div>
+              <div class="plan-name">エンタープライズ</div>
+              <div class="plan-price" style="font-size:1.6rem;">要相談</div>
+            </div>
+            <hr class="plan-divider">
+            <ul class="plan-features">
+              <li>AIコマンドセンター導入</li>
+              <li>月額保守・運用サポート付き</li>
+              <li>複数ツールの統合対応</li>
+              <li>専用チャットサポート</li>
+            </ul>
+            <a href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener" class="btn btn-outline" style="text-align:center;justify-content:center;">相談してみる</a>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CONTACT ===== -->
+    <section id="contact">
+      <div class="container">
+        <div class="contact-inner">
+          <div class="section-label" style="margin:0 auto 16px;">✉️ Contact</div>
+          <div class="contact-title">まずはお気軽に<br>ご要望をお聞かせください。</div>
+          <p class="contact-sub">
+            御社専用のツール・アプリをオーダーメイドで開発します。<br>
+            まずはお気軽にご相談ください。<br>
+            10問の質問に答えるだけでご要望をまとめてお送りいただけます。
+          </p>
+          <a href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener" class="btn btn-primary" style="font-size:1.05rem;padding:16px 36px;">
+            📋 ヒアリングシートで相談する
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer>
+      <div class="footer-logo">🛠️ AI × 人　つながるツール工房</div>
+      <div>© 2025 牛島 史裕. All rights reserved.</div>
+    </footer>
+
+    <!-- ===== JS ===== -->
+    <script>
+      const hamburger = document.getElementById('hamburger');
+      const mobileMenu = document.getElementById('mobileMenu');
+
+      hamburger.addEventListener('click', () => {
+        mobileMenu.classList.toggle('open');
+      });
+
+      function closeMobileMenu() {
+        mobileMenu.classList.remove('open');
+      }
+
+      // Smooth scroll for all anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+
+      // Scroll-in animation
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.tool-card, .pricing-card, .about-inner').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(24px)';
+        el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        observer.observe(el);
+      });
+    </script>
+  </body>
+</html>

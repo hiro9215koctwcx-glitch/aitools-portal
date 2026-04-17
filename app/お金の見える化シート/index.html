@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>お金の見える化シート</title>
+  <style>
+    :root {
+      --navy: #1F3864;
+      --blue: #2E75B6;
+      --income: #2E7D4A;
+      --income-light: #E8F5E9;
+      --expense: #C62828;
+      --expense-light: #FFEBEE;
+      --profit: #1565C0;
+      --bg: #F4F6F9;
+      --card: #fff;
+      --text: #1a1a1a;
+      --muted: #5c6b7a;
+      --border: #d8dee6;
+      --radius: 10px;
+      --shadow: 0 2px 12px rgba(31, 56, 100, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+      color: #fff;
+      padding: 1.25rem 1rem 1.5rem;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .app-header h1 {
+      margin: 0;
+      font-size: clamp(1.15rem, 4vw, 1.5rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .app-header p {
+      margin: 0.35rem 0 0;
+      font-size: 0.8rem;
+      opacity: 0.92;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin: 1rem 0 0;
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 0.85rem 1rem;
+      border: none;
+      background: #e8ecf2;
+      color: var(--navy);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .tab:hover {
+      background: #dde4ee;
+    }
+
+    .tab.active[data-tab="income"] {
+      background: var(--income-light);
+      color: var(--income);
+      box-shadow: inset 0 -3px 0 var(--income);
+    }
+
+    .tab.active[data-tab="expense"] {
+      background: var(--expense-light);
+      color: var(--expense);
+      box-shadow: inset 0 -3px 0 var(--expense);
+    }
+
+    .panel {
+      display: none;
+      margin-top: 1rem;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 1rem 1rem 1.25rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+
+    .card h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1rem;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card h2.income-badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--income);
+    }
+
+    .card h2.expense-badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--expense);
+    }
+
+    .grid-months {
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    @media (min-width: 600px) {
+      .grid-months {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 900px) {
+      .grid-months {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .month-block {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.65rem 0.75rem;
+      background: #fafbfc;
+    }
+
+    .month-block .month-label {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--blue);
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .field-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .field-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .field-row label {
+      flex: 1;
+      font-size: 0.72rem;
+      color: var(--muted);
+      min-width: 0;
+    }
+
+    .field-row input {
+      width: 100px;
+      max-width: 42%;
+      padding: 0.35rem 0.45rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      text-align: right;
+    }
+
+    .field-row input:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px rgba(46, 117, 182, 0.2);
+    }
+
+    .summary-grid {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    @media (min-width: 640px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .summary-box {
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--border);
+    }
+
+    .summary-box.income-sum {
+      background: var(--income-light);
+      border-color: rgba(46, 125, 74, 0.35);
+    }
+
+    .summary-box.expense-sum {
+      background: var(--expense-light);
+      border-color: rgba(198, 40, 40, 0.35);
+    }
+
+    .summary-box.profit-sum {
+      background: #E3F2FD;
+      border-color: rgba(21, 101, 192, 0.35);
+    }
+
+    .summary-box.annual {
+      background: linear-gradient(135deg, rgba(31, 56, 100, 0.06), rgba(46, 117, 182, 0.08));
+      border-color: var(--blue);
+    }
+
+    .summary-box .label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .summary-box .value {
+      font-size: 1.15rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .summary-box.income-sum .value { color: var(--income); }
+    .summary-box.expense-sum .value { color: var(--expense); }
+    .summary-box.profit-sum .value { color: var(--profit); }
+    .summary-box.annual .value { color: var(--navy); }
+
+    .chart-card {
+      overflow: hidden;
+    }
+
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.25rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    .chart-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .chart-legend i {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .chart-legend .lg-income { background: var(--income); }
+    .chart-legend .lg-expense { background: var(--expense); }
+    .chart-legend .lg-profit { background: var(--profit); }
+
+    #chartCanvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 320px;
+    }
+
+    .monthly-totals-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      margin-top: 0.5rem;
+    }
+
+    .monthly-totals-table th,
+    .monthly-totals-table td {
+      padding: 0.4rem 0.35rem;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .monthly-totals-table th:first-child,
+    .monthly-totals-table td:first-child {
+      text-align: left;
+    }
+
+    .monthly-totals-table th {
+      background: var(--navy);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .monthly-totals-table tbody tr:nth-child(even) {
+      background: #f8f9fb;
+    }
+
+    .monthly-totals-table .col-income { color: var(--income); }
+    .monthly-totals-table .col-expense { color: var(--expense); }
+    .monthly-totals-table .col-profit { color: var(--profit); font-weight: 600; }
+
+    .rate-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <h1>お金の見える化シート</h1>
+    <p>月別に入力するだけ。収支・利益が自動で集計され、グラフでひと目で把握できます。</p>
+  </header>
+
+  <div class="container">
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab active" data-tab="income" role="tab" aria-selected="true">収入</button>
+      <button type="button" class="tab" data-tab="expense" role="tab" aria-selected="false">支出</button>
+    </div>
+
+    <section id="panel-income" class="panel active" role="tabpanel">
+      <div class="card">
+        <h2 class="income-badge">収入の入力（4月〜3月）</h2>
+        <div class="grid-months" id="income-grid"></div>
+      </div>
+    </section>
+
+    <section id="panel-expense" class="panel" role="tabpanel" hidden>
+      <div class="card">
+        <h2 class="expense-badge">支出の入力（4月〜3月）</h2>
+        <div class="grid-months" id="expense-grid"></div>
+      </div>
+    </section>
+
+    <div class="card">
+      <h2>月別・年間の集計</h2>
+      <div class="summary-grid">
+        <div class="summary-box income-sum">
+          <div class="label">年間 収入合計</div>
+          <div class="value" id="sum-income-year">¥0</div>
+        </div>
+        <div class="summary-box expense-sum">
+          <div class="label">年間 支出合計</div>
+          <div class="value" id="sum-expense-year">¥0</div>
+        </div>
+        <div class="summary-box profit-sum">
+          <div class="label">年間 利益</div>
+          <div class="value" id="sum-profit-year">¥0</div>
+        </div>
+        <div class="summary-box annual">
+          <div class="label">利益率（利益 ÷ 収入）</div>
+          <div class="value" id="profit-rate">—</div>
+          <div class="rate-note" id="rate-note">収入が0のときは表示しません。</div>
+        </div>
+      </div>
+
+      <table class="monthly-totals-table" aria-label="月別集計">
+        <thead>
+          <tr>
+            <th>月</th>
+            <th>収入</th>
+            <th>支出</th>
+            <th>利益</th>
+          </tr>
+        </thead>
+        <tbody id="monthly-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="card chart-card">
+      <h2>月別グラフ（収入・支出・利益）</h2>
+      <div class="chart-legend">
+        <span><i class="lg-income"></i> 収入</span>
+        <span><i class="lg-expense"></i> 支出</span>
+        <span><i class="lg-profit"></i> 利益</span>
+      </div>
+      <canvas id="chartCanvas" width="900" height="280" aria-label="月別棒グラフ"></canvas>
+    </div>
+  </div>
+
+  <footer>お金の見える化シート — ブラウザ内のみで動作（データは保存されません）</footer>
+
+  <script>
+(function () {
+  var MONTH_LABELS = ['4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月', '3月'];
+
+  var INCOME_FIELDS = [
+    { key: 'sales', label: '売上・給料' },
+    { key: 'other1', label: 'その他収入①' },
+    { key: 'other2', label: 'その他収入②' }
+  ];
+
+  var EXPENSE_FIELDS = [
+    { key: 'rent', label: '家賃・地代' },
+    { key: 'labor', label: '人件費・外注費' },
+    { key: 'materials', label: '仕入れ・材料費' },
+    { key: 'utilities', label: '光熱費・通信費' },
+    { key: 'ads', label: '広告・宣伝費' },
+    { key: 'other', label: 'その他経費' }
+  ];
+
+  var COLORS = {
+    income: '#2E7D4A',
+    expense: '#C62828',
+    profit: '#1565C0',
+    profitNeg: '#B71C1C',
+    axis: '#5c6b7a',
+    grid: '#e0e6ed'
+  };
+
+  function parseNum(el) {
+    var v = parseFloat(String(el.value).replace(/,/g, ''), 10);
+    return isFinite(v) && v >= 0 ? v : 0;
+  }
+
+  function formatYen(n) {
+    return '¥' + Math.round(n).toLocaleString('ja-JP');
+  }
+
+  function buildGrids() {
+    var incomeGrid = document.getElementById('income-grid');
+    var expenseGrid = document.getElementById('expense-grid');
+    incomeGrid.innerHTML = '';
+    expenseGrid.innerHTML = '';
+
+    for (var m = 0; m < 12; m++) {
+      incomeGrid.appendChild(createMonthBlock(m, 'income', INCOME_FIELDS));
+      expenseGrid.appendChild(createMonthBlock(m, 'expense', EXPENSE_FIELDS));
+    }
+  }
+
+  function createMonthBlock(monthIndex, type, fields) {
+    var div = document.createElement('div');
+    div.className = 'month-block';
+    var label = document.createElement('div');
+    label.className = 'month-label';
+    label.textContent = MONTH_LABELS[monthIndex];
+    div.appendChild(label);
+
+    for (var i = 0; i < fields.length; i++) {
+      var f = fields[i];
+      var row = document.createElement('div');
+      row.className = 'field-row';
+      var lab = document.createElement('label');
+      lab.setAttribute('for', type + '-' + monthIndex + '-' + f.key);
+      lab.textContent = f.label;
+      var input = document.createElement('input');
+      input.type = 'number';
+      input.min = '0';
+      input.step = '1';
+      input.id = type + '-' + monthIndex + '-' + f.key;
+      input.className = 'data-input';
+      input.dataset.month = String(monthIndex);
+      input.dataset.fieldType = type;
+      input.dataset.fieldKey = f.key;
+      input.placeholder = '0';
+      input.addEventListener('input', recalc);
+      row.appendChild(lab);
+      row.appendChild(input);
+      div.appendChild(row);
+    }
+    return div;
+  }
+
+  function getMonthlyIncome(monthIndex) {
+    var sum = 0;
+    for (var i = 0; i < INCOME_FIELDS.length; i++) {
+      var el = document.getElementById('income-' + monthIndex + '-' + INCOME_FIELDS[i].key);
+      if (el) sum += parseNum(el);
+    }
+    return sum;
+  }
+
+  function getMonthlyExpense(monthIndex) {
+    var sum = 0;
+    for (var i = 0; i < EXPENSE_FIELDS.length; i++) {
+      var el = document.getElementById('expense-' + monthIndex + '-' + EXPENSE_FIELDS[i].key);
+      if (el) sum += parseNum(el);
+    }
+    return sum;
+  }
+
+  function recalc() {
+    var incomes = [];
+    var expenses = [];
+    var profits = [];
+    var totalIncome = 0;
+    var totalExpense = 0;
+
+    for (var m = 0; m < 12; m++) {
+      var inc = getMonthlyIncome(m);
+      var exp = getMonthlyExpense(m);
+      incomes.push(inc);
+      expenses.push(exp);
+      profits.push(inc - exp);
+      totalIncome += inc;
+      totalExpense += exp;
+    }
+
+    var totalProfit = totalIncome - totalExpense;
+
+    document.getElementById('sum-income-year').textContent = formatYen(totalIncome);
+    document.getElementById('sum-expense-year').textContent = formatYen(totalExpense);
+    document.getElementById('sum-profit-year').textContent = formatYen(totalProfit);
+
+    var rateEl = document.getElementById('profit-rate');
+    var noteEl = document.getElementById('rate-note');
+    if (totalIncome > 0) {
+      var rate = (totalProfit / totalIncome) * 100;
+      rateEl.textContent = rate.toFixed(1) + '%';
+      noteEl.textContent = '年間収入に対する利益の割合です。';
+    } else {
+      rateEl.textContent = '—';
+      noteEl.textContent = '収入が0のときは表示しません。';
+    }
+
+    var tbody = document.getElementById('monthly-tbody');
+    tbody.innerHTML = '';
+    for (var mi = 0; mi < 12; mi++) {
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + MONTH_LABELS[mi] + '</td>' +
+        '<td class="col-income">' + formatYen(incomes[mi]) + '</td>' +
+        '<td class="col-expense">' + formatYen(expenses[mi]) + '</td>' +
+        '<td class="col-profit">' + formatYen(profits[mi]) + '</td>';
+      tbody.appendChild(tr);
+    }
+
+    drawChart(incomes, expenses, profits);
+  }
+
+  function drawChart(incomes, expenses, profits) {
+    var canvas = document.getElementById('chartCanvas');
+    var ctx = canvas.getContext('2d');
+    var w = canvas.width;
+    var h = canvas.height;
+    var dpr = window.devicePixelRatio || 1;
+
+    var cssW = canvas.clientWidth || w;
+    var cssH = Math.min(320, Math.max(220, cssW * 0.35));
+    canvas.style.height = cssH + 'px';
+    canvas.width = Math.floor(cssW * dpr);
+    canvas.height = Math.floor(cssH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    w = cssW;
+    h = cssH;
+
+    ctx.clearRect(0, 0, w, h);
+
+    var padL = 44;
+    var padR = 12;
+    var padT = 16;
+    var padB = 36;
+    var chartW = w - padL - padR;
+    var chartH = h - padT - padB;
+
+    var maxVal = 0;
+    for (var i = 0; i < 12; i++) {
+      maxVal = Math.max(maxVal, incomes[i], expenses[i], Math.abs(profits[i]));
+    }
+    if (maxVal === 0) maxVal = 1;
+    var topScale = maxVal * 1.08;
+
+    function yFor(v) {
+      return padT + chartH - (v / topScale) * chartH;
+    }
+
+    ctx.strokeStyle = COLORS.grid;
+    ctx.lineWidth = 1;
+    var gridLines = 4;
+    for (var g = 0; g <= gridLines; g++) {
+      var y = padT + (chartH * g) / gridLines;
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(padL + chartW, y);
+      ctx.stroke();
+      var val = topScale * (1 - g / gridLines);
+      ctx.fillStyle = COLORS.axis;
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(val >= 10000 ? (val / 10000).toFixed(1) + '万' : String(Math.round(val)), padL - 6, y + 3);
+    }
+
+    var groupW = chartW / 12;
+    var barW = (groupW * 0.72) / 3;
+    var gap = groupW * 0.07;
+
+    for (var m = 0; m < 12; m++) {
+      var gx = padL + m * groupW + gap;
+      var vals = [incomes[m], expenses[m], profits[m]];
+      var cols = [COLORS.income, COLORS.expense, profits[m] >= 0 ? COLORS.profit : COLORS.profitNeg];
+
+      for (var b = 0; b < 3; b++) {
+        var val = vals[b];
+        var x = gx + b * (barW + 2);
+        var yZero = yFor(0);
+        ctx.fillStyle = cols[b];
+        if (val >= 0) {
+          var yTop = yFor(val);
+          ctx.fillRect(x, yTop, barW, yZero - yTop);
+        } else {
+          var yBottom = yFor(val);
+          ctx.fillRect(x, yZero, barW, yBottom - yZero);
+        }
+      }
+
+      ctx.fillStyle = COLORS.axis;
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(MONTH_LABELS[m], padL + m * groupW + groupW / 2, h - 12);
+    }
+
+    ctx.strokeStyle = COLORS.axis;
+    ctx.lineWidth = 1;
+    var zeroY = yFor(0);
+    ctx.beginPath();
+    ctx.moveTo(padL, zeroY);
+    ctx.lineTo(padL + chartW, zeroY);
+    ctx.stroke();
+  }
+
+  function setupTabs() {
+    var tabs = document.querySelectorAll('.tab');
+    var panelIncome = document.getElementById('panel-income');
+    var panelExpense = document.getElementById('panel-expense');
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var id = tab.getAttribute('data-tab');
+        tabs.forEach(function (t) {
+          var on = t.getAttribute('data-tab') === id;
+          t.classList.toggle('active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        panelIncome.classList.toggle('active', id === 'income');
+        panelExpense.classList.toggle('active', id === 'expense');
+        panelIncome.hidden = id !== 'income';
+        panelExpense.hidden = id !== 'expense';
+      });
+    });
+  }
+
+  var resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(recalc, 150);
+  });
+
+  buildGrids();
+  setupTabs();
+  recalc();
+})();
+  </script>
+</body>
+</html>

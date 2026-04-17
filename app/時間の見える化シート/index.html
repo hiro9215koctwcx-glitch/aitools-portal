@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>時間の見える化シート</title>
+  <style>
+    :root {
+      --teal: #1B4F72;
+      --green: #1A8C7E;
+      --green-light: #2DB5A3;
+      --green-soft: #E8F6F4;
+      --orange: #E67E22;
+      --orange-soft: #FDF3E8;
+      --purple: #7D3C98;
+      --purple-soft: #F4ECF7;
+      --bg: #F5F8FA;
+      --card: #fff;
+      --text: #1a2a35;
+      --muted: #5a6d7a;
+      --border: #d8e2e8;
+      --danger: #C0392B;
+      --warn: #D68910;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      font-size: 15px;
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1rem 1rem 2.5rem;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--teal) 0%, var(--green) 100%);
+      color: #fff;
+      padding: 1.5rem 1rem 1.75rem;
+      box-shadow: 0 4px 20px rgba(27, 79, 114, 0.25);
+    }
+
+    header .inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header h1 {
+      margin: 0 0 0.35rem;
+      font-size: clamp(1.35rem, 4vw, 1.75rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    header p {
+      margin: 0;
+      opacity: 0.92;
+      font-size: 0.9rem;
+    }
+
+    .grid-top {
+      display: grid;
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    @media (min-width: 768px) {
+      .grid-top {
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+      }
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+      box-shadow: 0 2px 12px rgba(27, 79, 114, 0.08);
+      border: 1px solid var(--border);
+    }
+
+    .card h2 {
+      margin: 0 0 0.75rem;
+      font-size: 1.05rem;
+      color: var(--teal);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card h2 .badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.45rem;
+      border-radius: 6px;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    label.rev-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      color: var(--teal);
+    }
+
+    .rev-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      max-width: 200px;
+      padding: 0.55rem 0.65rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    input[type="number"]:focus {
+      outline: 2px solid var(--green);
+      outline-offset: 1px;
+    }
+
+    .hint {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+
+    .kpi-grid {
+      display: grid;
+      gap: 0.65rem;
+      margin-top: 0.5rem;
+    }
+
+    @media (min-width: 480px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .kpi {
+      background: var(--green-soft);
+      border-radius: 10px;
+      padding: 0.75rem 0.85rem;
+      border-left: 4px solid var(--green);
+    }
+
+    .kpi.warn {
+      background: #FEF9E7;
+      border-left-color: var(--warn);
+    }
+
+    .kpi.bad {
+      background: #FDEDEC;
+      border-left-color: var(--danger);
+    }
+
+    .kpi .k {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .kpi .v {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--teal);
+    }
+
+    .kpi .sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .weeks {
+      margin-top: 1.25rem;
+    }
+
+    .week-block {
+      margin-bottom: 1rem;
+    }
+
+    .week-head {
+      background: linear-gradient(90deg, var(--teal), var(--green));
+      color: #fff;
+      padding: 0.5rem 0.85rem;
+      border-radius: 10px 10px 0 0;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .week-body {
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      overflow: hidden;
+      background: var(--card);
+    }
+
+    .cat-section {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cat-section:last-child {
+      border-bottom: none;
+    }
+
+    .cat-title {
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .cat-title.direct {
+      color: var(--green);
+    }
+
+    .cat-title.admin {
+      color: var(--orange);
+    }
+
+    .cat-title.self {
+      color: var(--purple);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot.direct {
+      background: var(--green);
+    }
+
+    .dot.admin {
+      background: var(--orange);
+    }
+
+    .dot.self {
+      background: var(--purple);
+    }
+
+    .fields {
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    @media (min-width: 600px) {
+      .fields {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 900px) {
+      .fields {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .field label {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .field input {
+      max-width: none;
+      width: 100%;
+    }
+
+    .summary-card {
+      margin-top: 1.25rem;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -0.25rem;
+      padding: 0 0.25rem;
+    }
+
+    .summary-table {
+      width: 100%;
+      min-width: 320px;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    .summary-table th,
+    .summary-table td {
+      padding: 0.45rem 0.5rem;
+      text-align: right;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .summary-table th:first-child,
+    .summary-table td:first-child {
+      text-align: left;
+    }
+
+    .summary-table th {
+      background: var(--green-soft);
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    .summary-table tr.direct td:first-child {
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .summary-table tr.admin td:first-child {
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    .summary-table tr.self td:first-child {
+      color: var(--purple);
+      font-weight: 600;
+    }
+
+    .summary-table tfoot td {
+      font-weight: 700;
+      background: #f0f4f7;
+      border-bottom: none;
+    }
+
+    .chart-wrap {
+      margin-top: 1rem;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 8px;
+      background: #fafcfd;
+      border: 1px solid var(--border);
+    }
+
+    .advice {
+      margin-top: 1rem;
+      padding: 1rem 1.1rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      border-left: 4px solid var(--green);
+      background: var(--green-soft);
+    }
+
+    .advice.warn {
+      border-left-color: var(--warn);
+      background: #FEF9E7;
+    }
+
+    .advice.bad {
+      border-left-color: var(--danger);
+      background: #FDEDEC;
+    }
+
+    .advice strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: var(--teal);
+    }
+
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="inner">
+      <h1>時間の見える化シート</h1>
+      <p>週別に入力するだけで、時給換算・売上直結率・無駄時間の傾向がわかります。</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="grid-top">
+      <div class="card">
+        <h2>月間売上・主要指標 <span class="badge">自動計算</span></h2>
+        <label class="rev-label" for="monthlyRevenue">月間売上（円・税込でも税抜でも統一）</label>
+        <div class="rev-row">
+          <input type="number" id="monthlyRevenue" min="0" step="1000" value="0" inputmode="numeric" placeholder="例: 500000">
+        </div>
+        <p class="hint">実質時給は「6週間の合計稼働時間」から週平均を出し、月換算（×4.33週）した稼働時間で割ります。</p>
+        <div class="kpi-grid" id="kpiGrid">
+          <div class="kpi" id="kpiHours">
+            <div class="k">6週間合計時間</div>
+            <div class="v" id="totalHoursDisplay">0 h</div>
+            <div class="sub" id="monthlyHoursSub">月換算: 0 h</div>
+          </div>
+          <div class="kpi" id="kpiRate">
+            <div class="k">売上直結率（目標 70%以上）</div>
+            <div class="v" id="directRateDisplay">0 %</div>
+            <div class="sub" id="directRateSub">売上直結 / 全稼働</div>
+          </div>
+          <div class="kpi" id="kpiWage">
+            <div class="k">実質時給</div>
+            <div class="v" id="effectiveWageDisplay">¥0</div>
+            <div class="sub">月間売上 ÷ 月換算稼働</div>
+          </div>
+          <div class="kpi" id="kpiDirectH">
+            <div class="k">売上直結の時間</div>
+            <div class="v" id="directHoursDisplay">0 h</div>
+            <div class="sub">6週間合計</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card summary-card">
+        <h2>月間合計時間（カテゴリ別）</h2>
+        <p class="hint" style="margin-top:0">6週間の入力合計と、週平均×4.33週による<strong>月換算</strong>を表示します（構成比は6週間合計ベース）。</p>
+        <div class="table-scroll">
+        <table class="summary-table" id="summaryTable">
+          <thead>
+            <tr>
+              <th>カテゴリ</th>
+              <th>6週間（h）</th>
+              <th>月換算（h）</th>
+              <th>構成比</th>
+            </tr>
+          </thead>
+          <tbody id="summaryBody"></tbody>
+          <tfoot>
+            <tr>
+              <td>全体</td>
+              <td id="sumTotal">0</td>
+              <td id="sumMonthly">0</td>
+              <td>100%</td>
+            </tr>
+          </tfoot>
+        </table>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="barChart" width="800" height="280" aria-label="カテゴリ別稼働時間の横棒グラフ"></canvas>
+        </div>
+        <div class="advice" id="adviceBox">
+          <strong>アドバイス</strong>
+          <span id="adviceText">時間を入力するとメッセージが表示されます。</span>
+        </div>
+      </div>
+    </div>
+
+    <section class="weeks card" style="margin-top:1.25rem;padding-top:1.1rem">
+      <h2 style="margin-top:0">週別入力（第1週〜第6週）</h2>
+      <p class="hint" style="margin-top:-0.25rem">各項目に<strong>時間（h）</strong>を入力してください。小数可（例: 1.5）。</p>
+      <div id="weeksContainer"></div>
+    </section>
+
+    <footer>時間の見える化シート · ブラウザ内のみで動作（データは保存されません）</footer>
+  </div>
+
+  <script>
+(function () {
+  var WEEKS = 6;
+
+  var ITEMS = [
+    { key: 'sales', label: '営業・提案', cat: 'direct' },
+    { key: 'dev', label: '制作・開発', cat: 'direct' },
+    { key: 'support', label: '顧客対応', cat: 'direct' },
+    { key: 'admin', label: '事務・経理', cat: 'admin' },
+    { key: 'mail', label: 'メール・SNS', cat: 'admin' },
+    { key: 'meet', label: '会議・連絡', cat: 'admin' },
+    { key: 'learn', label: '学習・スキルアップ', cat: 'self' },
+    { key: 'other', label: 'その他', cat: 'self' }
+  ];
+
+  var CAT_META = {
+    direct: { title: '売上直結', className: 'direct' },
+    admin: { title: '管理業務', className: 'admin' },
+    self: { title: '自己投資', className: 'self' }
+  };
+
+  var weeksContainer = document.getElementById('weeksContainer');
+  var monthlyRevenueEl = document.getElementById('monthlyRevenue');
+  var summaryBody = document.getElementById('summaryBody');
+  var canvas = document.getElementById('barChart');
+  var ctx = canvas.getContext('2d');
+
+  function buildWeeksUI() {
+    var html = '';
+    for (var w = 1; w <= WEEKS; w++) {
+      html += '<div class="week-block">';
+      html += '<div class="week-head">第' + w + '週</div>';
+      html += '<div class="week-body">';
+      ['direct', 'admin', 'self'].forEach(function (cat) {
+        var meta = CAT_META[cat];
+        html += '<div class="cat-section">';
+        html += '<div class="cat-title ' + meta.className + '"><span class="dot ' + meta.className + '"></span>' + meta.title + '</div>';
+        html += '<div class="fields">';
+        ITEMS.filter(function (it) { return it.cat === cat; }).forEach(function (it) {
+          var id = 'w' + w + '_' + it.key;
+          html += '<div class="field">';
+          html += '<label for="' + id + '">' + it.label + '</label>';
+          html += '<input type="number" class="hour-input" data-week="' + w + '" data-key="' + it.key + '" id="' + id + '" min="0" step="0.25" value="" placeholder="0">';
+          html += '</div>';
+        });
+        html += '</div></div>';
+      });
+      html += '</div></div>';
+    }
+    weeksContainer.innerHTML = html;
+    weeksContainer.querySelectorAll('.hour-input').forEach(function (inp) {
+      inp.addEventListener('input', recalc);
+      inp.addEventListener('change', recalc);
+    });
+  }
+
+  function parseHour(el) {
+    var v = parseFloat(el.value, 10);
+    return isFinite(v) && v > 0 ? v : 0;
+  }
+
+  function collectTotals() {
+    var byKey = {};
+    ITEMS.forEach(function (it) { byKey[it.key] = 0; });
+
+    weeksContainer.querySelectorAll('.hour-input').forEach(function (inp) {
+      var k = inp.getAttribute('data-key');
+      byKey[k] += parseHour(inp);
+    });
+
+    var direct = byKey.sales + byKey.dev + byKey.support;
+    var admin = byKey.admin + byKey.mail + byKey.meet;
+    var self = byKey.learn + byKey.other;
+    var total = direct + admin + self;
+
+    return { byKey: byKey, direct: direct, admin: admin, self: self, total: total };
+  }
+
+  function formatHours(n) {
+    return (Math.round(n * 10) / 10).toLocaleString('ja-JP', { maximumFractionDigits: 1 });
+  }
+
+  function formatYen(n) {
+    return '¥' + Math.round(n).toLocaleString('ja-JP');
+  }
+
+  function setKpiClass(el, kind) {
+    el.classList.remove('warn', 'bad');
+    if (kind === 'warn') el.classList.add('warn');
+    if (kind === 'bad') el.classList.add('bad');
+  }
+
+  function drawChart(direct, admin, self, total) {
+    var dpr = window.devicePixelRatio || 1;
+    var rect = canvas.getBoundingClientRect();
+    var w = Math.max(320, rect.width);
+    var h = 280;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.fillStyle = '#fafcfd';
+    ctx.fillRect(0, 0, w, h);
+
+    var padL = 100;
+    var padR = 24;
+    var padT = 20;
+    var padB = 28;
+    var barH = 36;
+    var gap = 28;
+    var maxVal = Math.max(direct, admin, self, 1);
+    var innerW = w - padL - padR;
+
+    var rows = [
+      { label: '売上直結', val: direct, color: '#1A8C7E', light: '#E8F6F4' },
+      { label: '管理業務', val: admin, color: '#E67E22', light: '#FDF3E8' },
+      { label: '自己投資', val: self, color: '#7D3C98', light: '#F4ECF7' }
+    ];
+
+    ctx.font = '12px sans-serif';
+    ctx.fillStyle = '#5a6d7a';
+    ctx.textAlign = 'left';
+    ctx.fillText('時間（h）', padL, 14);
+
+    rows.forEach(function (row, i) {
+      var y = padT + i * (barH + gap);
+      var bw = total > 0 ? (row.val / maxVal) * innerW : 0;
+
+      ctx.fillStyle = row.light;
+      ctx.fillRect(padL, y, innerW, barH);
+
+      if (bw > 0) {
+        ctx.fillStyle = row.color;
+        ctx.fillRect(padL, y, bw, barH);
+      }
+
+      ctx.fillStyle = '#1a2a35';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(row.label, padL - 10, y + barH / 2 + 5);
+
+      ctx.textAlign = 'left';
+      ctx.font = '12px sans-serif';
+      ctx.fillStyle = '#1B4F72';
+      var tx = padL + bw + 8;
+      if (tx + 50 > w - padR) tx = padL + 6;
+      ctx.fillText(formatHours(row.val) + ' h', tx, y + barH / 2 + 4);
+    });
+
+    if (total === 0) {
+      ctx.fillStyle = '#5a6d7a';
+      ctx.font = '13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('入力するとグラフが表示されます', w / 2, h / 2);
+    }
+  }
+
+  function monthlyFromSixWeeks(h) {
+    return WEEKS > 0 ? (h / WEEKS) * 4.33 : 0;
+  }
+
+  function updateSummaryTable(direct, admin, self, total) {
+    var pct = function (part) {
+      return total > 0 ? ((part / total) * 100).toFixed(1) + '%' : '—';
+    };
+    var md = monthlyFromSixWeeks(direct);
+    var ma = monthlyFromSixWeeks(admin);
+    var ms = monthlyFromSixWeeks(self);
+    var mt = monthlyFromSixWeeks(total);
+    summaryBody.innerHTML =
+      '<tr class="direct"><td>売上直結</td><td>' + formatHours(direct) + '</td><td>' + formatHours(md) + '</td><td>' + pct(direct) + '</td></tr>' +
+      '<tr class="admin"><td>管理業務</td><td>' + formatHours(admin) + '</td><td>' + formatHours(ma) + '</td><td>' + pct(admin) + '</td></tr>' +
+      '<tr class="self"><td>自己投資</td><td>' + formatHours(self) + '</td><td>' + formatHours(ms) + '</td><td>' + pct(self) + '</td></tr>';
+    document.getElementById('sumTotal').textContent = formatHours(total);
+    document.getElementById('sumMonthly').textContent = formatHours(mt);
+  }
+
+  function recalc() {
+    var t = collectTotals();
+    var total = t.total;
+    var direct = t.direct;
+    var admin = t.admin;
+    var self = t.self;
+
+    var directRate = total > 0 ? (direct / total) * 100 : 0;
+    var weeklyAvg = WEEKS > 0 ? total / WEEKS : 0;
+    var monthlyHoursEst = weeklyAvg * 4.33;
+
+    document.getElementById('totalHoursDisplay').textContent = formatHours(total) + ' h';
+    document.getElementById('monthlyHoursSub').textContent =
+      '月換算（週平均×4.33）: ' + formatHours(monthlyHoursEst) + ' h';
+
+    document.getElementById('directRateDisplay').textContent =
+      (Math.round(directRate * 10) / 10).toLocaleString('ja-JP') + ' %';
+
+    var rev = parseFloat(monthlyRevenueEl.value, 10);
+    if (!isFinite(rev) || rev < 0) rev = 0;
+    var wage = monthlyHoursEst > 0 ? rev / monthlyHoursEst : 0;
+    document.getElementById('effectiveWageDisplay').textContent = formatYen(wage);
+    document.getElementById('directHoursDisplay').textContent = formatHours(direct) + ' h';
+
+    var kpiRate = document.getElementById('kpiRate');
+    setKpiClass(kpiRate, directRate < 50 ? 'bad' : directRate < 70 ? 'warn' : '');
+
+    updateSummaryTable(direct, admin, self, total);
+    drawChart(direct, admin, self, total);
+
+    var adviceBox = document.getElementById('adviceBox');
+    var adviceText = document.getElementById('adviceText');
+    adviceBox.classList.remove('warn', 'bad');
+
+    if (total === 0) {
+      adviceText.textContent = '各週の稼働時間を入力すると、売上直結率に応じたアドバイスが表示されます。';
+      return;
+    }
+
+    var parts = [];
+    if (directRate < 50) {
+      adviceBox.classList.add('bad');
+      parts.push('売上直結率が50%未満です。間接業務（事務・連絡・会議など）の削減・外注・テンプレ化を見直しましょう。');
+    } else if (directRate < 70) {
+      adviceBox.classList.add('warn');
+      parts.push('売上直結率が目標の70%に届いていません。管理業務の時間帯をまとめる、ミーティングを短くするなど、直結業務へのシフトを検討しましょう。');
+    } else {
+      parts.push('売上直結率は良好です。このバランスを維持しつつ、自己投資の時間も長期的な売上につながるよう計画しましょう。');
+    }
+
+    if (admin > direct * 0.6 && directRate < 65) {
+      parts.push('管理業務が売上直結に対して多めです。ルーチン化できる作業はありませんか？');
+    }
+    if (self > total * 0.35) {
+      parts.push('自己投資の比率が高めです。学習内容が翌月以降の「制作・開発」や「営業」に反映されるよう、小さなアウトプット目標を置くと効果が見えやすくなります。');
+    }
+
+    adviceText.textContent = parts.join(' ');
+  }
+
+  monthlyRevenueEl.addEventListener('input', recalc);
+  monthlyRevenueEl.addEventListener('change', recalc);
+  window.addEventListener('resize', function () { recalc(); });
+
+  buildWeeksUI();
+  recalc();
+})();
+  </script>
+</body>
+</html>

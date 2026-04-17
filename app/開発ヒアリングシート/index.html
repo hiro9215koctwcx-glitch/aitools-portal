@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>開発ヒアリングシート</title>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <style>
+    :root {
+      --bg: #fafcfd;
+      --surface: #ffffff;
+      --text: #1a2b3c;
+      --text-muted: #5a6f82;
+      --accent: #3eb8e8;
+      --accent-hover: #2aa3d4;
+      --accent-soft: rgba(62, 184, 232, 0.12);
+      --border: #e2ecf2;
+      --shadow: 0 4px 24px rgba(26, 43, 60, 0.08);
+      --radius: 14px;
+      --radius-sm: 10px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { max-width: 520px; margin: 0 auto; padding: 1.25rem 1rem 2.5rem; }
+    header { text-align: center; margin-bottom: 1.5rem; }
+    header h1 {
+      font-size: clamp(1.15rem, 4.5vw, 1.45rem);
+      font-weight: 700;
+      margin: 0 0 0.35rem;
+      letter-spacing: 0.02em;
+    }
+    header p { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      padding: 1.35rem 1.15rem 1.5rem;
+    }
+    .progress-wrap { margin-bottom: 1.25rem; }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.45rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .progress-meta strong { color: var(--accent); font-weight: 600; }
+    .progress-bar {
+      height: 8px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #6bcff5);
+      border-radius: 999px;
+      transition: width 0.35s ease;
+    }
+    .step-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+    .question {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 0 0 1.1rem;
+      line-height: 1.45;
+    }
+    .choices { display: flex; flex-direction: column; gap: 0.65rem; }
+    .choice-btn {
+      display: block;
+      width: 100%;
+      padding: 1rem 1.1rem;
+      font-size: 1rem;
+      text-align: left;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      min-height: 52px;
+      font-family: inherit;
+      line-height: 1.4;
+    }
+    .choice-btn:hover,
+    .choice-btn:focus-visible {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      outline: none;
+    }
+    .choice-btn.is-selected {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: inset 0 0 0 1px var(--accent);
+    }
+    .choice-btn.is-selected:hover,
+    .choice-btn.is-selected:focus-visible {
+      border-color: var(--accent-hover);
+      background: var(--accent-soft);
+    }
+    .choice-btn:active { transform: scale(0.99); }
+    textarea.field {
+      width: 100%;
+      min-height: 120px;
+      padding: 0.9rem 1rem;
+      font-size: 1rem;
+      font-family: inherit;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+    textarea.field:focus { outline: none; border-color: var(--accent); }
+    .hint { font-size: 0.8rem; color: var(--text-muted); margin: 0.5rem 0 0; }
+    .nav-row { display: flex; gap: 0.65rem; margin-top: 1.25rem; }
+    .btn-secondary {
+      flex: 0 0 auto;
+      padding: 0.85rem 1rem;
+      font-size: 0.95rem;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: inherit;
+      min-height: 48px;
+    }
+    .btn-secondary:hover { border-color: var(--text-muted); color: var(--text); }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .summary-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 0 0 1rem;
+      text-align: center;
+    }
+    .summary-box {
+      background: var(--accent-soft);
+      border: 1px solid rgba(62, 184, 232, 0.35);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.05rem;
+      font-size: 0.92rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: min(50vh, 360px);
+      overflow-y: auto;
+    }
+    .actions { display: flex; flex-direction: column; gap: 0.65rem; margin-top: 1.15rem; }
+    .btn-primary {
+      width: 100%;
+      padding: 1rem 1.1rem;
+      font-size: 1.02rem;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      min-height: 52px;
+      box-shadow: 0 4px 14px rgba(62, 184, 232, 0.35);
+      transition: background 0.2s, transform 0.15s;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:active { transform: scale(0.99); }
+    button.btn-primary { display: block; }
+    .btn-outline {
+      background: #fff;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+      box-shadow: none;
+    }
+    .btn-outline:hover {
+      background: var(--accent-soft);
+      color: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+    .optional-block { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .toast {
+      position: fixed;
+      bottom: 1.25rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      background: var(--text);
+      color: #fff;
+      padding: 0.65rem 1.25rem;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      opacity: 0;
+      transition: transform 0.35s ease, opacity 0.35s ease;
+      z-index: 100;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .restart { margin-top: 0.75rem; text-align: center; }
+    .restart button {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-family: inherit;
+    }
+    .restart button:hover { color: var(--accent); }
+    .form-label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin: 0.85rem 0 0.35rem;
+    }
+    .form-label:first-of-type { margin-top: 0; }
+    .field-input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      font-size: 1rem;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .field-input:focus { outline: none; border-color: var(--accent); }
+    .btn-primary:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-primary:disabled:hover { background: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>開発ヒアリングシート</h1>
+      <p>質問に答えて、ご要望をまとめましょう</p>
+    </header>
+    <div class="card" id="app-card">
+      <div id="screen-quiz" class="screen active">
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span>進捗</span>
+            <span><strong id="step-num">1</strong> / 10</span>
+          </div>
+          <div class="progress-bar" role="progressbar" aria-valuemin="1" aria-valuemax="10" aria-valuenow="1" id="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 10%"></div>
+          </div>
+        </div>
+        <div class="step-label" id="step-label">STEP 1</div>
+        <h2 class="question" id="question-text"></h2>
+        <div id="choices-area"></div>
+        <div class="nav-row" id="nav-back-wrap" style="display: none;">
+          <button type="button" class="btn-secondary" id="btn-back">戻る</button>
+        </div>
+      </div>
+      <div id="screen-customer" class="screen">
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span>進捗</span>
+            <span><strong>10</strong> / 10</span>
+          </div>
+          <div class="progress-bar" role="progressbar" aria-valuenow="10" aria-valuemax="10" aria-valuemin="1">
+            <div class="progress-fill" style="width: 100%"></div>
+          </div>
+        </div>
+        <div class="step-label">お客様情報</div>
+        <h2 class="question">お客様情報のご入力</h2>
+        <p class="hint" style="margin-bottom: 1rem">すべて任意です。ご記入いただけるとスムーズにご連絡できます。</p>
+        <label class="form-label" for="cust-company">企業名（任意）</label>
+        <input type="text" class="field-input" id="cust-company" name="cust-company" autocomplete="organization">
+        <label class="form-label" for="cust-name">担当者のお名前（任意）</label>
+        <input type="text" class="field-input" id="cust-name" name="cust-name" autocomplete="name">
+        <label class="form-label" for="cust-phone">電話番号（任意）</label>
+        <input type="tel" class="field-input" id="cust-phone" name="cust-phone" autocomplete="tel">
+        <label class="form-label" for="cust-email">メールアドレス（任意）</label>
+        <input type="email" class="field-input" id="cust-email" name="cust-email" autocomplete="email">
+        <label class="form-label">今後のやりとりの希望</label>
+        <div class="choices" id="cust-contact-wrap"></div>
+        <div class="nav-row" style="margin-top: 1.25rem">
+          <button type="button" class="btn-secondary" id="btn-customer-back">戻る</button>
+          <button type="button" class="btn-primary" id="btn-customer-next" style="flex: 1">次へ</button>
+        </div>
+      </div>
+      <div id="screen-summary" class="screen">
+        <h2 class="summary-title">あなたの要望まとめ</h2>
+        <div class="progress-wrap" aria-hidden="true">
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 100%"></div>
+          </div>
+        </div>
+        <div class="summary-box" id="summary-text"></div>
+        <div class="actions">
+          <button type="button" class="btn-primary" id="btn-submit">要望をまとめて送信する</button>
+          <button type="button" class="btn-primary btn-outline" id="btn-copy">まとめをコピー</button>
+        </div>
+        <div class="restart">
+          <button type="button" id="btn-restart">最初からやり直す</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status">コピーしました</div>
+  <script>
+    (function () {
+      if (typeof emailjs !== "undefined") {
+        emailjs.init("X3Au2ue1PZFWu5yq4");
+      }
+
+      var STEPS = [
+        {
+          id: 1,
+          question: "何を作りたいですか？",
+          type: "choice",
+          choices: [
+            "ホームページ（会社・個人紹介）",
+            "予約・申込フォーム",
+            "業務管理ツール（スケジュール・案件管理など）",
+            "社内向け効率化ツール",
+            "その他",
+          ]
+        },
+        {
+          id: 2,
+          question: "今、同じものはありますか？",
+          type: "choice",
+          choices: [
+            "何もない（ゼロから作りたい）",
+            "紙やExcelで管理している",
+            "古いHP・ツールがある（リニューアルしたい）",
+          ]
+        },
+        {
+          id: 3,
+          question: "誰が主に使いますか？",
+          type: "choice",
+          choices: [
+            "自分1人だけ",
+            "社内スタッフ数人",
+            "お客さん（一般の方）",
+            "社内もお客さんも両方",
+          ]
+        },
+        {
+          id: 4,
+          question: "どんな場面で使いますか？",
+          type: "choice",
+          choices: [
+            "毎日使う（日常業務）",
+            "週数回使う",
+            "イベント・繁忙期だけ使う",
+            "お客さんへの窓口として常時公開",
+          ]
+        },
+        {
+          id: 5,
+          question: "スマホで使いますか？",
+          type: "choice",
+          choices: [
+            "スマホメインで使う",
+            "パソコンメインで使う",
+            "両方で使う",
+          ]
+        },
+        {
+          id: 6,
+          question: "デザインのイメージは？",
+          type: "choice",
+          choices: [
+            "シンプル・清潔感重視",
+            "かっこいい・スタイリッシュ",
+            "温かみ・親しみやすさ重視",
+            "特にこだわらない",
+          ]
+        },
+        {
+          id: 7,
+          question: "いつまでに必要ですか？",
+          type: "choice",
+          choices: [
+            "1週間以内（急ぎ）",
+            "2週間〜1ヶ月以内",
+            "1〜2ヶ月以内",
+            "まだ検討中",
+          ]
+        },
+        {
+          id: 8,
+          question: "ご予算のイメージは？",
+          type: "choice",
+          choices: [
+            "3万円程度（既存ツールのカスタマイズ）",
+            "10万円程度（オリジナルツール開発）",
+            "予算は相談したい",
+            "まだわからない",
+          ]
+        },
+        {
+          id: 9,
+          question: "作りたいものについて、もう少し詳しく教えてください。",
+          type: "text",
+          hint: "自由記述"
+        },
+        {
+          id: 10,
+          question: "その他、気になること・要望があれば教えてください。",
+          type: "text",
+          hint: "自由記述"
+        }
+      ];
+      var LABELS = [
+        "STEP1：何を作りたいですか？",
+        "STEP2：今、同じものはありますか？",
+        "STEP3：誰が主に使いますか？",
+        "STEP4：どんな場面で使いますか？",
+        "STEP5：スマホで使いますか？",
+        "STEP6：デザインのイメージは？",
+        "STEP7：いつまでに必要ですか？",
+        "STEP8：ご予算のイメージは？",
+        "STEP9：作りたいものについて、もう少し詳しく教えてください。",
+        "STEP10：その他、気になること・要望があれば教えてください。"
+      ];
+
+           var OTHER_CHOICE = "その他・カスタマイズ希望（自由記載）";
+      var TEXT_EXTRA_MARK = "\n\n【その他・カスタマイズ希望】";
+      var EMAIL_SERVICE_ID = "service_c5okgq5";
+      var EMAIL_TEMPLATE_ID = "template_q72ezhw";
+      var SUBMIT_BTN_LABEL = "要望をまとめて送信する";
+
+      var EMAIL_STEP_LABELS = [
+        "STEP1：何を作りたいですか？",
+        "STEP2：今、同じものはありますか？",
+        "STEP3：誰が主に使いますか？",
+        "STEP4：どんな場面で使いますか？",
+        "STEP5：スマホで使いますか？",
+        "STEP6：デザインのイメージは？",
+        "STEP7：いつまでに必要ですか？",
+        "STEP8：ご予算のイメージは？",
+        "STEP9：作りたいものについて詳しく教えてください。",
+        "STEP10：その他、気になること・要望があれば教えてください。"
+      ];
+
+      var CONTACT_OPTIONS = ["電話", "メール", "Zoom等ビデオ会議", "どれでもOK"];
+
+      var answers = [];
+      var currentIndex = 0;
+      var customerInfo = {
+        company: "",
+        name: "",
+        phone: "",
+        email: "",
+        contactPref: ""
+      };
+
+      var elQuiz = document.getElementById("screen-quiz");
+      var elCustomer = document.getElementById("screen-customer");
+      var elSummary = document.getElementById("screen-summary");
+      var elStepNum = document.getElementById("step-num");
+      var elProgressFill = document.getElementById("progress-fill");
+      var elProgressBar = document.getElementById("progress-bar");
+      var elStepLabel = document.getElementById("step-label");
+      var elQuestion = document.getElementById("question-text");
+      var elChoices = document.getElementById("choices-area");
+      var elNavBack = document.getElementById("nav-back-wrap");
+      var elBtnBack = document.getElementById("btn-back");
+      var elSummaryText = document.getElementById("summary-text");
+      var elBtnCopy = document.getElementById("btn-copy");
+      var elBtnSubmit = document.getElementById("btn-submit");
+      var elBtnRestart = document.getElementById("btn-restart");
+      var elBtnCustomerBack = document.getElementById("btn-customer-back");
+      var elBtnCustomerNext = document.getElementById("btn-customer-next");
+      var elCustContactWrap = document.getElementById("cust-contact-wrap");
+      var elToast = document.getElementById("toast");
+
+      function disp(v) {
+        var s = v != null ? String(v).trim() : "";
+        return s ? s : "（未入力）";
+      }
+
+      function buildSummaryText() {
+        var lines = ["【開発ヒアリングシート】回答まとめ", ""];
+        for (var i = 0; i < STEPS.length; i++) {
+          var a = answers[i] != null ? String(answers[i]).trim() : "";
+          if (!a) a = "（未入力）";
+          lines.push(LABELS[i]);
+          lines.push(a);
+          lines.push("");
+        }
+        lines.push("■ お客様情報");
+        lines.push("企業名：" + disp(customerInfo.company));
+        lines.push("担当者名：" + disp(customerInfo.name));
+        lines.push("電話番号：" + disp(customerInfo.phone));
+        lines.push("メールアドレス：" + disp(customerInfo.email));
+        lines.push("やりとりの希望：" + disp(customerInfo.contactPref));
+        return lines.join("\n").trim();
+      }
+
+      function buildEmailMessage() {
+        var parts = ["■ ヒアリング回答", ""];
+        for (var i = 0; i < STEPS.length; i++) {
+          var a = answers[i] != null ? String(answers[i]).trim() : "";
+          if (!a) a = "（未入力）";
+          parts.push(EMAIL_STEP_LABELS[i]);
+          parts.push("→" + a);
+          parts.push("");
+        }
+        parts.push("■ お客様情報");
+        parts.push("企業名：" + disp(customerInfo.company));
+        parts.push("担当者名：" + disp(customerInfo.name));
+        parts.push("電話番号：" + disp(customerInfo.phone));
+        parts.push("メールアドレス：" + disp(customerInfo.email));
+        parts.push("やりとりの希望：" + disp(customerInfo.contactPref));
+        return parts.join("\n").trim();
+      }
+
+      function readFormToCustomerInfo() {
+        customerInfo.company = document.getElementById("cust-company").value.trim();
+        customerInfo.name = document.getElementById("cust-name").value.trim();
+        customerInfo.phone = document.getElementById("cust-phone").value.trim();
+        customerInfo.email = document.getElementById("cust-email").value.trim();
+      }
+
+      function clearCustomerForm() {
+        customerInfo = { company: "", name: "", phone: "", email: "", contactPref: "" };
+        document.getElementById("cust-company").value = "";
+        document.getElementById("cust-name").value = "";
+        document.getElementById("cust-phone").value = "";
+        document.getElementById("cust-email").value = "";
+        renderContactChoices();
+      }
+
+      function renderContactChoices() {
+        elCustContactWrap.innerHTML = "";
+        for (var ci = 0; ci < CONTACT_OPTIONS.length; ci++) {
+          (function (opt) {
+            var b = document.createElement("button");
+            b.type = "button";
+            b.className = "choice-btn cust-contact-btn";
+            b.textContent = opt;
+            if (customerInfo.contactPref === opt) {
+              b.classList.add("is-selected");
+            }
+            b.addEventListener("click", function () {
+              customerInfo.contactPref = opt;
+              var all = elCustContactWrap.querySelectorAll(".cust-contact-btn");
+              for (var k = 0; k < all.length; k++) {
+                all[k].classList.remove("is-selected");
+              }
+              b.classList.add("is-selected");
+            });
+            elCustContactWrap.appendChild(b);
+          })(CONTACT_OPTIONS[ci]);
+        }
+      }
+
+      function showCustomerScreen() {
+        elQuiz.classList.remove("active");
+        elSummary.classList.remove("active");
+        elCustomer.classList.add("active");
+        document.getElementById("cust-company").value = customerInfo.company;
+        document.getElementById("cust-name").value = customerInfo.name;
+        document.getElementById("cust-phone").value = customerInfo.phone;
+        document.getElementById("cust-email").value = customerInfo.email;
+        renderContactChoices();
+        window.scrollTo(0, 0);
+      }
+
+      function copyTextToClipboard(text, onDone) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(onDone).catch(function () {
+            legacyCopy(text);
+            onDone();
+          });
+        } else {
+          legacyCopy(text);
+          onDone();
+        }
+      }
+
+      function legacyCopy(text) {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand("copy");
+        } catch (e) {}
+        document.body.removeChild(ta);
+      }
+
+      function showToastMessage(msg, ms) {
+        ms = ms || 2800;
+        elToast.textContent = msg;
+        elToast.classList.add("show");
+        setTimeout(function () {
+          elToast.classList.remove("show");
+          elToast.textContent = "コピーしました";
+        }, ms);
+      }
+
+      function setProgress(n) {
+        var pct = (n / STEPS.length) * 100;
+        elStepNum.textContent = String(n);
+        elProgressFill.style.width = pct + "%";
+        elProgressBar.setAttribute("aria-valuenow", String(n));
+      }
+
+      function renderStep() {
+        var step = STEPS[currentIndex];
+        elStepLabel.textContent = "STEP " + step.id;
+        elQuestion.textContent = step.question;
+        setProgress(currentIndex + 1);
+        elNavBack.style.display = currentIndex > 0 ? "flex" : "none";
+
+        elChoices.innerHTML = "";
+
+        if (step.type === "choice") {
+          var rawC = answers[currentIndex] != null ? String(answers[currentIndex]) : "";
+          var choicePart = "";
+          var extraChoiceVal = "";
+          var markC = rawC.indexOf(TEXT_EXTRA_MARK);
+          if (markC >= 0) {
+            choicePart = rawC.slice(0, markC).trim();
+            extraChoiceVal = rawC.slice(markC + TEXT_EXTRA_MARK.length);
+          } else if (rawC === OTHER_CHOICE) {
+            extraChoiceVal = "";
+          } else if (rawC.indexOf(OTHER_CHOICE + "\n") === 0) {
+            extraChoiceVal = rawC.slice(OTHER_CHOICE.length + 1);
+          } else {
+            choicePart = rawC.trim();
+          }
+          if (choicePart && step.choices.indexOf(choicePart) < 0) {
+            choicePart = "";
+          }
+          var selectedChoice = choicePart;
+
+          var container = document.createElement("div");
+
+          var wrap = document.createElement("div");
+          wrap.className = "choices";
+          var choiceButtons = [];
+          for (var jc = 0; jc < step.choices.length; jc++) {
+            (function (label) {
+              var btn = document.createElement("button");
+              btn.type = "button";
+              btn.className = "choice-btn";
+              btn.textContent = label;
+              if (label === selectedChoice) {
+                btn.classList.add("is-selected");
+              }
+              btn.addEventListener("click", function () {
+                selectedChoice = label;
+                for (var kb = 0; kb < choiceButtons.length; kb++) {
+                  choiceButtons[kb].classList.remove("is-selected");
+                }
+                btn.classList.add("is-selected");
+              });
+              choiceButtons.push(btn);
+              wrap.appendChild(btn);
+            })(step.choices[jc]);
+          }
+          container.appendChild(wrap);
+
+          var optWrapC = document.createElement("div");
+          optWrapC.className = "optional-block";
+          var optHintC = document.createElement("p");
+          optHintC.className = "hint";
+          optHintC.style.marginTop = "0";
+          optHintC.textContent = "その他・カスタマイズ希望（自由記載・任意）";
+          var taChoiceExtra = document.createElement("textarea");
+          taChoiceExtra.className = "field";
+          taChoiceExtra.setAttribute("aria-label", "その他・カスタマイズ希望");
+          taChoiceExtra.rows = 4;
+          taChoiceExtra.value = extraChoiceVal;
+          optWrapC.appendChild(optHintC);
+          optWrapC.appendChild(taChoiceExtra);
+          container.appendChild(optWrapC);
+
+          var rowChoice = document.createElement("div");
+          rowChoice.className = "nav-row";
+          rowChoice.style.marginTop = "1rem";
+          var btnNextChoice = document.createElement("button");
+          btnNextChoice.type = "button";
+          btnNextChoice.className = "btn-primary";
+          btnNextChoice.textContent = "次へ";
+          btnNextChoice.addEventListener("click", function () {
+            if (!selectedChoice) {
+              showToastMessage("選択肢を1つ選んでください", 2400);
+              return;
+            }
+            var ex = taChoiceExtra.value.trim();
+            answers[currentIndex] = selectedChoice + (ex ? TEXT_EXTRA_MARK + ex : "");
+            goNext();
+          });
+          rowChoice.appendChild(btnNextChoice);
+          container.appendChild(rowChoice);
+
+          elChoices.appendChild(container);
+        } else {
+          var raw = answers[currentIndex] != null ? String(answers[currentIndex]) : "";
+          var mainVal = raw;
+          var extraVal = "";
+          var markPos = raw.indexOf(TEXT_EXTRA_MARK);
+          if (markPos >= 0) {
+            mainVal = raw.slice(0, markPos);
+            extraVal = raw.slice(markPos + TEXT_EXTRA_MARK.length);
+          }
+          var ta = document.createElement("textarea");
+          ta.className = "field";
+          ta.id = "free-text";
+          ta.setAttribute("aria-label", step.question);
+          ta.value = mainVal;
+          elChoices.appendChild(ta);
+          if (step.hint) {
+            var ph = document.createElement("p");
+            ph.className = "hint";
+            ph.textContent = step.hint;
+            elChoices.appendChild(ph);
+          }
+          var optWrap = document.createElement("div");
+          optWrap.className = "optional-block";
+          var optHint = document.createElement("p");
+          optHint.className = "hint";
+          optHint.style.marginTop = "0";
+          optHint.textContent = "その他・カスタマイズ希望（自由記載・任意）";
+          var taExtra = document.createElement("textarea");
+          taExtra.className = "field";
+          taExtra.setAttribute("aria-label", "その他・カスタマイズ希望");
+          taExtra.rows = 3;
+          taExtra.value = extraVal;
+          optWrap.appendChild(optHint);
+          optWrap.appendChild(taExtra);
+          elChoices.appendChild(optWrap);
+          var submitRow = document.createElement("div");
+          submitRow.className = "nav-row";
+          submitRow.style.marginTop = "1rem";
+          var btnNext = document.createElement("button");
+          btnNext.type = "button";
+          btnNext.className = "btn-primary";
+          btnNext.textContent = "次へ";
+          btnNext.addEventListener("click", function () {
+            var m = ta.value.trim();
+            var e = taExtra.value.trim();
+            var combined = m;
+            if (e) combined += TEXT_EXTRA_MARK + e;
+            answers[currentIndex] = combined;
+            goNext();
+          });
+          submitRow.appendChild(btnNext);
+          elChoices.appendChild(submitRow);
+        }
+      }
+
+      function goNext() {
+        if (currentIndex < STEPS.length - 1) {
+          currentIndex++;
+          renderStep();
+          window.scrollTo(0, 0);
+        } else {
+          showCustomerScreen();
+        }
+      }
+
+      function goBack() {
+        if (currentIndex > 0) {
+          currentIndex--;
+          renderStep();
+          window.scrollTo(0, 0);
+        }
+      }
+
+      function showSummary() {
+        elQuiz.classList.remove("active");
+        elCustomer.classList.remove("active");
+        elSummary.classList.add("active");
+        var text = buildSummaryText();
+        elSummaryText.textContent = text;
+        window.scrollTo(0, 0);
+      }
+
+      function showQuiz() {
+        elSummary.classList.remove("active");
+        elCustomer.classList.remove("active");
+        elQuiz.classList.add("active");
+      }
+
+      function resetAll() {
+        answers = [];
+        currentIndex = 0;
+        clearCustomerForm();
+        showQuiz();
+        renderStep();
+      }
+
+      elBtnBack.addEventListener("click", goBack);
+
+      elBtnCustomerBack.addEventListener("click", function () {
+        readFormToCustomerInfo();
+        currentIndex = STEPS.length - 1;
+        showQuiz();
+        renderStep();
+        window.scrollTo(0, 0);
+      });
+
+      elBtnCustomerNext.addEventListener("click", function () {
+        readFormToCustomerInfo();
+        showSummary();
+      });
+
+      elBtnCopy.addEventListener("click", function () {
+        var text = buildSummaryText();
+        copyTextToClipboard(text, function () {
+          showToastMessage("コピーしました", 2200);
+        });
+      });
+
+      elBtnSubmit.addEventListener("click", function () {
+        if (!elSummary.classList.contains("active")) {
+          showSummary();
+        }
+        if (typeof emailjs === "undefined") {
+          alert("送信に失敗しました。もう一度お試しください。");
+          return;
+        }
+        var text = buildSummaryText();
+        elSummaryText.textContent = text;
+        elBtnSubmit.disabled = true;
+        elBtnSubmit.textContent = "送信中...";
+        function resetSubmitBtn() {
+          elBtnSubmit.disabled = false;
+          elBtnSubmit.textContent = SUBMIT_BTN_LABEL;
+        }
+        emailjs
+          .send(EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, { message: buildEmailMessage() })
+          .then(function () {
+            alert("送信しました！");
+            resetSubmitBtn();
+          })
+          .catch(function () {
+            alert("送信に失敗しました。もう一度お試しください。");
+            resetSubmitBtn();
+          });
+      });
+
+      elBtnRestart.addEventListener("click", resetAll);
+
+      renderStep();
+    })();
+  </script>
+</body>
+</html>

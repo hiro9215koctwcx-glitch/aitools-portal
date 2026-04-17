@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>案件スケジュール管理ツール</title>
+  <style>
+    :root {
+      --bg: #f8fafb;
+      --surface: #ffffff;
+      --text: #1a2b3c;
+      --text-muted: #5a6f80;
+      --border: #e2e8f0;
+      --accent: #0d9488;
+      --accent-light: #ccfbf1;
+      --accent-hover: #0f766e;
+      --shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+      --shadow-lg: 0 10px 40px rgba(15, 23, 42, 0.08);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --font: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    .app { max-width: 1100px; margin: 0 auto; padding: 1rem 1rem 2.5rem; }
+    header { text-align: center; padding: 1.25rem 0 1.5rem; }
+    header h1 {
+      margin: 0;
+      font-size: clamp(1.35rem, 4vw, 1.65rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+    header p { margin: 0.35rem 0 0; font-size: 0.875rem; color: var(--text-muted); }
+    .layout { display: grid; gap: 1.5rem; }
+    @media (min-width: 900px) {
+      .layout { grid-template-columns: minmax(280px, 340px) 1fr; align-items: start; }
+    }
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 1.25rem;
+    }
+    .card h2 {
+      margin: 0 0 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .card h2::before {
+      content: "";
+      width: 4px;
+      height: 1.1em;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    .form-group { margin-bottom: 0.9rem; }
+    .form-group:last-of-type { margin-bottom: 1rem; }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+    input[type="text"], input[type="date"], input[type="number"], textarea {
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    textarea { min-height: 72px; resize: vertical; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.7rem 1.1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: inherit;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { width: 100%; background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary {
+      width: 100%;
+      margin-top: 0.5rem;
+      background: var(--surface);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--bg); color: var(--text); }
+    .btn-edit {
+      width: 100%;
+      background: var(--accent-light);
+      color: var(--accent-hover);
+      border: 1px solid var(--accent);
+    }
+    .btn-edit:hover { filter: brightness(0.97); }
+    .form-section {
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-section.is-editing {
+      background: #f0fdfa;
+      border-color: #99f6e4;
+      box-shadow: 0 0 0 1px rgba(13, 148, 136, 0.15);
+    }
+    .form-section.is-editing h2::before { background: #0ea5e9; }
+    .form-section.is-editing h2 { color: var(--accent-hover); }
+    .form-edit-banner {
+      display: none;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--accent-hover);
+      background: var(--accent-light);
+      border: 1px solid #5eead4;
+      border-radius: var(--radius-sm);
+      padding: 0.5rem 0.65rem;
+      margin: -0.25rem 0 1rem;
+    }
+    .form-section.is-editing .form-edit-banner { display: block; }
+    input[type="time"] {
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: var(--surface);
+      color: var(--text);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input[type="time"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    .modal-actions-inner { display: flex; flex-direction: column; gap: 0.5rem; }
+    .calendar-wrap { min-width: 0; }
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .calendar-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+    .nav-btns { display: flex; gap: 0.5rem; }
+    .btn-nav {
+      padding: 0.5rem 0.85rem;
+      background: var(--surface);
+      color: var(--accent);
+      border: 1px solid var(--accent-light);
+      font-weight: 600;
+    }
+    .btn-nav:hover { background: var(--accent-light); }
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      margin-bottom: 4px;
+    }
+    .weekdays span {
+      text-align: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding: 0.35rem 0;
+    }
+    .weekdays span:first-child { color: #c2410c; }
+    .weekdays span:last-child { color: #2563eb; }
+    .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .cell {
+      min-height: 88px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 4px 5px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      overflow: hidden;
+    }
+    @media (min-width: 600px) { .cell { min-height: 100px; } }
+    .cell.other-month { background: #f1f5f9; opacity: 0.65; }
+    .cell.today { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent-light); }
+    .cell-num { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); flex-shrink: 0; }
+    .cell.other-month .cell-num { color: #94a3b8; }
+    .cell-events {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow-y: auto;
+    }
+    .chip {
+      font-size: 0.65rem;
+      line-height: 1.25;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: var(--accent-light);
+      color: var(--accent-hover);
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border: none;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+    }
+    .chip:hover { filter: brightness(0.95); }
+    @media (min-width: 600px) { .chip { font-size: 0.7rem; } }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.35);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 100;
+      padding: 0;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s;
+    }
+    .overlay.open { opacity: 1; visibility: visible; }
+    @media (min-width: 520px) {
+      .overlay { align-items: center; padding: 1rem; }
+    }
+    .modal {
+      background: var(--surface);
+      width: 100%;
+      max-width: 420px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: var(--radius) var(--radius) 0 0;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(100%);
+      transition: transform 0.25s ease;
+    }
+    @media (min-width: 520px) {
+      .modal {
+        border-radius: var(--radius);
+        transform: scale(0.95);
+        opacity: 0;
+        transition: transform 0.2s, opacity 0.2s;
+      }
+    }
+    .overlay.open .modal { transform: translateY(0); }
+    @media (min-width: 520px) {
+      .overlay.open .modal { transform: scale(1); opacity: 1; }
+    }
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 1.25rem 1.25rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-title { margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--text); line-height: 1.35; }
+    .btn-close {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 1.25rem;
+      line-height: 1;
+      color: var(--text-muted);
+    }
+    .btn-close:hover { background: var(--accent-light); color: var(--accent); }
+    .modal-body { padding: 1rem 1.25rem 1.25rem; }
+    .detail-row { margin-bottom: 0.85rem; }
+    .detail-row:last-child { margin-bottom: 0; }
+    .detail-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+    .detail-value { font-size: 0.95rem; color: var(--text); word-break: break-word; }
+    .detail-value.amount { font-weight: 700; color: var(--accent-hover); }
+    .modal-actions { padding: 0 1.25rem 1.25rem; }
+    .btn-danger {
+      width: 100%;
+      background: #fff;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+    .btn-danger:hover { background: #fef2f2; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>案件スケジュール管理</h1>
+      <p>依頼人・作業内容を登録し、カレンダーで一覧できます</p>
+    </header>
+    <div class="layout">
+      <section class="card form-section" id="form-section" aria-labelledby="form-heading">
+        <h2 id="form-heading">案件を登録</h2>
+        <p class="form-edit-banner" id="form-edit-banner" role="status">編集モード：内容を修正して保存してください</p>
+        <form id="case-form" novalidate>
+          <div class="form-group">
+            <label for="client">依頼人</label>
+            <input type="text" id="client" name="client" autocomplete="name" placeholder="例：株式会社〇〇" />
+          </div>
+          <div class="form-group">
+            <label for="content">作業内容（カレンダーでは冒頭を案件名として表示）</label>
+            <textarea id="content" name="content" placeholder="例：Webサイト改修・トップページデザイン"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="workDate">作業日</label>
+            <input type="date" id="workDate" name="workDate" />
+          </div>
+          <div class="form-group">
+            <label for="startTime">開始時間（任意）</label>
+            <input type="time" id="startTime" name="startTime" />
+          </div>
+          <div class="form-group">
+            <label for="amount">金額（半角数字・任意）</label>
+            <input type="number" id="amount" name="amount" min="0" step="1" placeholder="例：50000" />
+          </div>
+          <div class="form-group">
+            <label for="location">作業場所</label>
+            <input type="text" id="location" name="location" placeholder="例：リモート / 東京都〇区" />
+          </div>
+          <div class="form-group">
+            <label for="memo">その他メモ</label>
+            <textarea id="memo" name="memo" placeholder="連絡先・注意事項など"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" id="form-submit">カレンダーに追加</button>
+          <button type="button" class="btn btn-secondary" id="edit-cancel" hidden>編集をやめる</button>
+        </form>
+      </section>
+      <section class="card calendar-wrap" aria-labelledby="cal-heading">
+        <div class="calendar-header">
+          <h2 id="cal-heading" class="calendar-title"><span id="month-label">—</span></h2>
+          <div class="nav-btns">
+            <button type="button" class="btn btn-nav" id="prev-month" aria-label="前月">← 前月</button>
+            <button type="button" class="btn btn-nav" id="next-month" aria-label="次月">次月 →</button>
+          </div>
+        </div>
+        <div class="weekdays" role="row">
+          <span role="columnheader">日</span>
+          <span role="columnheader">月</span>
+          <span role="columnheader">火</span>
+          <span role="columnheader">水</span>
+          <span role="columnheader">木</span>
+          <span role="columnheader">金</span>
+          <span role="columnheader">土</span>
+        </div>
+        <div class="grid" id="calendar-grid" role="grid" aria-label="月間カレンダー"></div>
+      </section>
+    </div>
+  </div>
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title"></h3>
+        <button type="button" class="btn-close" id="modal-close" aria-label="閉じる">×</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-actions">
+        <div class="modal-actions-inner">
+          <button type="button" class="btn btn-edit" id="modal-edit">編集する</button>
+          <button type="button" class="btn btn-danger" id="modal-delete">この案件を削除</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var STORAGE_KEY = "case-schedule-items-v1";
+      function uid() {
+        return "c_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 9);
+      }
+      function normalizeItem(raw) {
+        if (!raw || typeof raw !== "object") return null;
+        var content = raw.content != null ? String(raw.content) : "";
+        if (!content && raw.title) content = String(raw.title);
+        var st = raw.startTime != null ? String(raw.startTime).trim() : "";
+        if (st.length > 5) st = st.slice(0, 5);
+        return {
+          id: String(raw.id || uid()),
+          client: String(raw.client || ""),
+          content: content,
+          workDate: String(raw.workDate || ""),
+          startTime: st,
+          amount: raw.amount != null && raw.amount !== "" ? String(raw.amount) : "",
+          location: String(raw.location || ""),
+          memo: String(raw.memo || ""),
+        };
+      }
+      function loadItems() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return [];
+          var parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) return [];
+          return parsed.map(normalizeItem).filter(Boolean);
+        } catch (e) {
+          return [];
+        }
+      }
+      function saveItems(items) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      }
+      var items = loadItems();
+      var form = document.getElementById("case-form");
+      var grid = document.getElementById("calendar-grid");
+      var monthLabel = document.getElementById("month-label");
+      var prevBtn = document.getElementById("prev-month");
+      var nextBtn = document.getElementById("next-month");
+      var overlay = document.getElementById("overlay");
+      var modalTitle = document.getElementById("modal-title");
+      var modalBody = document.getElementById("modal-body");
+      var modalClose = document.getElementById("modal-close");
+      var modalDelete = document.getElementById("modal-delete");
+      var modalEdit = document.getElementById("modal-edit");
+      var formSection = document.getElementById("form-section");
+      var formHeading = document.getElementById("form-heading");
+      var editCancel = document.getElementById("edit-cancel");
+      var viewYear = new Date().getFullYear();
+      var viewMonth = new Date().getMonth();
+      var selectedId = null;
+      var editingId = null;
+      function pad2(n) { return String(n).padStart(2, "0"); }
+      function formatYmd(y, m, d) {
+        var dt = new Date(y, m, d);
+        return dt.getFullYear() + "-" + pad2(dt.getMonth() + 1) + "-" + pad2(dt.getDate());
+      }
+      function parseYmd(ymd) {
+        var p = ymd.split("-").map(Number);
+        return { y: p[0], m: p[1] - 1, d: p[2] };
+      }
+      function formatJpMonth(y, m) { return y + "年 " + (m + 1) + "月"; }
+      function formatAmountDisplay(raw) {
+        if (raw === "" || raw == null) return "—";
+        var n = Number(raw);
+        if (Number.isNaN(n)) return String(raw);
+        return "\u00a5" + n.toLocaleString("ja-JP");
+      }
+      function workSummary(it) { return String(it.content || "").trim(); }
+      function formatTimeShort(t) {
+        if (!t || !String(t).trim()) return "";
+        var s = String(t).trim();
+        return s.length >= 5 ? s.slice(0, 5) : s;
+      }
+      function formatTimeDetail(t) {
+        var sh = formatTimeShort(t);
+        return sh || "—";
+      }
+      function calendarLabel(it) {
+        var timePrefix = formatTimeShort(it.startTime);
+        var oneLine = workSummary(it).replace(/\s+/g, " ");
+        var maxLen = timePrefix ? 12 : 18;
+        var short = oneLine.length > maxLen ? oneLine.slice(0, maxLen) + "\u2026" : oneLine;
+        var body = short || it.client || "（無題）";
+        return timePrefix ? timePrefix + " " + body : body;
+      }
+      function modalHeading(it) {
+        var timePrefix = formatTimeShort(it.startTime);
+        var oneLine = workSummary(it).split(/\r?\n/)[0];
+        if (oneLine.length > 40) oneLine = oneLine.slice(0, 40) + "\u2026";
+        var title = oneLine || it.client || "案件詳細";
+        return timePrefix ? timePrefix + " " + title : title;
+      }
+      function itemsForDate(ymd) {
+        return items
+          .filter(function (it) { return it.workDate === ymd; })
+          .sort(function (a, b) {
+            var ta = formatTimeShort(a.startTime);
+            var tb = formatTimeShort(b.startTime);
+            if (ta !== tb) return ta.localeCompare(tb);
+            return String(a.id).localeCompare(String(b.id));
+          });
+      }
+      function renderCalendar() {
+        monthLabel.textContent = formatJpMonth(viewYear, viewMonth);
+        var first = new Date(viewYear, viewMonth, 1);
+        var last = new Date(viewYear, viewMonth + 1, 0);
+        var startPad = first.getDay();
+        var daysInMonth = last.getDate();
+        var prevLast = new Date(viewYear, viewMonth, 0);
+        var prevDays = prevLast.getDate();
+        var today = new Date();
+        var isThisMonth = today.getFullYear() === viewYear && today.getMonth() === viewMonth;
+        grid.innerHTML = "";
+        var i;
+        for (i = 0; i < startPad; i++) {
+          var pd = prevDays - startPad + i + 1;
+          grid.appendChild(makeCell(viewYear, viewMonth - 1, pd, true));
+        }
+        for (var d = 1; d <= daysInMonth; d++) {
+          grid.appendChild(makeCell(viewYear, viewMonth, d, false, isThisMonth && today.getDate() === d));
+        }
+        var totalCells = startPad + daysInMonth;
+        var remainder = totalCells % 7;
+        var trailing = remainder === 0 ? 0 : 7 - remainder;
+        for (var t = 1; t <= trailing; t++) {
+          grid.appendChild(makeCell(viewYear, viewMonth + 1, t, true));
+        }
+      }
+      function makeCell(y, m, d, other, isToday) {
+        var ymd = formatYmd(y, m, d);
+        var cell = document.createElement("div");
+        cell.className = "cell" + (other ? " other-month" : "") + (isToday ? " today" : "");
+        cell.setAttribute("role", "gridcell");
+        var num = document.createElement("span");
+        num.className = "cell-num";
+        num.textContent = String(d);
+        cell.appendChild(num);
+        var list = document.createElement("div");
+        list.className = "cell-events";
+        itemsForDate(ymd).forEach(function (it) {
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "chip";
+          btn.textContent = calendarLabel(it);
+          var tip = formatTimeShort(it.startTime);
+          if (it.client) tip += (tip ? " " : "") + it.client;
+          var sum = workSummary(it).replace(/\s+/g, " ");
+          if (sum) tip += (tip ? " — " : "") + sum.slice(0, 120);
+          btn.title = tip;
+          btn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            openModal(it.id);
+          });
+          list.appendChild(btn);
+        });
+        cell.appendChild(list);
+        return cell;
+      }
+      function openModal(id) {
+        var it = items.find(function (x) { return x.id === id; });
+        if (!it) return;
+        selectedId = id;
+        modalTitle.textContent = modalHeading(it);
+        var rows = [
+          ["依頼人", it.client || "—"],
+          ["作業内容", it.content || "—"],
+          ["作業日", it.workDate || "—"],
+          ["開始時間", formatTimeDetail(it.startTime)],
+          ["金額", formatAmountDisplay(it.amount), "amount"],
+          ["作業場所", it.location || "—"],
+          ["その他メモ", it.memo || "—"],
+        ];
+        modalBody.innerHTML = rows
+          .map(function (r) {
+            var cls = r[2] ? ' class="detail-value ' + r[2] + '"' : ' class="detail-value"';
+            return (
+              '<div class="detail-row">' +
+              '<div class="detail-label">' +
+              escapeHtml(r[0]) +
+              "</div>" +
+              "<div" +
+              cls +
+              ">" +
+              escapeHtml(String(r[1])) +
+              "</div></div>"
+            );
+          })
+          .join("");
+        overlay.hidden = false;
+        requestAnimationFrame(function () { overlay.classList.add("open"); });
+        modalClose.focus();
+      }
+      function closeModal() {
+        overlay.classList.remove("open");
+        selectedId = null;
+        setTimeout(function () { overlay.hidden = true; }, 250);
+      }
+      function escapeHtml(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+      function applyDefaultDate() {
+        var todayStr = formatYmd(
+          new Date().getFullYear(),
+          new Date().getMonth(),
+          new Date().getDate()
+        );
+        var workDateEl = document.getElementById("workDate");
+        var startTimeEl = document.getElementById("startTime");
+        if (workDateEl) workDateEl.value = todayStr;
+        if (startTimeEl) startTimeEl.value = "";
+      }
+      function setEditUi(on) {
+        if (!formSection || !formHeading || !editCancel) return;
+        formSection.classList.toggle("is-editing", on);
+        formHeading.textContent = on ? "案件を編集" : "案件を登録";
+        editCancel.hidden = !on;
+      }
+      function clearEditMode() {
+        editingId = null;
+        setEditUi(false);
+      }
+      function loadItemIntoForm(it) {
+        document.getElementById("client").value = it.client || "";
+        document.getElementById("content").value = it.content || "";
+        document.getElementById("workDate").value = it.workDate || "";
+        document.getElementById("startTime").value = formatTimeShort(it.startTime);
+        document.getElementById("amount").value = it.amount || "";
+        document.getElementById("location").value = it.location || "";
+        document.getElementById("memo").value = it.memo || "";
+      }
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var fd = new FormData(form);
+        var client = String(fd.get("client") || "").trim();
+        var content = String(fd.get("content") || "").trim();
+        var workDate = String(fd.get("workDate") || "").trim();
+        var startTime = String(fd.get("startTime") || "").trim();
+        if (startTime.length > 5) startTime = startTime.slice(0, 5);
+        var amountRaw = String(fd.get("amount") || "").trim();
+        var location = String(fd.get("location") || "").trim();
+        var memo = String(fd.get("memo") || "").trim();
+        var item = {
+          id: editingId || uid(),
+          client: client,
+          content: content,
+          workDate: workDate,
+          startTime: startTime,
+          amount: amountRaw,
+          location: location,
+          memo: memo,
+        };
+        if (editingId) {
+          var idx = items.findIndex(function (x) { return x.id === editingId; });
+          if (idx !== -1) {
+            items[idx] = item;
+          } else {
+            items.push(item);
+          }
+        } else {
+          items.push(item);
+        }
+        saveItems(items);
+        if (workDate && /^\d{4}-\d{2}-\d{2}$/.test(workDate)) {
+          var wd = parseYmd(workDate);
+          if (wd.y !== viewYear || wd.m !== viewMonth) {
+            viewYear = wd.y;
+            viewMonth = wd.m;
+          }
+        }
+        renderCalendar();
+        clearEditMode();
+        form.reset();
+        applyDefaultDate();
+      });
+      prevBtn.addEventListener("click", function () {
+        viewMonth--;
+        if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+        renderCalendar();
+      });
+      nextBtn.addEventListener("click", function () {
+        viewMonth++;
+        if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+        renderCalendar();
+      });
+      modalClose.addEventListener("click", closeModal);
+      overlay.addEventListener("click", function (e) {
+        if (e.target === overlay) closeModal();
+      });
+      modalEdit.addEventListener("click", function () {
+        if (!selectedId) return;
+        var it = items.find(function (x) { return x.id === selectedId; });
+        if (!it) return;
+        editingId = it.id;
+        loadItemIntoForm(it);
+        setEditUi(true);
+        closeModal();
+        formSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+      editCancel.addEventListener("click", function () {
+        clearEditMode();
+        form.reset();
+        applyDefaultDate();
+      });
+      modalDelete.addEventListener("click", function () {
+        if (!selectedId) return;
+        if (!confirm("この案件を削除しますか？取り消せません。")) return;
+        var rid = selectedId;
+        if (editingId === rid) {
+          clearEditMode();
+          form.reset();
+          applyDefaultDate();
+        }
+        items = items.filter(function (x) { return x.id !== rid; });
+        saveItems(items);
+        closeModal();
+        renderCalendar();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && !overlay.hidden) closeModal();
+      });
+      applyDefaultDate();
+      renderCalendar();
+    })();
+  </script>
+</body>
+</html>

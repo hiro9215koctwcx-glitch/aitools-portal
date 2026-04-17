@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>プロジェクト管理ダッシュボード</title>
+<style>
+  :root {
+    --accent: #3B82F6;
+    --accent-light: #EFF6FF;
+    --bg: #F8FAFC;
+    --card: #FFFFFF;
+    --text: #1E293B;
+    --text-muted: #64748B;
+    --border: #E2E8F0;
+    --shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+    --shadow-sm: 0 2px 12px rgba(15, 23, 42, 0.06);
+    --green: #22C55E;
+    --warn: #EAB308;
+    --danger: #EF4444;
+    --prio-high: #EF4444;
+    --prio-mid: #EAB308;
+    --prio-low: #94A3B8;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  .app-header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .app-header h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .app-header p {
+    margin: 0.35rem 0 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 1rem 2rem;
+  }
+
+  /* 上部ダッシュボード */
+  .dash-top {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+  }
+
+  .stat-card strong {
+    display: block;
+    font-size: 1.4rem;
+    color: var(--accent);
+  }
+
+  .stat-card span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .alert-banner {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+  }
+
+  .alert-banner h2 {
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .alert-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .alert-chip {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  .alert-chip.yellow {
+    background: #FEF9C3;
+    color: #854D0E;
+    border: 1px solid #FDE047;
+  }
+
+  .alert-chip.red {
+    background: #FEE2E2;
+    color: #991B1B;
+    border: 1px solid #FCA5A5;
+  }
+
+  .main-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  @media (max-width: 960px) {
+    .main-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .panel {
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .panel-head {
+    padding: 0.9rem 1.1rem;
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+    font-size: 0.95rem;
+    background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+  }
+
+  .panel-body {
+    padding: 1rem 1.1rem;
+  }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .toolbar input,
+  .toolbar select {
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    min-width: 0;
+    flex: 1 1 120px;
+  }
+
+  .project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    max-height: 320px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+    padding-right: 4px;
+  }
+
+  @media (min-width: 961px) {
+    .project-list {
+      max-height: 280px;
+    }
+  }
+
+  .project-card {
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 0.75rem 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    background: #FFFFFF;
+  }
+
+  .project-card:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .project-card.selected {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .project-card.alert-priority {
+    border-left: 4px solid var(--danger);
+  }
+
+  .project-card.due-today {
+    outline: 2px solid var(--accent);
+    outline-offset: 0;
+  }
+
+  .project-card.due-week {
+    border-color: #93C5FD;
+    background: #F0F9FF;
+  }
+
+  .project-card .row-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .project-card .row-meta {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .badge.p-high { background: var(--prio-high); }
+  .badge.p-mid { background: var(--prio-mid); color: #422006; }
+  .badge.p-low { background: var(--prio-low); }
+
+  .badge.status {
+    background: var(--text-muted);
+    color: #fff;
+  }
+
+  .form-register {
+    border-top: 1px dashed var(--border);
+    padding-top: 1rem;
+    margin-top: 0.25rem;
+  }
+
+  .form-register h3 {
+    margin: 0 0 0.65rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 0.65rem;
+  }
+
+  @media (max-width: 520px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .form-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .form-grid input,
+  .form-grid select,
+  .form-grid textarea {
+    padding: 0.45rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-family: inherit;
+  }
+
+  .form-grid textarea {
+    min-height: 56px;
+    resize: vertical;
+  }
+
+  .form-grid .full {
+    grid-column: 1 / -1;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.55rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    margin-top: 0.65rem;
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.05);
+  }
+
+  .btn-small {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    background: var(--border);
+    color: var(--text);
+  }
+
+  .btn-danger {
+    background: #FEE2E2;
+    color: #991B1B;
+  }
+
+  .detail-empty {
+    color: var(--text-muted);
+    text-align: center;
+    padding: 2rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .next-action {
+    background: var(--accent-light);
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #1E40AF;
+  }
+
+  .detail-alerts {
+    margin-bottom: 0.85rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .detail-field {
+    margin-bottom: 0.65rem;
+  }
+
+  .detail-field label {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+  }
+
+  .detail-field input,
+  .detail-field select,
+  .detail-field textarea {
+    width: 100%;
+    padding: 0.45rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-family: inherit;
+  }
+
+  .detail-field textarea {
+    min-height: 70px;
+  }
+
+  .detail-two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 520px) {
+    .detail-two {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .progress-wrap {
+    margin: 1rem 0;
+  }
+
+  .progress-wrap .label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    margin-bottom: 0.35rem;
+    color: var(--text-muted);
+  }
+
+  .progress-bar {
+    height: 10px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .progress-bar > div {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), #4ADE80);
+    border-radius: 999px;
+    transition: width 0.25s ease;
+  }
+
+  .phase-block {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    background: #FAFAFA;
+  }
+
+  .phase-block h4 {
+    margin: 0 0 0.5rem;
+    font-size: 0.82rem;
+    color: var(--text);
+  }
+
+  .check-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+    margin-bottom: 0.4rem;
+    font-size: 0.82rem;
+  }
+
+  .check-row input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.15rem;
+    accent-color: var(--green);
+  }
+
+  .check-row.done span {
+    color: var(--green);
+    text-decoration: line-through;
+  }
+
+  .check-row .del-item {
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .phase-memo label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    display: block;
+    margin: 0.5rem 0 0.25rem;
+  }
+
+  .phase-memo textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-family: inherit;
+  }
+
+  .add-item-row {
+    display: flex;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+  }
+
+  .add-item-row input {
+    flex: 1;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.8rem;
+  }
+
+  .delete-project {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <h1>プロジェクト管理ダッシュボード</h1>
+  <p>今日、誰に何をすべきか、一目でわかる。</p>
+</header>
+
+<div class="container">
+  <section class="dash-top" id="dashTop">
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="alert-banner">
+      <h2>アラート・優先表示</h2>
+      <div class="alert-list" id="alertList"></div>
+    </div>
+  </section>
+
+  <div class="main-layout">
+    <div class="panel">
+      <div class="panel-head">クライアント・案件一覧</div>
+      <div class="panel-body">
+        <div class="toolbar">
+          <input type="search" id="searchInput" placeholder="クライアント名・案件名で検索" autocomplete="off">
+          <select id="filterStatus">
+            <option value="">すべてのステータス</option>
+            <option value="未着手">未着手</option>
+            <option value="進行中">進行中</option>
+            <option value="確認待ち">確認待ち</option>
+            <option value="修正中">修正中</option>
+            <option value="完了">完了</option>
+            <option value="保留">保留</option>
+          </select>
+          <select id="filterPriority">
+            <option value="">すべての優先度</option>
+            <option value="高">高</option>
+            <option value="中">中</option>
+            <option value="低">低</option>
+          </select>
+        </div>
+        <div class="project-list" id="projectList"></div>
+
+        <div class="form-register">
+          <h3>案件登録</h3>
+          <form id="registerForm">
+            <div class="form-grid">
+              <label>クライアント名<input type="text" name="clientName" required></label>
+              <label>担当者名<input type="text" name="contactName" required></label>
+              <label class="full">案件名<input type="text" name="projectName" required></label>
+              <label class="full">依頼内容<textarea name="description" required></textarea></label>
+              <label>ステータス
+                <select name="status" required>
+                  <option value="未着手">未着手</option>
+                  <option value="進行中">進行中</option>
+                  <option value="確認待ち">確認待ち</option>
+                  <option value="修正中">修正中</option>
+                  <option value="完了">完了</option>
+                  <option value="保留">保留</option>
+                </select>
+              </label>
+              <label>優先度
+                <select name="priority" required>
+                  <option value="高">高</option>
+                  <option value="中" selected>中</option>
+                  <option value="低">低</option>
+                </select>
+              </label>
+              <label>開始日<input type="date" name="startDate"></label>
+              <label>締切日<input type="date" name="dueDate"></label>
+              <label class="full">担当者メモ<textarea name="memo"></textarea></label>
+            </div>
+            <button type="submit" class="btn btn-primary">案件を登録</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">案件詳細・進捗チェックシート</div>
+      <div class="panel-body" id="detailPanel">
+        <div class="detail-empty">左の一覧から案件を選択してください。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var STORAGE_KEY = 'projectDashboardData_v1';
+
+  var STATUS_OPTIONS = ['未着手', '進行中', '確認待ち', '修正中', '完了', '保留'];
+  var PRIORITY_OPTIONS = ['高', '中', '低'];
+
+  var NEXT_ACTION = {
+    '未着手': 'まずは担当者に連絡して開始しましょう',
+    '進行中': '進捗を確認して作業を進めましょう',
+    '確認待ち': '相手からの返信を待ちましょう。3日経過したらフォローを',
+    '修正中': '修正内容を確認して対応しましょう',
+    '完了': '完了報告と請求書の送付を確認しましょう',
+    '保留': '保留理由を確認して再開のタイミングを検討しましょう'
+  };
+
+  function defaultPhases() {
+    return [
+      {
+        key: 'prepare',
+        title: '準備フェーズ',
+        memo: '',
+        items: [
+          { id: uid(), text: '要件・仕様を確認した', done: false },
+          { id: uid(), text: 'スケジュールを決めた', done: false },
+          { id: uid(), text: '必要な素材・情報を集めた', done: false }
+        ]
+      },
+      {
+        key: 'execute',
+        title: '実行フェーズ',
+        memo: '',
+        items: [
+          { id: uid(), text: '作業を開始した', done: false },
+          { id: uid(), text: '中間確認をした', done: false },
+          { id: uid(), text: '修正・調整をした', done: false }
+        ]
+      },
+      {
+        key: 'finish',
+        title: '完了フェーズ',
+        memo: '',
+        items: [
+          { id: uid(), text: '最終確認をした', done: false },
+          { id: uid(), text: '納品・提出をした', done: false },
+          { id: uid(), text: '請求書・報告書を送った', done: false },
+          { id: uid(), text: 'フォロー連絡をした', done: false }
+        ]
+      }
+    ];
+  }
+
+  function uid() {
+    return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+  }
+
+  function startOfDay(d) {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  }
+
+  function parseDateInput(str) {
+    if (!str) return null;
+    var p = str.split('-');
+    if (p.length !== 3) return null;
+    var y = parseInt(p[0], 10);
+    var m = parseInt(p[1], 10) - 1;
+    var day = parseInt(p[2], 10);
+    return new Date(y, m, day);
+  }
+
+  function daysBetween(a, b) {
+    var sa = startOfDay(a).getTime();
+    var sb = startOfDay(b).getTime();
+    return Math.round((sb - sa) / 86400000);
+  }
+
+  function isSameDay(a, b) {
+    return startOfDay(a).getTime() === startOfDay(b).getTime();
+  }
+
+  function weekRange(d) {
+    var day = d.getDay();
+    var diffToMon = day === 0 ? -6 : 1 - day;
+    var mon = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diffToMon);
+    var sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6);
+    return { start: mon, end: sun };
+  }
+
+  function isInThisWeek(due, now) {
+    if (!due) return false;
+    var wr = weekRange(now);
+    var t = startOfDay(due).getTime();
+    return t >= startOfDay(wr.start).getTime() && t <= startOfDay(wr.end).getTime();
+  }
+
+  function getAlerts(p, now) {
+    var list = [];
+    var maxLevel = 0;
+    var last = new Date(p.lastUpdated);
+    var dsu = daysBetween(last, now);
+
+    if (dsu >= 7) {
+      list.push({ level: 'red', text: '最終更新から7日以上経過' });
+      maxLevel = 2;
+    } else if (dsu >= 3) {
+      list.push({ level: 'yellow', text: '最終更新から3日以上経過' });
+      maxLevel = Math.max(maxLevel, 1);
+    }
+
+    var due = parseDateInput(p.dueDate);
+    if (due) {
+      if (startOfDay(due) < startOfDay(now)) {
+        list.push({ level: 'red', text: '期限超過' });
+        maxLevel = 2;
+      } else {
+        var until = daysBetween(now, due);
+        if (until <= 3) {
+          list.push({ level: 'red', text: '締切まで3日以内' });
+          maxLevel = 2;
+        }
+      }
+    }
+
+    return { items: list, score: maxLevel };
+  }
+
+  function hasAnyAlert(p, now) {
+    return getAlerts(p, now).items.length > 0;
+  }
+
+  function sortKeyForList(p, now) {
+    var a = getAlerts(p, now);
+    var due = parseDateInput(p.dueDate);
+    var overdue = due && startOfDay(due) < startOfDay(now);
+    var dueSoon = due && startOfDay(due) >= startOfDay(now) && daysBetween(now, due) <= 3;
+    var pri = p.priority === '高' ? 3 : p.priority === '中' ? 2 : 1;
+    var alertScore = overdue ? 1000 : dueSoon ? 500 : a.score === 2 ? 400 : a.score === 1 ? 200 : 0;
+    return alertScore * 100 + pri;
+  }
+
+  var state = {
+    projects: [],
+    selectedId: null
+  };
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        var data = JSON.parse(raw);
+        if (Array.isArray(data.projects)) state.projects = data.projects.map(normalizeProject);
+        if (data.selectedId) state.selectedId = data.selectedId;
+      }
+    } catch (e) {}
+  }
+
+  function normalizeProject(p) {
+    if (!p.id) p.id = uid();
+    if (!p.lastUpdated) p.lastUpdated = new Date().toISOString();
+    if (typeof p.description !== 'string') p.description = '';
+    if (typeof p.memo !== 'string') p.memo = '';
+    if (!p.checklist || !Array.isArray(p.checklist.phases)) {
+      p.checklist = { phases: defaultPhases() };
+    } else {
+      p.checklist.phases = p.checklist.phases.map(function (ph) {
+        if (!ph.items) ph.items = [];
+        ph.items = ph.items.map(function (it) {
+          if (!it.id) it.id = uid();
+          return it;
+        });
+        if (typeof ph.memo !== 'string') ph.memo = '';
+        return ph;
+      });
+    }
+    return p;
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        projects: state.projects,
+        selectedId: state.selectedId
+      }));
+    } catch (e) {}
+  }
+
+  function touchProject(p) {
+    p.lastUpdated = new Date().toISOString();
+  }
+
+  function findProject(id) {
+    for (var i = 0; i < state.projects.length; i++) {
+      if (state.projects[i].id === id) return state.projects[i];
+    }
+    return null;
+  }
+
+  function renderStats() {
+    var now = new Date();
+    var grid = document.getElementById('statsGrid');
+    var counts = { total: state.projects.length };
+    STATUS_OPTIONS.forEach(function (s) { counts[s] = 0; });
+    PRIORITY_OPTIONS.forEach(function (pr) { counts['p_' + pr] = 0; });
+    var alertCount = 0;
+
+    state.projects.forEach(function (p) {
+      if (counts[p.status] !== undefined) counts[p.status]++;
+      if (counts['p_' + p.priority] !== undefined) counts['p_' + p.priority]++;
+      if (hasAnyAlert(p, now)) alertCount++;
+    });
+
+    var html = '';
+    html += '<div class="stat-card"><strong>' + counts.total + '</strong><span>全案件数</span></div>';
+    STATUS_OPTIONS.forEach(function (s) {
+      html += '<div class="stat-card"><strong>' + counts[s] + '</strong><span>' + s + '</span></div>';
+    });
+    PRIORITY_OPTIONS.forEach(function (pr) {
+      html += '<div class="stat-card"><strong>' + counts['p_' + pr] + '</strong><span>優先度・' + pr + '</span></div>';
+    });
+    html += '<div class="stat-card"><strong>' + alertCount + '</strong><span>アラートあり</span></div>';
+    grid.innerHTML = html;
+
+    var alertList = document.getElementById('alertList');
+    var alerts = [];
+    state.projects.forEach(function (p) {
+      var g = getAlerts(p, now);
+      if (g.items.length) {
+        alerts.push({ p: p, items: g.items });
+      }
+    });
+    alerts.sort(function (a, b) { return sortKeyForList(b.p, now) - sortKeyForList(a.p, now); });
+
+    if (!alerts.length) {
+      alertList.innerHTML = '<span style="color:#64748B;font-size:0.85rem;">現在アラートはありません。</span>';
+      return;
+    }
+    var h = '';
+    alerts.forEach(function (entry) {
+      entry.items.forEach(function (it) {
+        h += '<span class="alert-chip ' + (it.level === 'red' ? 'red' : 'yellow') + '">' +
+          escapeHtml(entry.p.projectName) + '：' + escapeHtml(it.text) + '</span>';
+      });
+    });
+    alertList.innerHTML = h;
+  }
+
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function getFilteredSorted() {
+    var now = new Date();
+    var q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+    var fs = document.getElementById('filterStatus').value;
+    var fp = document.getElementById('filterPriority').value;
+
+    var list = state.projects.filter(function (p) {
+      if (fs && p.status !== fs) return false;
+      if (fp && p.priority !== fp) return false;
+      if (q) {
+        var c = (p.clientName + ' ' + p.projectName).toLowerCase();
+        if (c.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+
+    list.sort(function (a, b) {
+      var sa = sortKeyForList(a, now);
+      var sb = sortKeyForList(b, now);
+      if (sb !== sa) return sb - sa;
+      return (b.lastUpdated || '').localeCompare(a.lastUpdated || '');
+    });
+    return list;
+  }
+
+  function prioClass(pr) {
+    if (pr === '高') return 'p-high';
+    if (pr === '中') return 'p-mid';
+    return 'p-low';
+  }
+
+  function renderList() {
+    var el = document.getElementById('projectList');
+    var now = new Date();
+    var list = getFilteredSorted();
+    if (!list.length) {
+      el.innerHTML = '<div class="detail-empty" style="padding:1rem;">該当する案件がありません。</div>';
+      return;
+    }
+    var h = '';
+    list.forEach(function (p) {
+      var due = parseDateInput(p.dueDate);
+      var cls = 'project-card';
+      if (p.id === state.selectedId) cls += ' selected';
+      if (hasAnyAlert(p, now)) cls += ' alert-priority';
+      if (due && isSameDay(due, now)) cls += ' due-today';
+      else if (due && isInThisWeek(due, now) && startOfDay(due) >= startOfDay(now)) cls += ' due-week';
+
+      h += '<div class="' + cls + '" data-id="' + escapeHtml(p.id) + '">';
+      h += '<div class="row-title">' + escapeHtml(p.projectName) + '</div>';
+      h += '<div class="row-meta">';
+      h += '<span>' + escapeHtml(p.clientName) + '／' + escapeHtml(p.contactName) + '</span>';
+      h += '<span class="badge status">' + escapeHtml(p.status) + '</span>';
+      h += '<span class="badge ' + prioClass(p.priority) + '">' + escapeHtml(p.priority) + '</span>';
+      if (due && isSameDay(due, now)) h += '<span class="badge p-high">今日締切</span>';
+      else if (due && isInThisWeek(due, now) && startOfDay(due) >= startOfDay(now)) h += '<span class="badge p-mid">今週締切</span>';
+      h += '</div></div>';
+    });
+    el.innerHTML = h;
+
+    el.querySelectorAll('.project-card').forEach(function (node) {
+      node.addEventListener('click', function () {
+        state.selectedId = node.getAttribute('data-id');
+        save();
+        renderList();
+        renderDetail();
+      });
+    });
+  }
+
+  function checklistCounts(p) {
+    var total = 0;
+    var done = 0;
+    p.checklist.phases.forEach(function (ph) {
+      ph.items.forEach(function (it) {
+        total++;
+        if (it.done) done++;
+      });
+    });
+    return { total: total, done: done };
+  }
+
+  function renderDetail() {
+    var panel = document.getElementById('detailPanel');
+    var p = state.selectedId ? findProject(state.selectedId) : null;
+    if (!p) {
+      panel.innerHTML = '<div class="detail-empty">左の一覧から案件を選択してください。</div>';
+      return;
+    }
+
+    var now = new Date();
+    var alerts = getAlerts(p, now);
+    var na = NEXT_ACTION[p.status] || '';
+    var cc = checklistCounts(p);
+    var pct = cc.total ? Math.round((cc.done / cc.total) * 100) : 0;
+
+    var h = '';
+    h += '<div class="detail-alerts">';
+    if (alerts.items.length) {
+      alerts.items.forEach(function (it) {
+        h += '<span class="alert-chip ' + (it.level === 'red' ? 'red' : 'yellow') + '">' + escapeHtml(it.text) + '</span>';
+      });
+    } else {
+      h += '<span style="font-size:0.8rem;color:#64748B;">アラートなし</span>';
+    }
+    h += '</div>';
+
+    h += '<div class="next-action">' + escapeHtml(na) + '</div>';
+
+    h += '<div class="detail-two">';
+    h += '<div class="detail-field"><label>クライアント名</label><input type="text" data-field="clientName" value="' + escapeHtml(p.clientName) + '"></div>';
+    h += '<div class="detail-field"><label>担当者名</label><input type="text" data-field="contactName" value="' + escapeHtml(p.contactName) + '"></div>';
+    h += '</div>';
+    h += '<div class="detail-field"><label>案件名</label><input type="text" data-field="projectName" value="' + escapeHtml(p.projectName) + '"></div>';
+    h += '<div class="detail-field"><label>依頼内容</label><textarea data-field="description">' + escapeHtml(p.description) + '</textarea></div>';
+    h += '<div class="detail-two">';
+    h += '<div class="detail-field"><label>ステータス</label><select data-field="status">';
+    STATUS_OPTIONS.forEach(function (s) {
+      h += '<option value="' + s + '"' + (p.status === s ? ' selected' : '') + '>' + s + '</option>';
+    });
+    h += '</select></div>';
+    h += '<div class="detail-field"><label>優先度</label><select data-field="priority">';
+    PRIORITY_OPTIONS.forEach(function (pr) {
+      h += '<option value="' + pr + '"' + (p.priority === pr ? ' selected' : '') + '>' + pr + '</option>';
+    });
+    h += '</select></div>';
+    h += '</div>';
+    h += '<div class="detail-two">';
+    h += '<div class="detail-field"><label>開始日</label><input type="date" data-field="startDate" value="' + escapeHtml(p.startDate || '') + '"></div>';
+    h += '<div class="detail-field"><label>締切日</label><input type="date" data-field="dueDate" value="' + escapeHtml(p.dueDate || '') + '"></div>';
+    h += '</div>';
+    h += '<div class="detail-field"><label>担当者メモ</label><textarea data-field="memo">' + escapeHtml(p.memo || '') + '</textarea></div>';
+
+    h += '<div class="progress-wrap">';
+    h += '<div class="label"><span>チェックシート進捗</span><span>' + cc.done + '／' + cc.total + '（' + pct + '%）</span></div>';
+    h += '<div class="progress-bar"><div style="width:' + pct + '%"></div></div>';
+    h += '</div>';
+
+    p.checklist.phases.forEach(function (ph, pi) {
+      h += '<div class="phase-block" data-phase-index="' + pi + '">';
+      h += '<h4>' + escapeHtml(ph.title) + '</h4>';
+      ph.items.forEach(function (it, ii) {
+        h += '<div class="check-row' + (it.done ? ' done' : '') + '" data-phase="' + pi + '" data-item="' + ii + '">';
+        h += '<input type="checkbox" data-phase="' + pi + '" data-item="' + ii + '"' + (it.done ? ' checked' : '') + '>';
+        h += '<span>' + escapeHtml(it.text) + '</span>';
+        h += '<button type="button" class="btn btn-small del-item" data-phase="' + pi + '" data-item="' + ii + '">削除</button>';
+        h += '</div>';
+      });
+      h += '<div class="add-item-row">';
+      h += '<input type="text" class="new-item-text" data-phase="' + pi + '" placeholder="項目を追加">';
+      h += '<button type="button" class="btn btn-small add-item-btn" data-phase="' + pi + '">追加</button>';
+      h += '</div>';
+      h += '<div class="phase-memo">';
+      h += '<label>フェーズメモ</label>';
+      h += '<textarea class="phase-memo-input" data-phase="' + pi + '">' + escapeHtml(ph.memo || '') + '</textarea>';
+      h += '</div>';
+      h += '</div>';
+    });
+
+    h += '<div class="delete-project"><button type="button" class="btn btn-danger" id="btnDeleteProject">この案件を削除</button></div>';
+
+    panel.innerHTML = h;
+
+    function bindDetailInputs() {
+      panel.querySelectorAll('[data-field]').forEach(function (inp) {
+        var ev = inp.tagName === 'SELECT' ? 'change' : 'input';
+        inp.addEventListener(ev, function () {
+          var f = inp.getAttribute('data-field');
+          if (inp.type === 'checkbox') return;
+          p[f] = inp.value;
+          touchProject(p);
+          save();
+          renderStats();
+          renderList();
+          if (f === 'status' || f === 'priority' || f === 'startDate' || f === 'dueDate') {
+            renderDetail();
+          }
+        });
+      });
+    }
+
+    bindDetailInputs();
+
+    panel.querySelectorAll('.check-row input[type="checkbox"]').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        var pi = parseInt(cb.getAttribute('data-phase'), 10);
+        var ii = parseInt(cb.getAttribute('data-item'), 10);
+        p.checklist.phases[pi].items[ii].done = cb.checked;
+        touchProject(p);
+        save();
+        renderStats();
+        renderList();
+        renderDetail();
+      });
+    });
+
+    panel.querySelectorAll('.del-item').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var pi = parseInt(btn.getAttribute('data-phase'), 10);
+        var ii = parseInt(btn.getAttribute('data-item'), 10);
+        p.checklist.phases[pi].items.splice(ii, 1);
+        touchProject(p);
+        save();
+        renderDetail();
+        renderStats();
+        renderList();
+      });
+    });
+
+    panel.querySelectorAll('.add-item-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var pi = parseInt(btn.getAttribute('data-phase'), 10);
+        var row = panel.querySelector('.new-item-text[data-phase="' + pi + '"]');
+        var text = (row && row.value || '').trim();
+        if (!text) return;
+        p.checklist.phases[pi].items.push({ id: uid(), text: text, done: false });
+        row.value = '';
+        touchProject(p);
+        save();
+        renderDetail();
+        renderList();
+      });
+    });
+
+    panel.querySelectorAll('.phase-memo-input').forEach(function (ta) {
+      ta.addEventListener('input', function () {
+        var pi = parseInt(ta.getAttribute('data-phase'), 10);
+        p.checklist.phases[pi].memo = ta.value;
+        touchProject(p);
+        save();
+      });
+    });
+
+    var delBtn = document.getElementById('btnDeleteProject');
+    if (delBtn) {
+      delBtn.addEventListener('click', function () {
+        if (!confirm('この案件を削除しますか？')) return;
+        state.projects = state.projects.filter(function (x) { return x.id !== p.id; });
+        state.selectedId = null;
+        save();
+        renderAll();
+      });
+    }
+  }
+
+  function renderAll() {
+    renderStats();
+    renderList();
+    renderDetail();
+  }
+
+  document.getElementById('registerForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var form = e.target;
+    var fd = new FormData(form);
+    var proj = {
+      id: uid(),
+      clientName: (fd.get('clientName') || '').trim(),
+      contactName: (fd.get('contactName') || '').trim(),
+      projectName: (fd.get('projectName') || '').trim(),
+      description: (fd.get('description') || '').trim(),
+      status: fd.get('status'),
+      priority: fd.get('priority'),
+      startDate: fd.get('startDate') || '',
+      dueDate: fd.get('dueDate') || '',
+      memo: (fd.get('memo') || '').trim(),
+      lastUpdated: new Date().toISOString(),
+      checklist: { phases: defaultPhases() }
+    };
+    state.projects.unshift(proj);
+    state.selectedId = proj.id;
+    save();
+    form.reset();
+    var pri = form.querySelector('[name="priority"]');
+    if (pri) pri.value = '中';
+    renderAll();
+  });
+
+  ['searchInput', 'filterStatus', 'filterPriority'].forEach(function (id) {
+    document.getElementById(id).addEventListener('input', function () { renderList(); });
+    document.getElementById(id).addEventListener('change', function () { renderList(); });
+  });
+
+  load();
+  renderAll();
+})();
+</script>
+</body>
+</html>

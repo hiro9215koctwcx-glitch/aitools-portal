@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>顧客・取引先管理ツール</title>
+<style>
+  :root {
+    --accent: #10B981;
+    --accent-hover: #059669;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    --shadow-hover: 0 8px 24px rgba(15, 23, 42, 0.12);
+    --radius: 12px;
+    --status-prospect: #94a3b8;
+    --status-negotiating: #fbbf24;
+    --status-active: #10B981;
+    --status-closed: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .app-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+  .app-header h1 {
+    margin: 0 0 0.35rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .app-header p { margin: 0; font-size: 0.9rem; color: var(--text-muted); }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(280px, 380px) 1fr;
+    gap: 1.5rem;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    align-items: start;
+  }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+  .panel {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.35rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .panel h2 {
+    margin: 0 0 1rem;
+    font-size: 1.05rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .panel h2::before {
+    content: "";
+    width: 4px;
+    height: 1.1em;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+  .form-group { margin-bottom: 0.9rem; }
+  .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+  }
+  .input-row { display: flex; gap: 0.45rem; align-items: stretch; }
+  .input-row input, .input-row select, .input-row textarea { flex: 1; min-width: 0; }
+  input[type="text"], input[type="tel"], input[type="email"], select, textarea {
+    padding: 0.55rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: #fff;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  }
+  textarea { min-height: 72px; resize: vertical; }
+  .btn-mic {
+    flex-shrink: 0;
+    width: 42px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    color: var(--text-muted);
+  }
+  .btn-mic:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(16, 185, 129, 0.06);
+  }
+  .btn-mic.listening {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(16, 185, 129, 0.12);
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0.75; } }
+  .btn-primary {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.7rem 1rem;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .stats-bar { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1rem; }
+  .stat-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.8rem;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+  }
+  .stat-chip strong { color: var(--accent); font-weight: 700; }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+    align-items: center;
+  }
+  .toolbar input[type="search"], .toolbar select {
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-family: inherit;
+    background: #fff;
+  }
+  .toolbar input[type="search"] { flex: 1; min-width: 160px; }
+  .toolbar select { min-width: 140px; }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .customer-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.15s;
+    border-left: 4px solid var(--status-prospect);
+    text-align: left;
+    font: inherit;
+    color: inherit;
+    width: 100%;
+    display: block;
+  }
+  .customer-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+  }
+  .customer-card[data-status="S1"] { border-left-color: var(--status-prospect); }
+  .customer-card[data-status="S2"] { border-left-color: var(--status-negotiating); }
+  .customer-card[data-status="S3"] { border-left-color: var(--status-active); }
+  .customer-card[data-status="S4"] { border-left-color: var(--status-closed); }
+  .customer-card .company { font-weight: 700; font-size: 1rem; margin: 0 0 0.25rem; }
+  .customer-card .contact { font-size: 0.85rem; color: var(--text-muted); margin: 0 0 0.5rem; }
+  .customer-card .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    color: #fff;
+  }
+  .customer-card[data-status="S1"] .badge { background: var(--status-prospect); }
+  .customer-card[data-status="S2"] .badge { background: #d97706; color: #fff; }
+  .customer-card[data-status="S3"] .badge { background: var(--status-active); }
+  .customer-card[data-status="S4"] .badge { background: #dc2626; }
+  .customer-card .industry { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; }
+  .empty-state {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; visibility: visible; }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius);
+    max-width: 480px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border);
+    transform: scale(0.96);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1.15rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-header h3 { margin: 0; font-size: 1.1rem; }
+  .modal-close {
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 1.15rem 1.25rem; }
+  .detail-dl { margin: 0; display: grid; gap: 0.65rem; }
+  .detail-dl dt {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.02em;
+  }
+  .detail-dl dd { margin: 0.15rem 0 0; font-size: 0.9rem; }
+  .modal-actions {
+    display: flex;
+    gap: 0.65rem;
+    padding: 1rem 1.25rem 1.25rem;
+    flex-wrap: wrap;
+  }
+  .btn-secondary {
+    flex: 1;
+    min-width: 100px;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text);
+  }
+  .btn-secondary:hover { background: var(--bg); }
+  .btn-danger {
+    flex: 1;
+    min-width: 100px;
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 8px;
+    background: #dc2626;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-danger:hover { background: #b91c1c; }
+  .speech-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; }
+  .speech-hint.error { color: #dc2626; }
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+  <header class="app-header">
+    <h1>顧客・取引先管理ツール</h1>
+    <p>大切なお客様の情報を、一か所にまとめよう。</p>
+  </header>
+  <div class="layout">
+    <section class="panel" aria-labelledby="form-title">
+      <h2 id="form-title">顧客登録</h2>
+      <form id="customer-form" novalidate>
+        <div class="form-group">
+          <label for="company">会社名</label>
+          <div class="input-row">
+            <input type="text" id="company" name="company" autocomplete="organization" placeholder="株式会社〇〇">
+            <button type="button" class="btn-mic" data-target="company" title="音声入力" aria-label="会社名を音声入力">🎤</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="contact">担当者名</label>
+          <div class="input-row">
+            <input type="text" id="contact" name="contact" autocomplete="name" placeholder="山田 太郎">
+            <button type="button" class="btn-mic" data-target="contact" title="音声入力" aria-label="担当者名を音声入力">🎤</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="phone">電話番号</label>
+          <div class="input-row">
+            <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="03-1234-5678">
+            <button type="button" class="btn-mic" data-target="phone" title="音声入力" aria-label="電話番号を音声入力">🎤</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="email">メールアドレス</label>
+          <div class="input-row">
+            <input type="email" id="email" name="email" autocomplete="email" placeholder="example@mail.jp">
+            <button type="button" class="btn-mic" data-target="email" title="音声入力" aria-label="メールを音声入力">🎤</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="address">住所</label>
+          <div class="input-row">
+            <input type="text" id="address" name="address" autocomplete="street-address" placeholder="東京都〇〇区…">
+            <button type="button" class="btn-mic" data-target="address" title="音声入力" aria-label="住所を音声入力">🎤</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="industry">業種</label>
+          <div class="input-row">
+            <select id="industry" name="industry">
+              <option value="">選択してください</option>
+                            <option value="個人事業主">個人事業主</option>
+              <option value="小売業">小売業</option>
+              <option value="飲食業">飲食業</option>
+              <option value="医療・福祉">医療・福祉</option>
+              <option value="教育">教育</option>
+              <option value="IT・Web">IT・Web</option>
+              <option value="その他">その他</option>
+            </select>
+            <button type="button" class="btn-mic" data-target="industry" title="音声入力" aria-label="業種を音声入力">🎤</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="status">ステータス</label>
+          <div class="input-row">
+            <select id="status" name="status">
+                            <option value="見込み客">見込み客</option>
+              <option value="商談中">商談中</option>
+              <option value="取引中">取引中</option>
+              <option value="取引終了">取引終了</option>
+            </select>
+            <button type="button" class="btn-mic" data-target="status" title="音声入力" aria-label="ステータスを音声入力">🎤</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="memo">メモ</label>
+          <div class="input-row">
+            <textarea id="memo" name="memo" placeholder="自由にメモを入力"></textarea>
+            <button type="button" class="btn-mic" data-target="memo" title="音声入力" aria-label="メモを音声入力" style="align-self: flex-start; height: 42px;">🎤</button>
+          </div>
+        </div>
+        <p class="speech-hint" id="speech-hint">マイクボタンで日本語の音声入力ができます（対応ブラウザのみ）。</p>
+        <button type="submit" class="btn-primary">登録する</button>
+      </form>
+    </section>
+    <div>
+      <section class="panel" style="margin-bottom: 1.5rem;" aria-labelledby="stats-title">
+        <h2 id="stats-title">統計</h2>
+        <div class="stats-bar" id="stats-bar">
+          <span class="stat-chip">総顧客数 <strong id="stat-total">0</strong> 件</span>
+          <span class="stat-chip">見込み客 <strong id="stat-prospect">0</strong></span>
+          <span class="stat-chip">商談中 <strong id="stat-negotiating">0</strong></span>
+          <span class="stat-chip">取引中 <strong id="stat-active">0</strong></span>
+          <span class="stat-chip">取引終了 <strong id="stat-closed">0</strong></span>
+        </div>
+      </section>
+      <section class="panel" aria-labelledby="list-title">
+        <h2 id="list-title">顧客一覧</h2>
+        <div class="toolbar">
+          <input type="search" id="search-input" placeholder="会社名・担当者名で検索" autocomplete="off" aria-label="検索">
+          <label class="visually-hidden" for="filter-status">ステータスで絞り込み</label>
+          <select id="filter-status" aria-label="ステータスで絞り込み">
+            <option value="">ステータスで絞り込みL</option>
+                        <option value="見込み客">見込み客</option>
+            <option value="商談中">商談中</option>
+            <option value="取引中">取引中</option>
+            <option value="取引終了">取引終了</option>
+          </select>
+        </div>
+        <div class="card-grid" id="card-grid" role="list"></div>
+        <p class="empty-state" id="empty-state" hidden>顧客がありません。左のフォームから登録してください。</p>
+      </section>
+    </div>
+  </div>
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modal-title">顧客詳細</h3>
+        <button type="button" class="modal-close" id="modal-close" aria-label="閉じる">×</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="btn-edit">編集</button>
+        <button type="button" class="btn-danger" id="btn-delete">削除</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="edit-overlay" role="dialog" aria-modal="true" aria-labelledby="edit-title" hidden>
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="edit-title">顧客を編集</h3>
+        <button type="button" class="modal-close" id="edit-close" aria-label="閉じる">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-form">
+          <input type="hidden" id="edit-id">
+                    <div class="form-group">
+            <label for="edit-company">会社名</label>
+            <div class="input-row">
+              <input type="text" id="edit-company" required>
+              <button type="button" class="btn-mic" data-target="edit-company" title="音声入力" aria-label="会社名を音声入力">🎤</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="edit-contact">担当者名</label>
+            <div class="input-row">
+              <input type="text" id="edit-contact" required>
+              <button type="button" class="btn-mic" data-target="edit-contact" title="音声入力" aria-label="担当者名を音声入力">🎤</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="edit-phone">電話番号</label>
+            <div class="input-row">
+              <input type="tel" id="edit-phone">
+              <button type="button" class="btn-mic" data-target="edit-phone" title="音声入力" aria-label="電話番号を音声入力">🎤</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="edit-email">メールアドレス</label>
+            <div class="input-row">
+              <input type="email" id="edit-email">
+              <button type="button" class="btn-mic" data-target="edit-email" title="音声入力" aria-label="メールを音声入力">🎤</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="edit-address">住所</label>
+            <div class="input-row">
+              <input type="text" id="edit-address">
+              <button type="button" class="btn-mic" data-target="edit-address" title="音声入力" aria-label="住所を音声入力">🎤</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="edit-industry">業種</label>
+            <div class="input-row">
+              <select id="edit-industry">
+                <option value="個人事業主">個人事業主</option>
+                <option value="小売業">小売業</option>
+                <option value="飲食業">飲食業</option>
+                <option value="医療・福祉">医療・福祉</option>
+                <option value="教育">教育</option>
+                <option value="IT・Web">IT・Web</option>
+                <option value="その他">その他</option>
+              </select>
+              <button type="button" class="btn-mic" data-target="edit-industry" title="音声入力" aria-label="業種を音声入力">🎤</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="edit-status">ステータス</label>
+            <div class="input-row">
+              <select id="edit-status">
+                <option value="見込み客">見込み客</option>
+                <option value="商談中">商談中</option>
+                <option value="取引中">取引中</option>
+                <option value="取引終了">取引終了</option>
+              </select>
+              <button type="button" class="btn-mic" data-target="edit-status" title="音声入力" aria-label="ステータスを音声入力">🎤</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="edit-memo">メモ</label>
+            <div class="input-row">
+              <textarea id="edit-memo"></textarea>
+              <button type="button" class="btn-mic" data-target="edit-memo" title="音声入力" aria-label="メモを音声入力" style="align-self: flex-start; height: 42px;">🎤</button>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary">保存する</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+(function () {
+  var STORAGE_KEY = "customer-manager-v1";
+  var S1 = "見込み客";
+  var S2 = "商談中";
+  var S3 = "取引中";
+  var S4 = "取引終了";
+  var STATUS_TO_CLASS = {};
+  STATUS_TO_CLASS[S1] = "S1";
+  STATUS_TO_CLASS[S2] = "S2";
+  STATUS_TO_CLASS[S3] = "S3";
+  STATUS_TO_CLASS[S4] = "S4";
+
+  function loadCustomers() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) { return []; }
+  }
+  function saveCustomers(list) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+  var customers = loadCustomers();
+  var selectedId = null;
+  var listeningBtn = null;
+  var form = document.getElementById("customer-form");
+  var cardGrid = document.getElementById("card-grid");
+  var emptyState = document.getElementById("empty-state");
+  var searchInput = document.getElementById("search-input");
+  var filterStatus = document.getElementById("filter-status");
+  var modalOverlay = document.getElementById("modal-overlay");
+  var modalBody = document.getElementById("modal-body");
+  var modalClose = document.getElementById("modal-close");
+  var btnEdit = document.getElementById("btn-edit");
+  var btnDelete = document.getElementById("btn-delete");
+  var editOverlay = document.getElementById("edit-overlay");
+  var editForm = document.getElementById("edit-form");
+  var editClose = document.getElementById("edit-close");
+  var speechHint = document.getElementById("speech-hint");
+
+  var MSG_NO_SPEECH = "このブラウザは音声認識に対応していません。Chrome などをお試しください。";
+  var MSG_LISTENING = "聞き取り中…話し終えたら少し待ってください。";
+  var MSG_SPEECH_ERR = "音声認識でエラーが発生しました： ";
+  var MSG_SPEECH_START = "音声認識を開始できませんでした。";
+  var MSG_HINT = "マイクボタンで日本語の音声入力ができます（対応ブラウザのみ）。";
+  var MSG_DEL = "この顧客を削除しますか？この操作は取り消せません。";
+  var MSG_ALERT = "会社名または担当者名のどちらかは入力してください。";
+
+  function getRecognition() {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return null;
+    var r = new SR();
+    r.lang = "ja-JP";
+    r.continuous = false;
+    r.interimResults = false;
+    return r;
+  }
+  function normalizeSpeech(s) {
+    return (s || "").replace(/\s+/g, " ").trim();
+  }
+  function matchSelectOption(selectEl, spoken) {
+    var t = normalizeSpeech(spoken);
+    if (!t) return;
+    var opts = selectEl.querySelectorAll("option");
+    var i;
+    for (i = 0; i < opts.length; i++) {
+      var v = opts[i].value;
+      var txt = opts[i].textContent.trim();
+      if (!v) continue;
+      if (t.indexOf(v) !== -1 || v.indexOf(t) !== -1 || t.indexOf(txt) !== -1 || txt.indexOf(t) !== -1) {
+        selectEl.value = v;
+        return;
+      }
+    }
+  }
+  function applySpeechToTarget(targetId, transcript) {
+    var el = document.getElementById(targetId);
+    if (!el) return;
+    var text = normalizeSpeech(transcript);
+    if (!text) return;
+    if (el.tagName === "SELECT") {
+      matchSelectOption(el, text);
+    } else if (el.tagName === "TEXTAREA" || el.tagName === "INPUT") {
+      var cur = el.value;
+      el.value = cur ? cur + " " + text : text;
+    }
+  }
+  function startMic(btn) {
+    var rec = getRecognition();
+    if (!rec) {
+      speechHint.textContent = MSG_NO_SPEECH;
+      speechHint.classList.add("error");
+      return;
+    }
+    speechHint.classList.remove("error");
+    speechHint.textContent = MSG_LISTENING;
+    var targetId = btn.getAttribute("data-target-override") || btn.getAttribute("data-target");
+    if (listeningBtn) listeningBtn.classList.remove("listening");
+    listeningBtn = btn;
+    btn.classList.add("listening");
+    rec.onresult = function (ev) {
+      var transcript = "";
+      var j;
+      for (j = ev.resultIndex; j < ev.results.length; j++) {
+        transcript += ev.results[j][0].transcript;
+      }
+      applySpeechToTarget(targetId, transcript);
+    };
+    rec.onerror = function (ev) {
+      speechHint.textContent = MSG_SPEECH_ERR + (ev.error || "unknown");
+      speechHint.classList.add("error");
+      btn.classList.remove("listening");
+      listeningBtn = null;
+    };
+    rec.onend = function () {
+      btn.classList.remove("listening");
+      if (listeningBtn === btn) listeningBtn = null;
+      speechHint.classList.remove("error");
+      speechHint.textContent = MSG_HINT;
+    };
+    try {
+      rec.start();
+    } catch (e) {
+      speechHint.textContent = MSG_SPEECH_START;
+      speechHint.classList.add("error");
+      btn.classList.remove("listening");
+    }
+  }
+  document.querySelectorAll(".btn-mic").forEach(function (btn) {
+    btn.addEventListener("click", function () { startMic(btn); });
+  });
+  function uid() {
+    return "c_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 9);
+  }
+  function updateStats() {
+    var total = customers.length;
+    var counts = {};
+    counts[S1] = 0;
+    counts[S2] = 0;
+    counts[S3] = 0;
+    counts[S4] = 0;
+    customers.forEach(function (c) {
+      if (counts[c.status] !== undefined) counts[c.status]++;
+    });
+    document.getElementById("stat-total").textContent = String(total);
+    document.getElementById("stat-prospect").textContent = String(counts[S1]);
+    document.getElementById("stat-negotiating").textContent = String(counts[S2]);
+    document.getElementById("stat-active").textContent = String(counts[S3]);
+    document.getElementById("stat-closed").textContent = String(counts[S4]);
+  }
+  function getFiltered() {
+    var q = normalizeSpeech(searchInput.value).toLowerCase();
+    var st = filterStatus.value;
+    return customers.filter(function (c) {
+      if (st && c.status !== st) return false;
+      if (!q) return true;
+      var company = (c.company || "").toLowerCase();
+      var contact = (c.contact || "").toLowerCase();
+      return company.indexOf(q) !== -1 || contact.indexOf(q) !== -1;
+    });
+  }
+  function renderCards() {
+    var list = getFiltered();
+    cardGrid.innerHTML = "";
+    if (list.length === 0) {
+      emptyState.hidden = false;
+      return;
+    }
+    emptyState.hidden = true;
+    list.forEach(function (c) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "customer-card";
+      var sk = STATUS_TO_CLASS[c.status] || "S1";
+      btn.setAttribute("data-status", sk);
+      btn.setAttribute("data-id", c.id);
+      btn.setAttribute("role", "listitem");
+      btn.innerHTML =
+        '<p class="company"></p><p class="contact"></p><span class="badge"></span><p class="industry"></p>';
+      btn.querySelector(".company").textContent = c.company || "（会社名なし）";
+      btn.querySelector(".contact").textContent = c.contact ? "担当: " + c.contact : "";
+      btn.querySelector(".badge").textContent = c.status;
+      btn.querySelector(".industry").textContent = c.industry ? "業種: " + c.industry : "";
+      btn.addEventListener("click", function () { openDetail(c.id); });
+      cardGrid.appendChild(btn);
+    });
+  }
+  function openDetail(id) {
+    var c = customers.find(function (x) { return x.id === id; });
+    if (!c) return;
+    selectedId = id;
+    modalBody.innerHTML =
+      '<dl class="detail-dl">' +
+      '<div><dt>会社名</dt><dd></dd></div>' +
+      '<div><dt>担当者名</dt><dd></dd></div>' +
+      '<div><dt>電話番号</dt><dd></dd></div>' +
+      '<div><dt>メールアドレス</dt><dd></dd></div>' +
+      '<div><dt>住所</dt><dd></dd></div>' +
+      '<div><dt>業種</dt><dd></dd></div>' +
+      '<div><dt>ステータス</dt><dd></dd></div>' +
+      '<div><dt>メモ</dt><dd style="white-space:pre-wrap;"></dd></div></dl>';
+    var dds = modalBody.querySelectorAll("dd");
+    dds[0].textContent = c.company || "—";
+    dds[1].textContent = c.contact || "—";
+    dds[2].textContent = c.phone || "—";
+    dds[3].textContent = c.email || "—";
+    dds[4].textContent = c.address || "—";
+    dds[5].textContent = c.industry || "—";
+    dds[6].textContent = c.status || "—";
+    dds[7].textContent = c.memo || "—";
+    modalOverlay.hidden = false;
+    requestAnimationFrame(function () { modalOverlay.classList.add("open"); });
+  }
+  function closeDetail() {
+    modalOverlay.classList.remove("open");
+    setTimeout(function () {
+      modalOverlay.hidden = true;
+      selectedId = null;
+    }, 200);
+  }
+  function openEdit() {
+    if (!selectedId) return;
+    var c = customers.find(function (x) { return x.id === selectedId; });
+    if (!c) return;
+    document.getElementById("edit-id").value = c.id;
+    document.getElementById("edit-company").value = c.company || "";
+    document.getElementById("edit-contact").value = c.contact || "";
+    document.getElementById("edit-phone").value = c.phone || "";
+    document.getElementById("edit-email").value = c.email || "";
+    document.getElementById("edit-address").value = c.address || "";
+    document.getElementById("edit-industry").value = c.industry || "その他";
+    document.getElementById("edit-status").value = c.status || S1;
+    document.getElementById("edit-memo").value = c.memo || "";
+    closeDetail();
+    editOverlay.hidden = false;
+    requestAnimationFrame(function () { editOverlay.classList.add("open"); });
+  }
+  function closeEdit() {
+    editOverlay.classList.remove("open");
+    setTimeout(function () { editOverlay.hidden = true; }, 200);
+  }
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var company = document.getElementById("company").value.trim();
+    var contact = document.getElementById("contact").value.trim();
+    if (!company && !contact) {
+      alert(MSG_ALERT);
+      return;
+    }
+    customers.push({
+      id: uid(),
+      company: document.getElementById("company").value.trim(),
+      contact: document.getElementById("contact").value.trim(),
+      phone: document.getElementById("phone").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      address: document.getElementById("address").value.trim(),
+      industry: document.getElementById("industry").value,
+      status: document.getElementById("status").value,
+      memo: document.getElementById("memo").value.trim()
+    });
+    saveCustomers(customers);
+    form.reset();
+    document.getElementById("status").value = S1;
+    updateStats();
+    renderCards();
+  });
+  searchInput.addEventListener("input", renderCards);
+  filterStatus.addEventListener("change", renderCards);
+  modalClose.addEventListener("click", closeDetail);
+  modalOverlay.addEventListener("click", function (e) {
+    if (e.target === modalOverlay) closeDetail();
+  });
+  btnEdit.addEventListener("click", openEdit);
+  btnDelete.addEventListener("click", function () {
+    if (!selectedId) return;
+    if (!confirm(MSG_DEL)) return;
+    customers = customers.filter(function (x) { return x.id !== selectedId; });
+    saveCustomers(customers);
+    closeDetail();
+    updateStats();
+    renderCards();
+  });
+  editClose.addEventListener("click", closeEdit);
+  editOverlay.addEventListener("click", function (e) {
+    if (e.target === editOverlay) closeEdit();
+  });
+  editForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var id = document.getElementById("edit-id").value;
+    var idx = customers.findIndex(function (x) { return x.id === id; });
+    if (idx === -1) { closeEdit(); return; }
+    customers[idx] = {
+      id: id,
+      company: document.getElementById("edit-company").value.trim(),
+      contact: document.getElementById("edit-contact").value.trim(),
+      phone: document.getElementById("edit-phone").value.trim(),
+      email: document.getElementById("edit-email").value.trim(),
+      address: document.getElementById("edit-address").value.trim(),
+      industry: document.getElementById("edit-industry").value,
+      status: document.getElementById("edit-status").value,
+      memo: document.getElementById("edit-memo").value.trim()
+    };
+    saveCustomers(customers);
+    closeEdit();
+    updateStats();
+    renderCards();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      if (!editOverlay.hidden) closeEdit();
+      else if (!modalOverlay.hidden) closeDetail();
+    }
+  });
+  updateStats();
+  renderCards();
+})();
+
+  </script>
+</body>
+</html>

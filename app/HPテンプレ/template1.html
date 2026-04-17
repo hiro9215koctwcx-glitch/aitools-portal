@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>テンプレート1：クリーン・ミニマル | HPテンプレート集</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    background: #fff;
+    color: #0f172a;
+    line-height: 1.75;
+    letter-spacing: 0.02em;
+  }
+  a { color: #0284c7; }
+  .back {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 2rem 2rem 0;
+  }
+  .back a { font-size: 0.875rem; text-decoration: none; color: #94a3b8; }
+  .back a:hover { color: #38bdf8; }
+  .section {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+  }
+  .section-title {
+    margin: 0 0 3rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #38bdf8;
+  }
+  h2.section-heading {
+    margin: -2.25rem 0 3rem;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  /* Hero: 2 columns */
+  .hero {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 6rem 2rem 5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 3rem; padding: 4rem 2rem; }
+  }
+  .hero-copy h1 {
+    margin: 0 0 1.5rem;
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  .hero-copy p {
+    margin: 0 0 2.5rem;
+    font-size: 1.0625rem;
+    color: #64748b;
+    max-width: 32ch;
+  }
+  .hero-copy .cta {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: #38bdf8;
+    color: #fff !important;
+    text-decoration: none;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    border-radius: 2px;
+    transition: background 0.2s;
+  }
+  .hero-copy .cta:hover { background: #0ea5e9; }
+
+  .hero-upload {
+    min-height: 380px;
+    background: #f8fafc center/cover no-repeat;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-upload.has-bg { border-color: #e0f2fe; }
+  .drop-area {
+    min-height: 160px;
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.8125rem;
+    color: #94a3b8;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .drop-area.drag-over { background: #f0f9ff; color: #0284c7; }
+  .hero-upload.has-bg .drop-area { display: none; }
+  .hero-upload-actions {
+    padding: 1.25rem;
+    text-align: center;
+    border-top: 1px solid #e2e8f0;
+    background: rgba(255,255,255,0.96);
+  }
+  .hero-upload.has-bg .hero-upload-actions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: none;
+  }
+  .btn-ghost {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    border-radius: 2px;
+    cursor: pointer;
+    color: #475569;
+    font-family: inherit;
+  }
+  .btn-ghost:hover { border-color: #38bdf8; color: #0284c7; }
+  .btn-ghost[hidden] { display: none; }
+
+  /* Services: 3 cards */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  @media (max-width: 768px) { .services-grid { grid-template-columns: 1fr; } }
+  .svc-card {
+    border: 1px solid #f1f5f9;
+    padding: 2rem;
+    background: #fafafa;
+    border-radius: 4px;
+  }
+  .svc-card h3 { margin: 1.25rem 0 0.75rem; font-size: 1.0625rem; font-weight: 600; }
+  .svc-card p { margin: 0; font-size: 0.9375rem; color: #64748b; }
+  .upload-block { margin-bottom: 0.5rem; }
+  .upload-block .preview {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    border-radius: 2px;
+    display: none;
+  }
+  .upload-block.has-img .preview { display: block; }
+  .upload-block.has-img .drop-area {
+    display: none;
+    min-height: 0;
+    padding: 0;
+  }
+  .svc-card .drop-area {
+    min-height: 140px;
+    background: #fff;
+    border: 1px dashed #e2e8f0;
+    border-radius: 2px;
+  }
+  .upload-block .btn-ghost { margin-top: 0.5rem; }
+  .upload-block .btn-ghost[hidden] { display: none; }
+
+  /* About: left image, right text */
+  .about-row {
+    display: grid;
+    grid-template-columns: minmax(240px, 360px) 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .about-row { grid-template-columns: 1fr; gap: 2.5rem; }
+  }
+  .about-photo-wrap {
+    position: relative;
+  }
+  .about-photo {
+    aspect-ratio: 1;
+    max-width: 360px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .about-photo .drop-area {
+    min-height: 100%;
+    height: 100%;
+    font-size: 0.75rem;
+  }
+  .about-photo .preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+  }
+  .about-photo.has-img .drop-area { display: none; }
+  .about-photo.has-img .preview { display: block; }
+  .profile-change-btn { margin-top: 1rem; }
+
+  .about-text h3 { margin: 0 0 1rem; font-size: 1.25rem; font-weight: 600; }
+  .about-text p { margin: 0; color: #64748b; font-size: 1rem; }
+
+  /* Voices: 3 horizontal */
+  .voices-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  @media (max-width: 900px) { .voices-row { grid-template-columns: 1fr; } }
+  .voice-item {
+    padding: 2rem;
+    border-left: 2px solid #38bdf8;
+    background: #fafafa;
+  }
+  .voice-item p { margin: 0; font-size: 0.9375rem; color: #334155; }
+  .voice-item cite {
+    display: block;
+    margin-top: 1rem;
+    font-size: 0.8125rem;
+    color: #94a3b8;
+    font-style: normal;
+  }
+
+  /* Pricing: 3 columns */
+  .price-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+  @media (max-width: 900px) { .price-row { grid-template-columns: 1fr; } }
+  .price-box {
+    padding: 2.5rem 2rem;
+    border: 1px solid #e2e8f0;
+    text-align: center;
+    border-radius: 4px;
+  }
+  .price-box.featured { border-color: #38bdf8; background: #f0f9ff; }
+  .price-box h3 { margin: 0 0 0.5rem; font-size: 1rem; font-weight: 600; }
+  .price-box .price { font-size: 1.75rem; font-weight: 500; color: #0284c7; margin: 1rem 0; }
+  .price-box ul { list-style: none; padding: 0; margin: 0; text-align: left; font-size: 0.875rem; color: #64748b; }
+  .price-box li { padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9; }
+
+  /* Contact: simple */
+  .contact-section { background: #fafafa; }
+  .contact-form { max-width: 480px; }
+  .contact-form label { display: block; font-size: 0.75rem; font-weight: 600; color: #64748b; margin-bottom: 0.5rem; letter-spacing: 0.05em; }
+  .contact-form input, .contact-form textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 2px;
+    font-size: 1rem;
+    font-family: inherit;
+    margin-bottom: 1.5rem;
+    background: #fff;
+  }
+  .contact-form textarea { min-height: 140px; resize: vertical; }
+  .contact-form button {
+    padding: 1rem 2.5rem;
+    background: #0f172a;
+    color: #fff;
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 2px;
+    font-family: inherit;
+  }
+  .contact-form button:hover { background: #334155; }
+</style>
+</head>
+<body>
+  <div class="back"><a href="index.html">← トップに戻る</a></div>
+
+  <header class="hero">
+    <div class="hero-copy">
+      <h1>余白で整える。<br>伝わるミニマル。</h1>
+      <p>個人事業主・フリーランス向けのクリーンなランディング。装飾を抑え、メッセージと写真が主役になるレイアウトです。</p>
+      <a class="cta" href="#contact">相談する</a>
+    </div>
+    <div class="hero-upload upload-hero" id="heroBox">
+      <input type="file" class="file-input" accept="image/*" hidden>
+      <div class="drop-area">クリックまたはドラッグ＆ドロップで<br>メイン画像をアップロード</div>
+      <div class="hero-upload-actions">
+        <button type="button" class="btn-ghost hero-change" hidden>画像を変更</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="section" id="services">
+    <p class="section-title">Services</p>
+    <h2 class="section-heading">サービス紹介</h2>
+    <div class="services-grid">
+      <article class="svc-card">
+        <div class="upload-block">
+          <input type="file" class="file-input" accept="image/*" hidden>
+          <div class="drop-area">画像をアップロード</div>
+          <img class="preview" alt="">
+          <button type="button" class="btn-ghost svc-change" hidden>画像を変更</button>
+        </div>
+        <h3>コンサルティング</h3>
+        <p>課題の整理から実行まで、シンプルなプロセスで伴走します。</p>
+      </article>
+      <article class="svc-card">
+        <div class="upload-block">
+          <input type="file" class="file-input" accept="image/*" hidden>
+          <div class="drop-area">画像をアップロード</div>
+          <img class="preview" alt="">
+          <button type="button" class="btn-ghost svc-change" hidden>画像を変更</button>
+        </div>
+        <h3>デザイン</h3>
+        <p>ロゴからWebまで、ブランドの芯を崩さない表現をご提案します。</p>
+      </article>
+      <article class="svc-card">
+        <div class="upload-block">
+          <input type="file" class="file-input" accept="image/*" hidden>
+          <div class="drop-area">画像をアップロード</div>
+          <img class="preview" alt="">
+          <button type="button" class="btn-ghost svc-change" hidden>画像を変更</button>
+        </div>
+        <h3>運用支援</h3>
+        <p>公開後の更新や改善も継続的にサポートします。</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <p class="section-title">Profile</p>
+    <h2 class="section-heading">自己紹介</h2>
+    <div class="about-row">
+      <div class="about-photo-wrap" id="profileUploader">
+        <div class="about-photo profile-zone" id="profilePhoto">
+          <input type="file" class="file-input" accept="image/*" hidden>
+          <div class="drop-area">クリックまたはドロップで<br>プロフィール写真</div>
+          <img class="preview" alt="プロフィール">
+        </div>
+        <button type="button" class="btn-ghost profile-change-btn" hidden>画像を変更</button>
+      </div>
+      <div class="about-text">
+        <h3>山田 太郎</h3>
+        <p>フリーランスデザイナー。Web制作歴10年、200件以上のサイトに関わってきました。情報の優先順位とタイポグラフィを大切に、読み手に負担のない画面づくりを心がけています。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="voices">
+    <p class="section-title">Voices</p>
+    <h2 class="section-heading">お客様の声</h2>
+    <div class="voices-row">
+      <blockquote class="voice-item">
+        <p>「初めてのサイトでも、構成から丁寧に説明していただき安心でした。」</p>
+        <cite>個人事業主 A様</cite>
+      </blockquote>
+      <blockquote class="voice-item">
+        <p>「すっきりしたデザインで内容が伝わりやすく、問い合わせが増えました。」</p>
+        <cite>フリーランス B様</cite>
+      </blockquote>
+      <blockquote class="voice-item">
+        <p>「納期と連絡の両方が確実。継続してお願いしています。」</p>
+        <cite>小規模事業者 C様</cite>
+      </blockquote>
+    </div>
+  </section>
+
+  <section class="section" id="pricing">
+    <p class="section-title">Plans</p>
+    <h2 class="section-heading">料金プラン</h2>
+    <div class="price-row">
+      <div class="price-box">
+        <h3>ライト</h3>
+        <p class="price">¥49,800〜</p>
+        <ul>
+          <li>1ページ構成</li>
+          <li>お問い合わせフォーム</li>
+          <li>スマホ対応</li>
+        </ul>
+      </div>
+      <div class="price-box featured">
+        <h3>スタンダード</h3>
+        <p class="price">¥98,000〜</p>
+        <ul>
+          <li>最大5ページ</li>
+          <li>ブログ・実績</li>
+          <li>簡易SEO</li>
+        </ul>
+      </div>
+      <div class="price-box">
+        <h3>プレミアム</h3>
+        <p class="price">お見積り</p>
+        <ul>
+          <li>フルカスタム</li>
+          <li>撮影・ライティング</li>
+          <li>運用コンサル</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section contact-section" id="contact">
+    <p class="section-title">Contact</p>
+    <h2 class="section-heading">お問い合わせ</h2>
+    <form class="contact-form" onsubmit="event.preventDefault(); alert('デモのため送信されません。');">
+      <label for="t1-name">お名前</label>
+      <input type="text" id="t1-name" name="name" required autocomplete="name">
+      <label for="t1-email">メールアドレス</label>
+      <input type="email" id="t1-email" name="email" required autocomplete="email">
+      <label for="t1-msg">メッセージ</label>
+      <textarea id="t1-msg" name="message" required></textarea>
+      <button type="submit">送信</button>
+    </form>
+  </section>
+
+  <script>
+(function () {
+  function readImageFile(file, cb) {
+    if (!file || !file.type.startsWith("image/")) return;
+    var r = new FileReader();
+    r.onload = function (e) { cb(e.target.result); };
+    r.readAsDataURL(file);
+  }
+
+  function bindHero(el) {
+    var input = el.querySelector(".file-input");
+    var drop = el.querySelector(".drop-area");
+    var btn = el.querySelector(".hero-change");
+    function apply(url) {
+      el.style.backgroundImage = "url(" + url + ")";
+      el.classList.add("has-bg");
+      btn.hidden = false;
+    }
+    function pick() { input.click(); }
+    drop.addEventListener("click", pick);
+    btn.addEventListener("click", pick);
+    input.addEventListener("change", function () { if (input.files[0]) readImageFile(input.files[0], apply); });
+    ["dragenter", "dragover"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("drag-over"); });
+    });
+    ["dragleave", "drop"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("drag-over"); });
+    });
+    drop.addEventListener("drop", function (e) {
+      var f = e.dataTransfer.files[0];
+      if (f) readImageFile(f, apply);
+    });
+  }
+
+  function bindSvc(wrap) {
+    var input = wrap.querySelector(".file-input");
+    var drop = wrap.querySelector(".drop-area");
+    var preview = wrap.querySelector(".preview");
+    var btn = wrap.querySelector(".svc-change");
+    function apply(url) {
+      preview.src = url;
+      wrap.classList.add("has-img");
+      btn.hidden = false;
+    }
+    function pick() { input.click(); }
+    drop.addEventListener("click", pick);
+    btn.addEventListener("click", pick);
+    input.addEventListener("change", function () { if (input.files[0]) readImageFile(input.files[0], apply); });
+    ["dragenter", "dragover"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("drag-over"); });
+    });
+    ["dragleave", "drop"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("drag-over"); });
+    });
+    drop.addEventListener("drop", function (e) {
+      var f = e.dataTransfer.files[0];
+      if (f) readImageFile(f, apply);
+    });
+  }
+
+  function bindProfile(box) {
+    var zone = box.querySelector(".profile-zone");
+    var input = zone.querySelector(".file-input");
+    var drop = zone.querySelector(".drop-area");
+    var preview = zone.querySelector(".preview");
+    var btn = box.querySelector(".profile-change-btn");
+    function apply(url) {
+      preview.src = url;
+      zone.classList.add("has-img");
+      btn.hidden = false;
+    }
+    function pick() { input.click(); }
+    drop.addEventListener("click", pick);
+    btn.addEventListener("click", pick);
+    input.addEventListener("change", function () { if (input.files[0]) readImageFile(input.files[0], apply); });
+    ["dragenter", "dragover"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("drag-over"); });
+    });
+    ["dragleave", "drop"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("drag-over"); });
+    });
+    drop.addEventListener("drop", function (e) {
+      var f = e.dataTransfer.files[0];
+      if (f) readImageFile(f, apply);
+    });
+  }
+
+  document.querySelectorAll(".upload-hero").forEach(bindHero);
+  document.querySelectorAll(".svc-card .upload-block").forEach(bindSvc);
+  var pu = document.getElementById("profileUploader");
+  if (pu) bindProfile(pu);
+})();
+  </script>
+</body>
+</html>

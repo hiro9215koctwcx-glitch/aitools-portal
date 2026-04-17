@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>テンプレート3：フレンドリー・カラフル | HPテンプレート集</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+    background: #fffbeb;
+    color: #431407;
+    line-height: 1.65;
+  }
+  a { color: #c2410c; }
+  .back {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 1rem 1.25rem 0;
+    position: relative;
+    z-index: 5;
+  }
+  .back a { font-size: 0.875rem; text-decoration: none; color: #78716c; }
+  .back a:hover { color: #f97316; }
+
+  /* Hero: diagonal + emoji */
+  .hero-fun {
+    position: relative;
+    overflow: hidden;
+    padding: 3rem 1.25rem 5rem;
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+  }
+  .hero-fun::before {
+    content: "";
+    position: absolute;
+    top: -30%;
+    left: -15%;
+    width: 130%;
+    height: 95%;
+    background: linear-gradient(
+      115deg,
+      #fcd34d 0%,
+      #fdba74 35%,
+      #fff7ed 35%,
+      #fffbeb 100%
+    );
+    transform: rotate(-4deg);
+    z-index: 0;
+  }
+  .hero-fun::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: #fffbeb;
+    clip-path: polygon(0 40%, 100% 0, 100% 100%, 0 100%);
+    z-index: 1;
+  }
+  .hero-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 1140px;
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+  @media (max-width: 768px) {
+    .hero-inner { grid-template-columns: 1fr; text-align: center; }
+    .hero-fun { min-height: auto; padding-bottom: 6rem; }
+  }
+  .hero-emoji {
+    font-size: clamp(3rem, 10vw, 5rem);
+    line-height: 1;
+    margin: 0 0 0.5rem;
+    letter-spacing: 0.2em;
+    filter: drop-shadow(0 4px 0 rgba(249, 115, 22, 0.35));
+  }
+  .hero-copy h1 {
+    margin: 0 0 1rem;
+    font-size: clamp(1.85rem, 5vw, 2.75rem);
+    font-weight: 900;
+    color: #c2410c;
+    line-height: 1.2;
+  }
+  .hero-copy p {
+    margin: 0 0 1.5rem;
+    color: #57534e;
+    font-size: 1.05rem;
+    font-weight: 500;
+  }
+  .hero-copy .cta {
+    display: inline-block;
+    padding: 0.9rem 1.8rem;
+    background: #f97316;
+    color: #fff !important;
+    text-decoration: none;
+    font-weight: 800;
+    border-radius: 999px;
+    box-shadow: 0 6px 0 #c2410c, 0 10px 24px rgba(249, 115, 22, 0.35);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .hero-copy .cta:hover {
+    transform: translateY(2px);
+    box-shadow: 0 3px 0 #c2410c, 0 6px 16px rgba(249, 115, 22, 0.3);
+  }
+
+  .hero-upload-card {
+    background: #fff;
+    border-radius: 28px;
+    padding: 1.25rem;
+    border: 4px solid #f97316;
+    box-shadow: 12px 12px 0 #fcd34d;
+    transform: rotate(2deg);
+    transition: transform 0.2s;
+  }
+  @media (max-width: 768px) { .hero-upload-card { transform: none; max-width: 400px; margin: 0 auto; } }
+  .hero-upload-card:hover { transform: rotate(0deg) scale(1.02); }
+  .hero-upload-area {
+    min-height: 220px;
+    border-radius: 20px;
+    background: #fff7ed center/cover no-repeat;
+    border: 3px dashed #fcd34d;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-upload-area.has-bg { border-style: solid; border-color: #fdba74; }
+  .drop-area {
+    min-height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: #a8a29e;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .drop-area span { font-size: 2rem; }
+  .drop-area.drag-over { background: #fef3c7; color: #c2410c; }
+  .hero-upload-area.has-bg .drop-area { display: none; }
+  .hero-upload-actions {
+    margin-top: 0.75rem;
+    text-align: center;
+  }
+  .btn-pop {
+    padding: 0.5rem 1.1rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-family: inherit;
+    border: none;
+    border-radius: 999px;
+    background: #fcd34d;
+    color: #9a3412;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #f59e0b;
+  }
+  .btn-pop:hover { filter: brightness(1.05); }
+  .btn-pop[hidden] { display: none; }
+
+  .section {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 3.5rem 1.25rem;
+    position: relative;
+    z-index: 2;
+  }
+  .section h2 {
+    margin: 0 0 2rem;
+    font-size: 2rem;
+    font-weight: 900;
+    text-align: center;
+    color: #c2410c;
+    text-shadow: 2px 2px 0 #fcd34d;
+  }
+
+  /* Services: emoji + hover scale + upload */
+  .svc-fun-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+  @media (max-width: 900px) { .svc-fun-grid { grid-template-columns: 1fr; } }
+  .svc-fun {
+    background: #fff;
+    border-radius: 24px;
+    padding: 1.25rem;
+    border: 3px solid #fde68a;
+    box-shadow: 0 8px 0 #fcd34d;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .svc-fun:hover {
+    transform: scale(1.05) rotate(-1deg);
+    box-shadow: 0 12px 0 #f97316;
+  }
+  .svc-fun .emoji-line {
+    font-size: 2.5rem;
+    margin: 0 0 0.25rem;
+    text-align: center;
+  }
+  .svc-fun h3 {
+    margin: 0 0 0.75rem;
+    text-align: center;
+    font-size: 1.15rem;
+    color: #9a3412;
+  }
+  .svc-fun p { margin: 0; font-size: 0.92rem; color: #57534e; text-align: center; }
+  .svc-fun .upload-block {
+    margin-bottom: 0.75rem;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .svc-fun .drop-area {
+    min-height: 130px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #fff7ed, #ffedd5);
+    border: 2px dashed #fdba74;
+  }
+  .svc-fun .preview {
+    width: 100%;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+    display: none;
+  }
+  .svc-fun .upload-block.has-img .drop-area { display: none; }
+  .svc-fun .upload-block.has-img .preview { display: block; }
+  .svc-fun .svc-change {
+    display: block;
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.4rem;
+    font-size: 0.75rem;
+    font-family: inherit;
+    border-radius: 999px;
+    border: 2px solid #f97316;
+    background: #fff;
+    color: #c2410c;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .svc-fun .svc-change[hidden] { display: none; }
+
+  /* About: round photo + bubble */
+  .about-fun {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+  }
+  .about-avatar-wrap {
+    flex-shrink: 0;
+  }
+  .about-avatar {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 6px solid #f97316;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 0 0 6px #fcd34d, 8px 8px 0 rgba(249, 115, 22, 0.25);
+  }
+  .about-avatar .drop-area {
+    min-height: 100%;
+    height: 100%;
+    font-size: 0.75rem;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(145deg, #fff7ed, #fef9c3);
+  }
+  .about-avatar .preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+  }
+  .about-avatar.has-img .drop-area { display: none; }
+  .about-avatar.has-img .preview { display: block; }
+  .avatar-change {
+    display: block;
+    margin: 1rem auto 0;
+    padding: 0.45rem 1rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    font-family: inherit;
+    border-radius: 999px;
+    border: 2px solid #f97316;
+    background: #fff;
+    color: #c2410c;
+    cursor: pointer;
+  }
+  .avatar-change[hidden] { display: none; }
+
+  .speech {
+    flex: 1;
+    min-width: 280px;
+    max-width: 560px;
+    position: relative;
+    background: #fff;
+    padding: 1.75rem 1.75rem 1.75rem 2rem;
+    border-radius: 24px;
+    border: 4px solid #f97316;
+    box-shadow: 8px 8px 0 #fcd34d;
+  }
+  .speech::before {
+    content: "";
+    position: absolute;
+    left: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 14px solid transparent;
+    border-right-color: #f97316;
+  }
+  @media (max-width: 768px) {
+    .speech::before {
+      left: 50%;
+      top: -18px;
+      transform: translateX(-50%);
+      border-right-color: transparent;
+      border-bottom-color: #f97316;
+    }
+  }
+  .speech h3 { margin: 0 0 0.5rem; font-size: 1.35rem; color: #c2410c; }
+  .speech p { margin: 0; color: #44403c; font-weight: 500; }
+
+  /* Voices: stars + cards */
+  .voice-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+  @media (max-width: 900px) { .voice-cards { grid-template-columns: 1fr; } }
+  .voice-card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 1.5rem;
+    border: 3px solid #fde68a;
+    box-shadow: 0 6px 0 #f97316;
+  }
+  .stars {
+    color: #f59e0b;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.75rem;
+  }
+  .voice-card p { margin: 0; font-size: 0.95rem; color: #44403c; }
+  .voice-card cite {
+    display: block;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: #a8a29e;
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  /* Pricing: colorful + badge */
+  .price-fun-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+  @media (max-width: 900px) { .price-fun-grid { grid-template-columns: 1fr; } }
+  .price-fun {
+    position: relative;
+    border-radius: 24px;
+    padding: 2rem 1.5rem 1.75rem;
+    text-align: center;
+    border: 4px solid;
+    background: #fff;
+  }
+  .price-fun.c1 { border-color: #fdba74; box-shadow: 0 8px 0 #fb923c; }
+  .price-fun.c2 { border-color: #f97316; box-shadow: 0 10px 0 #c2410c; transform: scale(1.05); }
+  @media (max-width: 900px) { .price-fun.c2 { transform: none; } }
+  .price-fun.c3 { border-color: #fcd34d; box-shadow: 0 8px 0 #eab308; }
+  .badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f97316;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 900;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    box-shadow: 0 3px 0 #9a3412;
+  }
+  .price-fun h3 { margin: 0.5rem 0 0.25rem; font-size: 1.1rem; color: #9a3412; }
+  .price-fun .yen {
+    font-size: 1.85rem;
+    font-weight: 900;
+    color: #f97316;
+    margin: 0.75rem 0;
+  }
+  .price-fun ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    font-size: 0.88rem;
+    color: #57534e;
+  }
+  .price-fun li { padding: 0.4rem 0; border-bottom: 2px dotted #fde68a; }
+  .price-fun li:last-child { border-bottom: none; }
+
+  /* Colorful form */
+  .contact-rainbow {
+    background: linear-gradient(135deg, #fff7ed 0%, #fef9c3 50%, #ffedd5 100%);
+    border-radius: 32px;
+    padding: 2.5rem 1.5rem;
+    border: 4px solid #f97316;
+    box-shadow: 10px 10px 0 #fcd34d;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+  .contact-rainbow h2 {
+    margin: 0 0 1.5rem;
+    text-shadow: none;
+    font-size: 1.75rem;
+  }
+  .contact-rainbow label {
+    display: block;
+    font-weight: 800;
+    margin-bottom: 0.35rem;
+    font-size: 0.85rem;
+  }
+  .contact-rainbow label:nth-of-type(1) { color: #c2410c; }
+  .contact-rainbow label:nth-of-type(2) { color: #b45309; }
+  .contact-rainbow label:nth-of-type(3) { color: #ca8a04; }
+  .contact-rainbow input, .contact-rainbow textarea {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1.1rem;
+    border: 3px solid #fdba74;
+    border-radius: 16px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: #fff;
+  }
+  .contact-rainbow textarea { min-height: 120px; resize: vertical; }
+  .contact-rainbow button {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.05rem;
+    font-weight: 900;
+    font-family: inherit;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #f97316, #fb923c);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #c2410c;
+    margin-top: 0.25rem;
+  }
+  .contact-rainbow button:hover { filter: brightness(1.05); }
+</style>
+</head>
+<body>
+  <div class="back"><a href="index.html">← トップに戻る</a></div>
+
+  <header class="hero-fun">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <p class="hero-emoji" aria-hidden="true">🍊✨🎉</p>
+        <h1>わくわくが止まらない！<br>あなたのお店の魅力、全力発信！</h1>
+        <p>飲食・美容・教室向けのにぎやかデモ。斜めラインと絵文字で楽しい第一印象をつくります。</p>
+        <a class="cta" href="#contact">お問い合わせする</a>
+      </div>
+      <div class="hero-upload-card">
+        <div class="hero-upload-area upload-hero" id="heroBox">
+          <input type="file" class="file-input" accept="image/*" hidden>
+          <div class="drop-area"><span>📷</span>クリックまたはドロップで<br>メイン画像をアップロード</div>
+        </div>
+        <div class="hero-upload-actions">
+          <button type="button" class="btn-pop hero-change" hidden>画像を変更</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="section" id="services">
+    <h2>サービス紹介</h2>
+    <div class="svc-fun-grid">
+      <article class="svc-fun">
+        <div class="upload-block">
+          <input type="file" class="file-input" accept="image/*" hidden>
+          <div class="drop-area">🖼️ 画像をアップ</div>
+          <img class="preview" alt="">
+          <button type="button" class="svc-change" hidden>画像を変更</button>
+        </div>
+        <p class="emoji-line" aria-hidden="true">🍽️</p>
+        <h3>コース・メニュー</h3>
+        <p>季節の食材を活かした限定メニューもご用意しています。</p>
+      </article>
+      <article class="svc-fun">
+        <div class="upload-block">
+          <input type="file" class="file-input" accept="image/*" hidden>
+          <div class="drop-area">🖼️ 画像をアップ</div>
+          <img class="preview" alt="">
+          <button type="button" class="svc-change" hidden>画像を変更</button>
+        </div>
+        <p class="emoji-line" aria-hidden="true">💆</p>
+        <h3>リラクゼーション</h3>
+        <p>カウンセリングからアフターケアまで丁寧にサポートします。</p>
+      </article>
+      <article class="svc-fun">
+        <div class="upload-block">
+          <input type="file" class="file-input" accept="image/*" hidden>
+          <div class="drop-area">🖼️ 画像をアップ</div>
+          <img class="preview" alt="">
+          <button type="button" class="svc-change" hidden>画像を変更</button>
+        </div>
+        <p class="emoji-line" aria-hidden="true">📚</p>
+        <h3>レッスン・体験会</h3>
+        <p>初めての方も安心の体験レッスンからスタートできます。</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <h2>自己紹介</h2>
+    <div class="about-fun">
+      <div class="about-avatar-wrap" id="profileUploader">
+        <div class="about-avatar profile-zone" id="profilePhoto">
+          <input type="file" class="file-input" accept="image/*" hidden>
+          <div class="drop-area">📸<br>丸写真</div>
+          <img class="preview" alt="プロフィール">
+        </div>
+        <button type="button" class="avatar-change" hidden>画像を変更</button>
+      </div>
+      <div class="speech">
+        <h3>佐藤 花子（オーナー）</h3>
+        <p>「また来たい！」と思ってもらえる空間づくりをモットーに、地元のみなさまに愛されるお店を目指しています。初めての方も、おひとり様も大歓迎。スタッフ一同、笑顔でお待ちしています！</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="voices">
+    <h2>お客様の声</h2>
+    <div class="voice-cards">
+      <article class="voice-card">
+        <div class="stars" aria-label="5段階評価5">★★★★★</div>
+        <p>「雰囲気が明るくて、写真映えもばっちり。友だちにも紹介しました！」</p>
+        <cite>20代・会社員</cite>
+      </article>
+      <article class="voice-card">
+        <div class="stars" aria-label="5段階評価5">★★★★★</div>
+        <p>「スタッフさんが親切で、施術中もずっとリラックスできました。」</p>
+        <cite>30代・主婦</cite>
+      </article>
+      <article class="voice-card">
+        <div class="stars" aria-label="5段階評価5">★★★★★</div>
+        <p>「子どもが楽しそうに通っています。発表会も温かい雰囲気でした。」</p>
+        <cite>40代・保護者</cite>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="pricing">
+    <h2>料金プラン</h2>
+    <div class="price-fun-grid">
+      <div class="price-fun c1">
+        <h3>お試し</h3>
+        <p class="yen">¥3,300</p>
+        <ul>
+          <li>初回限定メニュー</li>
+          <li>簡易カウンセリング</li>
+          <li>所要約60分</li>
+        </ul>
+      </div>
+      <div class="price-fun c2">
+        <span class="badge">おすすめ！</span>
+        <h3>人気No.1</h3>
+        <p class="yen">¥8,800</p>
+        <ul>
+          <li>定番フルコース</li>
+          <li>ドリンク付き</li>
+          <li>会員ポイント2倍</li>
+        </ul>
+      </div>
+      <div class="price-fun c3">
+        <h3>ファミリー</h3>
+        <p class="yen">¥24,000〜</p>
+        <ul>
+          <li>2名様以上でお得</li>
+          <li>記念日オプション</li>
+          <li>要予約</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="contact">
+    <div class="contact-rainbow">
+      <h2>お問い合わせ</h2>
+      <form onsubmit="event.preventDefault(); alert('デモのため送信されません。');">
+        <label for="t3-name">お名前</label>
+        <input type="text" id="t3-name" name="name" required autocomplete="name">
+        <label for="t3-email">メールアドレス</label>
+        <input type="email" id="t3-email" name="email" required autocomplete="email">
+        <label for="t3-msg">メッセージ</label>
+        <textarea id="t3-msg" name="message" required></textarea>
+        <button type="submit">送るよ！🚀</button>
+      </form>
+    </div>
+  </section>
+
+  <script>
+(function () {
+  function readImageFile(file, cb) {
+    if (!file || !file.type.startsWith("image/")) return;
+    var r = new FileReader();
+    r.onload = function (e) { cb(e.target.result); };
+    r.readAsDataURL(file);
+  }
+
+  function bindHero(el) {
+    var wrap = el.closest(".hero-upload-card") || el.parentElement;
+    var input = el.querySelector(".file-input");
+    var drop = el.querySelector(".drop-area");
+    var btn = wrap.querySelector(".hero-change");
+    function apply(url) {
+      el.style.backgroundImage = "url(" + url + ")";
+      el.classList.add("has-bg");
+      if (btn) btn.hidden = false;
+    }
+    function pick() { input.click(); }
+    drop.addEventListener("click", pick);
+    if (btn) btn.addEventListener("click", pick);
+    input.addEventListener("change", function () { if (input.files[0]) readImageFile(input.files[0], apply); });
+    ["dragenter", "dragover"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("drag-over"); });
+    });
+    ["dragleave", "drop"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("drag-over"); });
+    });
+    drop.addEventListener("drop", function (e) {
+      var f = e.dataTransfer.files[0];
+      if (f) readImageFile(f, apply);
+    });
+  }
+
+  function bindSvc(wrap) {
+    var input = wrap.querySelector(".file-input");
+    var drop = wrap.querySelector(".drop-area");
+    var preview = wrap.querySelector(".preview");
+    var btn = wrap.querySelector(".svc-change");
+    function apply(url) {
+      preview.src = url;
+      wrap.classList.add("has-img");
+      btn.hidden = false;
+    }
+    function pick() { input.click(); }
+    drop.addEventListener("click", pick);
+    btn.addEventListener("click", pick);
+    input.addEventListener("change", function () { if (input.files[0]) readImageFile(input.files[0], apply); });
+    ["dragenter", "dragover"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("drag-over"); });
+    });
+    ["dragleave", "drop"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("drag-over"); });
+    });
+    drop.addEventListener("drop", function (e) {
+      var f = e.dataTransfer.files[0];
+      if (f) readImageFile(f, apply);
+    });
+  }
+
+  function bindProfile(box) {
+    var zone = box.querySelector(".profile-zone");
+    var input = zone.querySelector(".file-input");
+    var drop = zone.querySelector(".drop-area");
+    var preview = zone.querySelector(".preview");
+    var btn = box.querySelector(".avatar-change");
+    function apply(url) {
+      preview.src = url;
+      zone.classList.add("has-img");
+      btn.hidden = false;
+    }
+    function pick() { input.click(); }
+    drop.addEventListener("click", pick);
+    btn.addEventListener("click", pick);
+    input.addEventListener("change", function () { if (input.files[0]) readImageFile(input.files[0], apply); });
+    ["dragenter", "dragover"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("drag-over"); });
+    });
+    ["dragleave", "drop"].forEach(function (ev) {
+      drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("drag-over"); });
+    });
+    drop.addEventListener("drop", function (e) {
+      var f = e.dataTransfer.files[0];
+      if (f) readImageFile(f, apply);
+    });
+  }
+
+  document.querySelectorAll(".upload-hero").forEach(bindHero);
+  document.querySelectorAll(".svc-fun .upload-block").forEach(bindSvc);
+  var pu = document.getElementById("profileUploader");
+  if (pu) bindProfile(pu);
+})();
+  </script>
+</body>
+</html>

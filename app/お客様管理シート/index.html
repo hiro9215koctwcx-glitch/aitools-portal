@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>お客様管理シート</title>
+  <style>
+    :root {
+      --main: #2C1654;
+      --main-light: #3d1f6e;
+      --main-soft: rgba(44, 22, 84, 0.08);
+      --bg: #f4f2f8;
+      --card-bg: #fff;
+      --text: #1a1528;
+      --text-muted: #5c5470;
+      --border: #e2dce8;
+      --radius: 12px;
+      --shadow: 0 4px 20px rgba(44, 22, 84, 0.08);
+      --status-lead: #6366f1;
+      --status-negotiation: #f59e0b;
+      --status-contracted: #10b981;
+      --status-done: #64748b;
+      --status-hold: #ec4899;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, var(--main) 0%, var(--main-light) 100%);
+      color: #fff;
+      padding: 1.25rem 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .app-header h1 {
+      font-size: clamp(1.25rem, 4vw, 1.5rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .app-header p {
+      opacity: 0.9;
+      font-size: 0.85rem;
+      margin-top: 0.35rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 2rem;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .dash-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 1rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .dash-card.total-amount {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, var(--main-soft), #fff);
+      border-color: rgba(44, 22, 84, 0.15);
+    }
+
+    @media (min-width: 640px) {
+      .dash-card.total-amount {
+        grid-column: span 2;
+      }
+    }
+
+    .dash-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .dash-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: 0.25rem;
+    }
+
+    .dash-value.amount {
+      color: var(--main);
+    }
+
+    .dash-stat {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.35rem;
+    }
+
+    .dash-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--main);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      align-items: stretch;
+    }
+
+    .toolbar input,
+    .toolbar select {
+      flex: 1;
+      min-width: 140px;
+      padding: 0.65rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      background: #fff;
+    }
+
+    .toolbar input:focus,
+    .toolbar select:focus {
+      outline: none;
+      border-color: var(--main);
+      box-shadow: 0 0 0 3px var(--main-soft);
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .form-grid .full {
+        grid-column: 1 / -1;
+      }
+    }
+
+    .form-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--main);
+      box-shadow: 0 0 0 3px var(--main-soft);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 0.65rem 1.25rem;
+      transition: opacity 0.2s, transform 0.05s;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--main);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.92;
+    }
+
+    .btn-secondary {
+      background: var(--border);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      opacity: 0.92;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--main);
+      border: 1px solid var(--main);
+    }
+
+    .cards-grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 560px) {
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 900px) {
+      .cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .customer-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 1.1rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--status-color, var(--main));
+      transition: box-shadow 0.2s;
+    }
+
+    .customer-card:hover {
+      box-shadow: 0 8px 28px rgba(44, 22, 84, 0.12);
+    }
+
+    .customer-card[data-status="見込み"] { --status-color: var(--status-lead); }
+    .customer-card[data-status="商談中"] { --status-color: var(--status-negotiation); }
+    .customer-card[data-status="契約済"] { --status-color: var(--status-contracted); }
+    .customer-card[data-status="完了"] { --status-color: var(--status-done); }
+    .customer-card[data-status="保留"] { --status-color: var(--status-hold); }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-name {
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--text);
+    }
+
+    .card-company {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      background: var(--main-soft);
+      color: var(--main);
+    }
+
+    .badge.lead { background: rgba(99, 102, 241, 0.15); color: #4338ca; }
+    .badge.negotiation { background: rgba(245, 158, 11, 0.2); color: #b45309; }
+    .badge.contracted { background: rgba(16, 185, 129, 0.15); color: #047857; }
+    .badge.done { background: rgba(100, 116, 139, 0.2); color: #475569; }
+    .badge.hold { background: rgba(236, 72, 153, 0.15); color: #be185d; }
+
+    .card-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+      word-break: break-all;
+    }
+
+    .card-meta strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .card-amount {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--main);
+      margin: 0.5rem 0;
+    }
+
+    .card-memo {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px dashed var(--border);
+      max-height: 4.5em;
+      overflow: hidden;
+    }
+
+    .card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+    }
+
+    .card-actions button {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--text-muted);
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 2px dashed var(--border);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .legend i {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      display: inline-block;
+    }
+
+    .layout-two {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 900px) {
+      .layout-two {
+        grid-template-columns: 340px 1fr;
+        align-items: start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <h1>お客様管理シート</h1>
+    <p>小企業・個人事業主向けの顧客管理</p>
+  </header>
+
+  <div class="container">
+    <section class="dashboard" id="dashboard" aria-label="集計ダッシュボード"></section>
+
+    <div class="layout-two">
+      <section aria-labelledby="form-heading">
+        <h2 id="form-heading" class="section-title">顧客登録・編集</h2>
+        <div class="form-card">
+          <form id="customerForm" class="form-grid">
+            <input type="hidden" id="editId" value="">
+            <div>
+              <label for="customerName">お客様名 <span style="color:#dc2626">*</span></label>
+              <input type="text" id="customerName" name="customerName" required autocomplete="name" placeholder="山田 太郎">
+            </div>
+            <div>
+              <label for="companyName">会社名</label>
+              <input type="text" id="companyName" name="companyName" autocomplete="organization" placeholder="株式会社サンプル">
+            </div>
+            <div>
+              <label for="email">メール</label>
+              <input type="email" id="email" name="email" autocomplete="email" placeholder="mail@example.com">
+            </div>
+            <div>
+              <label for="phone">電話番号</label>
+              <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="03-1234-5678">
+            </div>
+            <div>
+              <label for="status">ステータス</label>
+              <select id="status" name="status">
+                <option value="見込み">見込み</option>
+                <option value="商談中">商談中</option>
+                <option value="契約済">契約済</option>
+                <option value="完了">完了</option>
+                <option value="保留">保留</option>
+              </select>
+            </div>
+            <div>
+              <label for="amount">契約金額（円）</label>
+              <input type="number" id="amount" name="amount" min="0" step="1" placeholder="0">
+            </div>
+            <div class="full">
+              <label for="nextAction">次のアクション</label>
+              <input type="text" id="nextAction" name="nextAction" placeholder="来週フォロー電話">
+            </div>
+            <div class="full">
+              <label for="memo">メモ</label>
+              <textarea id="memo" name="memo" placeholder="商談内容や注意事項など"></textarea>
+            </div>
+          </form>
+          <div class="btn-row">
+            <button type="submit" form="customerForm" class="btn-primary" id="submitBtn">登録する</button>
+            <button type="button" class="btn-secondary" id="resetFormBtn">フォームをクリア</button>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="list-heading">
+        <h2 id="list-heading" class="section-title">顧客一覧</h2>
+        <div class="legend" aria-hidden="true">
+          <span><i style="background:var(--status-lead)"></i>見込み</span>
+          <span><i style="background:var(--status-negotiation)"></i>商談中</span>
+          <span><i style="background:var(--status-contracted)"></i>契約済</span>
+          <span><i style="background:var(--status-done)"></i>完了</span>
+          <span><i style="background:var(--status-hold)"></i>保留</span>
+        </div>
+        <div class="toolbar">
+          <input type="search" id="searchInput" placeholder="名前・会社・メール・電話・メモで検索…" aria-label="検索">
+          <select id="filterStatus" aria-label="ステータスで絞り込み">
+            <option value="">すべてのステータス</option>
+            <option value="見込み">見込み</option>
+            <option value="商談中">商談中</option>
+            <option value="契約済">契約済</option>
+            <option value="完了">完了</option>
+            <option value="保留">保留</option>
+          </select>
+        </div>
+        <div id="cardsContainer" class="cards-grid"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'customerSheet_v1';
+  var STATUSES = ['見込み', '商談中', '契約済', '完了', '保留'];
+
+  function badgeClass(status) {
+    var map = {
+      '見込み': 'lead',
+      '商談中': 'negotiation',
+      '契約済': 'contracted',
+      '完了': 'done',
+      '保留': 'hold'
+    };
+    return map[status] || '';
+  }
+
+  function loadCustomers() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      var data = JSON.parse(raw);
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveCustomers(list) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  }
+
+  function formatYen(n) {
+    var num = Number(n) || 0;
+    return num.toLocaleString('ja-JP') + '円';
+  }
+
+  function escapeHtml(s) {
+    if (s == null) return '';
+    var div = document.createElement('div');
+    div.textContent = String(s);
+    return div.innerHTML;
+  }
+
+  function renderDashboard(customers) {
+    var el = document.getElementById('dashboard');
+    var counts = {};
+    STATUSES.forEach(function (st) { counts[st] = 0; });
+    var totalAmount = 0;
+    customers.forEach(function (c) {
+      if (counts[c.status] !== undefined) counts[c.status]++;
+      totalAmount += Number(c.amount) || 0;
+    });
+
+    var dots = {
+      '見込み': 'var(--status-lead)',
+      '商談中': 'var(--status-negotiation)',
+      '契約済': 'var(--status-contracted)',
+      '完了': 'var(--status-done)',
+      '保留': 'var(--status-hold)'
+    };
+
+    var html = '';
+    html += '<div class="dash-card total-amount"><div class="dash-label">総契約金額</div><div class="dash-value amount">' + escapeHtml(formatYen(totalAmount)) + '</div><div class="dash-label" style="margin-top:0.5rem">登録顧客 ' + customers.length + ' 件</div></div>';
+
+    STATUSES.forEach(function (st) {
+      html += '<div class="dash-card"><div class="dash-label">' + escapeHtml(st) + '</div><div class="dash-value">' + counts[st] + '</div><div class="dash-stat"><span class="dash-dot" style="background:' + dots[st] + '"></span><span style="font-size:0.8rem;color:var(--text-muted)">件</span></div></div>';
+    });
+
+    el.innerHTML = html;
+  }
+
+  function getFilteredList() {
+    var customers = loadCustomers();
+    var q = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+    var f = document.getElementById('filterStatus').value;
+
+    return customers.filter(function (c) {
+      if (f && c.status !== f) return false;
+      if (!q) return true;
+      var hay = [
+        c.customerName,
+        c.companyName,
+        c.email,
+        c.phone,
+        c.nextAction,
+        c.memo
+      ].join(' ').toLowerCase();
+      return hay.indexOf(q) !== -1;
+    });
+  }
+
+  function renderCards() {
+    var container = document.getElementById('cardsContainer');
+    var list = getFilteredList();
+
+    if (list.length === 0) {
+      container.innerHTML = '<div class="empty-state">該当する顧客がありません。<br>検索条件を変えるか、新規登録してください。</div>';
+      return;
+    }
+
+    var html = list.map(function (c) {
+      var bc = badgeClass(c.status);
+      return (
+        '<article class="customer-card" data-status="' + escapeHtml(c.status) + '" data-id="' + escapeHtml(c.id) + '">' +
+        '<div class="card-header">' +
+        '<div><div class="card-name">' + escapeHtml(c.customerName) + '</div>' +
+        (c.companyName ? '<div class="card-company">' + escapeHtml(c.companyName) + '</div>' : '') + '</div>' +
+        '<span class="badge ' + bc + '">' + escapeHtml(c.status) + '</span></div>' +
+        (c.email ? '<div class="card-meta"><strong>メール</strong> ' + escapeHtml(c.email) + '</div>' : '') +
+        (c.phone ? '<div class="card-meta"><strong>電話</strong> ' + escapeHtml(c.phone) + '</div>' : '') +
+        '<div class="card-amount">' + escapeHtml(formatYen(c.amount)) + '</div>' +
+        (c.nextAction ? '<div class="card-meta"><strong>次のアクション</strong> ' + escapeHtml(c.nextAction) + '</div>' : '') +
+        (c.memo ? '<div class="card-memo">' + escapeHtml(c.memo) + '</div>' : '') +
+        '<div class="card-actions">' +
+        '<button type="button" class="btn-ghost edit-btn" data-id="' + escapeHtml(c.id) + '">編集</button>' +
+        '<button type="button" class="btn-danger delete-btn" data-id="' + escapeHtml(c.id) + '">削除</button>' +
+        '</div></article>'
+      );
+    }).join('');
+
+    container.innerHTML = html;
+
+    container.querySelectorAll('.edit-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        fillForm(btn.getAttribute('data-id'));
+      });
+    });
+    container.querySelectorAll('.delete-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-id');
+        if (confirm('この顧客を削除しますか？')) {
+          removeCustomer(id);
+        }
+      });
+    });
+  }
+
+  function refreshAll() {
+    var all = loadCustomers();
+    renderDashboard(all);
+    renderCards();
+  }
+
+  function generateId() {
+    return 'c_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 9);
+  }
+
+  function fillForm(id) {
+    var list = loadCustomers();
+    var c = list.find(function (x) { return x.id === id; });
+    if (!c) return;
+    document.getElementById('editId').value = c.id;
+    document.getElementById('customerName').value = c.customerName || '';
+    document.getElementById('companyName').value = c.companyName || '';
+    document.getElementById('email').value = c.email || '';
+    document.getElementById('phone').value = c.phone || '';
+    document.getElementById('status').value = c.status || '見込み';
+    document.getElementById('amount').value = c.amount != null ? c.amount : '';
+    document.getElementById('nextAction').value = c.nextAction || '';
+    document.getElementById('memo').value = c.memo || '';
+    document.getElementById('submitBtn').textContent = '更新する';
+    document.getElementById('customerForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function clearForm() {
+    document.getElementById('editId').value = '';
+    document.getElementById('customerForm').reset();
+    document.getElementById('submitBtn').textContent = '登録する';
+  }
+
+  function removeCustomer(id) {
+    var list = loadCustomers().filter(function (c) { return c.id !== id; });
+    saveCustomers(list);
+    clearForm();
+    refreshAll();
+  }
+
+  document.getElementById('customerForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var editId = document.getElementById('editId').value;
+    var payload = {
+      customerName: document.getElementById('customerName').value.trim(),
+      companyName: document.getElementById('companyName').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
+      status: document.getElementById('status').value,
+      amount: document.getElementById('amount').value === '' ? 0 : Number(document.getElementById('amount').value),
+      nextAction: document.getElementById('nextAction').value.trim(),
+      memo: document.getElementById('memo').value.trim()
+    };
+
+    var list = loadCustomers();
+    if (editId) {
+      var idx = list.findIndex(function (c) { return c.id === editId; });
+      if (idx !== -1) {
+        list[idx] = Object.assign({}, list[idx], payload);
+      }
+    } else {
+      list.push(Object.assign({ id: generateId(), createdAt: Date.now() }, payload));
+    }
+    saveCustomers(list);
+    clearForm();
+    refreshAll();
+  });
+
+  document.getElementById('resetFormBtn').addEventListener('click', clearForm);
+  document.getElementById('searchInput').addEventListener('input', renderCards);
+  document.getElementById('filterStatus').addEventListener('change', renderCards);
+
+  refreshAll();
+})();
+  </script>
+</body>
+</html>

@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>情報漏洩リスク診断シート</title>
+  <style>
+    :root {
+      --main: #1B2A4A;
+      --main-light: #243556;
+      --accent: #4A90D9;
+      --accent-soft: rgba(74, 144, 217, 0.15);
+      --text: #E8EDF5;
+      --text-muted: #9BA8C4;
+      --surface: rgba(255, 255, 255, 0.06);
+      --border: rgba(255, 255, 255, 0.12);
+      --radius: 16px;
+      --safe: #22c55e;
+      --caution: #eab308;
+      --warn: #f97316;
+      --danger: #ef4444;
+      --quiz-bg: linear-gradient(165deg, #1e3558 0%, #1B2A4A 45%, #152038 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif;
+      background: var(--quiz-bg);
+      color: var(--text);
+      min-height: 100dvh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100dvh;
+      padding: 1.25rem 1rem 2rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      text-align: center;
+      padding: 0.5rem 0 1rem;
+    }
+
+    .logo-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .shield-icon {
+      width: 40px;
+      height: 40px;
+      color: var(--accent);
+      filter: drop-shadow(0 0 12px rgba(74, 144, 217, 0.45));
+    }
+
+    h1 {
+      font-size: clamp(1.15rem, 4vw, 1.35rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Screens */
+    .screen {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      animation: fadeIn 0.45s ease;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideQOut {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(-24px); }
+    }
+
+    @keyframes slideQIn {
+      from { opacity: 0; transform: translateX(24px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .question-card.anim-out {
+      animation: slideQOut 0.28s ease forwards;
+    }
+
+    .question-card.anim-in {
+      animation: slideQIn 0.35s ease forwards;
+    }
+
+    /* Intro */
+    .intro-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+
+    .intro-card p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.9rem 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+      text-decoration: none;
+      font-family: inherit;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #357abd 100%);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(74, 144, 217, 0.35);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 6px 24px rgba(74, 144, 217, 0.45);
+    }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      margin-top: 0.75rem;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+      margin-top: 0.5rem;
+    }
+
+    /* Quiz */
+    .progress-wrap {
+      margin-bottom: 1rem;
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #6eb0f0);
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    .question-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.35rem 1.15rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .q-badge {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .question-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      flex: 0 0 auto;
+    }
+
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      margin-top: auto;
+    }
+
+    .choice-btn {
+      padding: 0.85rem 1rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      font-family: inherit;
+    }
+
+    .choice-btn:hover {
+      background: var(--accent-soft);
+      border-color: rgba(74, 144, 217, 0.4);
+    }
+
+    .choice-btn:active {
+      transform: scale(0.99);
+    }
+
+    /* Result */
+    body.result-safe { --result-color: var(--safe); --result-bg: linear-gradient(165deg, #14532d 0%, #1B2A4A 50%, #152038 100%); }
+    body.result-caution { --result-color: var(--caution); --result-bg: linear-gradient(165deg, #713f12 0%, #1B2A4A 50%, #152038 100%); }
+    body.result-warn { --result-color: var(--warn); --result-bg: linear-gradient(165deg, #7c2d12 0%, #1B2A4A 50%, #152038 100%); }
+    body.result-danger { --result-color: var(--danger); --result-bg: linear-gradient(165deg, #7f1d1d 0%, #1B2A4A 50%, #152038 100%); }
+
+    body[class^="result-"] {
+      background: var(--result-bg);
+    }
+
+    .result-hero {
+      text-align: center;
+      padding: 1rem 0 1.25rem;
+    }
+
+    .result-level {
+      font-size: clamp(2rem, 10vw, 2.75rem);
+      font-weight: 800;
+      color: var(--result-color);
+      text-shadow: 0 0 40px color-mix(in srgb, var(--result-color) 45%, transparent);
+      letter-spacing: 0.04em;
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .result-score-line {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+    }
+
+    .gauge-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 1rem 0 1.25rem;
+    }
+
+    .gauge {
+      width: min(260px, 85vw);
+      height: 140px;
+      position: relative;
+    }
+
+    .gauge svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .gauge-track {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.12);
+      stroke-width: 14;
+      stroke-linecap: round;
+    }
+
+    .gauge-fill {
+      fill: none;
+      stroke: var(--result-color);
+      stroke-width: 14;
+      stroke-linecap: round;
+      stroke-dasharray: 0;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s ease-out, stroke 0.5s;
+      filter: drop-shadow(0 0 8px color-mix(in srgb, var(--result-color) 50%, transparent));
+    }
+
+    .gauge-needle {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      width: 4px;
+      height: 72px;
+      background: var(--text);
+      border-radius: 2px;
+      transform-origin: bottom center;
+      transform: translateX(-50%) rotate(-90deg);
+      transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .gauge-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      padding: 0 0.5rem;
+      margin-top: -0.25rem;
+    }
+
+    .advice-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1rem;
+      margin-bottom: 1rem;
+      max-height: 42vh;
+      overflow-y: auto;
+    }
+
+    .advice-section h2 {
+      font-size: 0.85rem;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .advice-item {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      padding: 0.65rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .advice-item:last-child {
+      border-bottom: none;
+    }
+
+    .advice-item strong {
+      display: block;
+      color: var(--text);
+      font-size: 0.82rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .result-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .share-note {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 0.75rem;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      padding-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo-row">
+        <svg class="shield-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" fill="rgba(74,144,217,0.2)"/>
+          <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h1>情報漏洩リスク診断シート</h1>
+      </div>
+      <p class="subtitle">小企業・飲食店・個人事業主向け｜10問でセキュリティの現状をチェック</p>
+    </header>
+
+    <main>
+      <!-- Intro -->
+      <section id="screen-intro" class="screen active" aria-labelledby="intro-heading">
+        <div class="intro-card">
+          <h2 id="intro-heading" class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">診断の説明</h2>
+          <p>10問に答えるだけで、情報漏洩・セキュリティのリスク感を4段階で把握できます。目安としてご利用ください。</p>
+          <button type="button" class="btn btn-primary" id="btn-start">診断をはじめる</button>
+        </div>
+      </section>
+
+      <!-- Quiz -->
+      <section id="screen-quiz" class="screen" aria-live="polite">
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span>進捗</span>
+            <span id="progress-text">1 / 10</span>
+          </div>
+          <div class="progress-bar" role="progressbar" aria-valuemin="1" aria-valuemax="10" aria-valuenow="1" id="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+        <div class="question-card" id="question-card">
+          <div class="q-badge" id="q-badge">Question 01</div>
+          <p class="question-text" id="question-text"></p>
+          <div class="choices" id="choices"></div>
+        </div>
+      </section>
+
+      <!-- Result -->
+      <section id="screen-result" class="screen" aria-labelledby="result-heading">
+        <div class="result-hero">
+          <h2 id="result-heading" class="result-level">—</h2>
+          <p class="result-score-line">リスクスコア <strong id="result-score">0</strong> / 100</p>
+        </div>
+        <div class="gauge-wrap">
+          <div class="gauge" aria-hidden="true">
+            <svg viewBox="0 0 200 120">
+              <path class="gauge-track" d="M 30 100 A 70 70 0 0 1 170 100"/>
+              <path class="gauge-fill" id="gauge-fill" d="M 30 100 A 70 70 0 0 1 170 100"/>
+            </svg>
+            <div class="gauge-needle" id="gauge-needle"></div>
+          </div>
+        </div>
+        <div class="gauge-labels">
+          <span>安全</span>
+          <span>注意</span>
+          <span>警告</span>
+          <span>危険</span>
+        </div>
+
+        <div class="advice-section">
+          <h2>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            改善アドバイス
+          </h2>
+          <div id="advice-list"></div>
+        </div>
+
+        <div class="result-actions">
+          <button type="button" class="btn btn-primary" id="btn-retry">もう一度診断する</button>
+          <a class="btn btn-secondary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料相談はこちら</a>
+          <button type="button" class="btn btn-outline" id="btn-share">結果をXでシェア</button>
+        </div>
+        <p class="share-note">シェア時は公開したくない情報にご注意ください。</p>
+      </section>
+    </main>
+
+    <footer>本ツールは一般的な目安であり、法的・専門的な助言ではありません。</footer>
+  </div>
+
+  <script>
+(function () {
+  var QUESTIONS = [
+    {
+      id: 1,
+      text: "従業員がパスワードを付箋やメモに書いて貼っていますか？",
+      type: "yn",
+      polarity: "badYes",
+      points: { yes: 10, no: 0 },
+      adviceIfRisk: "付箋やメモは第三者に見られるリスクが高いです。パスワード管理ツールの利用や、画面ロック・共有PCの利用ルールを決めましょう。"
+    },
+    {
+      id: 2,
+      text: "全員が同じパスワードを使い回していますか？",
+      type: "yn",
+      polarity: "badYes",
+      points: { yes: 10, no: 0 },
+      adviceIfRisk: "共通パスワードは、一度漏れると全アカウントが危険になります。役割ごとにアカウントを分け、多要素認証が使えるサービスは有効にしましょう。"
+    },
+    {
+      id: 3,
+      text: "お客様の個人情報をExcelや紙で管理していますか？",
+      type: "triple",
+      options: [
+        { label: "はい（主にExcelや紙）", key: "full", score: 10 },
+        { label: "一部だけ", key: "partial", score: 5 },
+        { label: "いいえ（適切な形で管理・ほぼ扱わない）", key: "no", score: 0 }
+      ],
+      adviceIfRisk: "Excelや紙はアクセス制御や履歴管理が難しくなりがちです。必要最小限の保管、暗号化・鍵付き保管、廃棄ルールを決め、可能なら専用ツールを検討しましょう。"
+    },
+    {
+      id: 4,
+      text: "従業員の退職時にパスワードを変更していますか？",
+      type: "yn",
+      polarity: "goodYes",
+      points: { yes: 0, no: 10 },
+      adviceIfRisk: "退職者のアカウントや共有パスワードは早めに無効化・変更しましょう。チェックリストを用意し、人事・情シス・現場で手順を共有すると漏れが減ります。"
+    },
+    {
+      id: 5,
+      text: "店舗・事務所のWi-Fiにパスワードを設定していますか？",
+      type: "yn",
+      polarity: "goodYes",
+      points: { yes: 0, no: 10 },
+      adviceIfRisk: "無暗号・無パスワードのWi-Fiは傍受されやすいです。WPA2以上のパスワード設定、ゲスト用と業務用の分離を検討しましょう。"
+    },
+    {
+      id: 6,
+      text: "パソコンに自動ロック（スリープ）を設定していますか？",
+      type: "yn",
+      polarity: "goodYes",
+      points: { yes: 0, no: 10 },
+      adviceIfRisk: "離席中の画面はそのまま第三者に触られます。短めの自動ロックと、再開時のパスワード／PINを必須にしましょう。"
+    },
+    {
+      id: 7,
+      text: "不審なメールのリンクをクリックしないよう周知していますか？",
+      type: "yn",
+      polarity: "goodYes",
+      points: { yes: 0, no: 10 },
+      adviceIfRisk: "標的型メールやフィッシング対策として、リンクは踏まない・添付は開かない・疑わしければ確認、を短いルールで全員に共有しましょう。"
+    },
+    {
+      id: 8,
+      text: "重要データのバックアップを定期的に取っていますか？",
+      type: "yn",
+      polarity: "goodYes",
+      points: { yes: 0, no: 10 },
+      adviceIfRisk: "ランサムウェアや故障でデータが失われるリスクがあります。定期的なバックアップと、復元テスト（実際に戻せるか確認）をセットで行いましょう。"
+    },
+    {
+      id: 9,
+      text: "スマホやタブレットに画面ロックを設定していますか？",
+      type: "yn",
+      polarity: "goodYes",
+      points: { yes: 0, no: 10 },
+      adviceIfRisk: "紛失・盗難時に中身を見られるリスクがあります。生体認証や強めのPIN、紛失時のリモートロック機能の利用を検討しましょう。"
+    },
+    {
+      id: 10,
+      text: "セキュリティに関するルールや規則を文書化していますか？",
+      type: "yn",
+      polarity: "goodYes",
+      points: { yes: 0, no: 10 },
+      adviceIfRisk: "暗黙の了解だけだと属人化し、事故時に対応が遅れます。1〜2枚の簡易ポリシーでもよいので、パスワード・持ち出し・SNS・顧客情報の扱いを書き残しましょう。"
+    }
+  ];
+
+  var state = {
+    index: 0,
+    answers: [],
+    totalScore: 0
+  };
+
+  var intro = document.getElementById("screen-intro");
+  var quiz = document.getElementById("screen-quiz");
+  var result = document.getElementById("screen-result");
+  var progressText = document.getElementById("progress-text");
+  var progressFill = document.getElementById("progress-fill");
+  var progressBar = document.getElementById("progress-bar");
+  var questionCard = document.getElementById("question-card");
+  var qBadge = document.getElementById("q-badge");
+  var questionText = document.getElementById("question-text");
+  var choicesEl = document.getElementById("choices");
+  var resultLevel = document.getElementById("result-heading");
+  var resultScore = document.getElementById("result-score");
+  var adviceList = document.getElementById("advice-list");
+  var gaugeFill = document.getElementById("gauge-fill");
+  var gaugeNeedle = document.getElementById("gauge-needle");
+
+  function showScreen(el) {
+    [intro, quiz, result].forEach(function (s) {
+      s.classList.remove("active");
+    });
+    el.classList.add("active");
+  }
+
+  function bandFromScore(score) {
+    if (score <= 20) return { key: "safe", label: "安全", cls: "result-safe" };
+    if (score <= 40) return { key: "caution", label: "注意", cls: "result-caution" };
+    if (score <= 60) return { key: "warn", label: "警告", cls: "result-warn" };
+    return { key: "danger", label: "危険", cls: "result-danger" };
+  }
+
+  function renderQuestion() {
+    var q = QUESTIONS[state.index];
+    var n = state.index + 1;
+    progressText.textContent = n + " / 10";
+    var pct = (n / 10) * 100;
+    progressFill.style.width = pct + "%";
+    progressBar.setAttribute("aria-valuenow", String(n));
+
+    qBadge.textContent = "Question " + (n < 10 ? "0" : "") + n;
+    questionText.textContent = q.text;
+    choicesEl.innerHTML = "";
+
+    function addChoice(label, onClick) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "choice-btn";
+      b.textContent = label;
+      b.addEventListener("click", onClick);
+      choicesEl.appendChild(b);
+    }
+
+    if (q.type === "yn") {
+      addChoice("はい", function () { submitAnswer(q, "yes"); });
+      addChoice("いいえ", function () { submitAnswer(q, "no"); });
+    } else if (q.type === "triple") {
+      q.options.forEach(function (opt) {
+        addChoice(opt.label, function () { submitAnswer(q, opt); });
+      });
+    }
+  }
+
+  function submitAnswer(q, payload) {
+    var pts = 0;
+    var riskFlag = false;
+
+    if (q.type === "yn") {
+      pts = q.points[payload];
+      if (q.polarity === "badYes") riskFlag = payload === "yes";
+      else riskFlag = payload === "no";
+    } else if (q.type === "triple") {
+      pts = payload.score;
+      riskFlag = payload.score > 0;
+    }
+
+    state.answers.push({
+      questionId: q.id,
+      points: pts,
+      showAdvice: riskFlag
+    });
+
+    state.index += 1;
+
+    questionCard.classList.remove("anim-in");
+    questionCard.classList.add("anim-out");
+
+    setTimeout(function () {
+      questionCard.classList.remove("anim-out");
+      if (state.index < QUESTIONS.length) {
+        renderQuestion();
+        questionCard.classList.add("anim-in");
+        setTimeout(function () { questionCard.classList.remove("anim-in"); }, 400);
+      } else {
+        finishQuiz();
+      }
+    }, 280);
+  }
+
+  function finishQuiz() {
+    var total = state.answers.reduce(function (s, a) { return s + a.points; }, 0);
+    state.totalScore = total;
+    var band = bandFromScore(total);
+
+    document.body.classList.remove("result-safe", "result-caution", "result-warn", "result-danger");
+    document.body.classList.add(band.cls);
+
+    resultLevel.textContent = band.label;
+    resultScore.textContent = String(total);
+
+    adviceList.innerHTML = "";
+    var idsWithAdvice = state.answers.filter(function (a) { return a.showAdvice; }).map(function (a) { return a.questionId; });
+    if (idsWithAdvice.length === 0) {
+      var p = document.createElement("p");
+      p.className = "advice-item";
+      p.textContent = "特に大きなリスク要因は見当たりませんでした。この状態を維持するため、定期的に見直しを続けましょう。";
+      adviceList.appendChild(p);
+    } else {
+      idsWithAdvice.forEach(function (id) {
+        var q = QUESTIONS[id - 1];
+        var div = document.createElement("div");
+        div.className = "advice-item";
+        div.innerHTML = "<strong>Q" + id + "</strong>" + q.adviceIfRisk;
+        adviceList.appendChild(div);
+      });
+    }
+
+    showScreen(result);
+
+    var arcLen = gaugeFill.getTotalLength();
+    gaugeFill.style.strokeDasharray = String(arcLen);
+    gaugeFill.style.strokeDashoffset = String(arcLen);
+    gaugeNeedle.style.transform = "translateX(-50%) rotate(-90deg)";
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        var offset = arcLen * (1 - total / 100);
+        gaugeFill.style.strokeDashoffset = String(offset);
+        var angle = -90 + (total / 100) * 180;
+        gaugeNeedle.style.transform = "translateX(-50%) rotate(" + angle + "deg)";
+      });
+    });
+  }
+
+  function resetQuiz() {
+    state.index = 0;
+    state.answers = [];
+    state.totalScore = 0;
+    document.body.classList.remove("result-safe", "result-caution", "result-warn", "result-danger");
+    renderQuestion();
+    questionCard.classList.add("anim-in");
+    setTimeout(function () { questionCard.classList.remove("anim-in"); }, 400);
+    showScreen(quiz);
+  }
+
+  document.getElementById("btn-start").addEventListener("click", function () {
+    resetQuiz();
+  });
+
+  document.getElementById("btn-retry").addEventListener("click", function () {
+    document.body.classList.remove("result-safe", "result-caution", "result-warn", "result-danger");
+    resetQuiz();
+  });
+
+  document.getElementById("btn-share").addEventListener("click", function () {
+    var band = bandFromScore(state.totalScore);
+    var url = window.location.href.split("#")[0];
+    var text =
+      "情報漏洩リスク診断をやってみました！\n" +
+      "私のリスクレベルは【" + band.label + "】でした。\n" +
+      "あなたのお店は大丈夫？無料で診断できます👇\n" +
+      url + "\n" +
+      "#情報セキュリティ #個人事業主 #飲食店経営";
+    var shareUrl = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(text);
+    window.open(shareUrl, "_blank", "noopener,noreferrer");
+  });
+})();
+  </script>
+</body>
+</html>

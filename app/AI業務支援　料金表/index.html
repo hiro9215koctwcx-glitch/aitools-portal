@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta
+      name="description"
+      content="AI業務支援の料金表。ライト・スタンダード・エンタープライズの3プラン。まずは無料相談から。"
+    />
+    <title>AI業務支援　料金表 | AI × 人　つながるツール工房</title>
+    <style>
+      :root {
+        --bg0: #ffffff;
+        --bg1: #f6f8ff;
+        --panel: rgba(15, 23, 42, 0.04);
+        --border: rgba(15, 23, 42, 0.12);
+        --text: rgba(15, 23, 42, 0.92);
+        --muted: rgba(15, 23, 42, 0.72);
+        --faint: rgba(15, 23, 42, 0.56);
+        --brand: #6d28d9;
+        --brand2: #0891b2;
+        --shadow: 0 22px 70px rgba(2, 6, 23, 0.1);
+        --shadow-lg: 0 28px 90px rgba(109, 40, 217, 0.18);
+        --radius: 18px;
+        --radius2: 24px;
+        --max: 1120px;
+        --padX: 20px;
+        --ring: 0 0 0 6px rgba(109, 40, 217, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        color: var(--text);
+        background: radial-gradient(1200px 700px at 18% 8%, rgba(109, 40, 217, 0.14), transparent 55%),
+          radial-gradient(900px 600px at 82% 18%, rgba(8, 145, 178, 0.12), transparent 55%),
+          radial-gradient(900px 700px at 50% 95%, rgba(8, 145, 178, 0.06), transparent 60%),
+          linear-gradient(180deg, var(--bg0), var(--bg1) 65%, #ffffff 100%);
+        font-family: ui-sans-serif, system-ui, -apple-system, "SF Pro Display", "Hiragino Sans", "Noto Sans JP",
+          "Yu Gothic", "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        line-height: 1.65;
+        letter-spacing: 0.2px;
+        overflow-x: hidden;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .wrap {
+        max-width: var(--max);
+        margin: 0 auto;
+        padding: 0 var(--padX);
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(14px);
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.92),
+          rgba(255, 255, 255, 0.78) 55%,
+          rgba(255, 255, 255, 0.22)
+        );
+        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 0;
+        flex-wrap: wrap;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+      }
+
+      .logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        background: radial-gradient(18px 18px at 30% 30%, rgba(255, 255, 255, 0.25), transparent 70%),
+          linear-gradient(135deg, rgba(124, 58, 237, 0.95), rgba(34, 211, 238, 0.85));
+        box-shadow: 0 18px 45px rgba(124, 58, 237, 0.18);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        flex: 0 0 auto;
+      }
+
+      .brandText {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .brandTitle {
+        font-weight: 760;
+        font-size: 15px;
+        line-height: 1.25;
+      }
+
+      .brandSub {
+        font-size: 12px;
+        color: var(--faint);
+      }
+
+      main {
+        display: block;
+        padding-bottom: 72px;
+      }
+
+      .hero {
+        padding: 48px 0 36px;
+        text-align: center;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(26px, 4vw, 40px);
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        font-weight: 780;
+      }
+
+      .heroLead {
+        margin: 14px auto 0;
+        max-width: 520px;
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      .commonBar {
+        margin-top: 28px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        color: rgba(15, 23, 42, 0.78);
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        box-shadow: 0 8px 28px rgba(2, 6, 23, 0.06);
+      }
+
+      .chip svg {
+        flex-shrink: 0;
+        opacity: 0.85;
+      }
+
+      .plans {
+        display: grid;
+        grid-template-columns: 1fr 1.12fr 1fr;
+        gap: 18px;
+        align-items: stretch;
+        margin-top: 40px;
+      }
+
+      @media (max-width: 960px) {
+        .plans {
+          grid-template-columns: 1fr;
+          max-width: 420px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+      }
+
+      .plan {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        padding: 22px 20px 20px;
+        border-radius: var(--radius2);
+        border: 1px solid rgba(15, 23, 42, 0.1);
+        background: rgba(255, 255, 255, 0.72);
+        box-shadow: var(--shadow);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .plan:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 26px 80px rgba(2, 6, 23, 0.12);
+      }
+
+      .plan--featured {
+        border: 1px solid transparent;
+        background: linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)) padding-box,
+          linear-gradient(145deg, rgba(109, 40, 217, 0.55), rgba(8, 145, 178, 0.5)) border-box;
+        box-shadow: var(--shadow-lg);
+        padding-top: 28px;
+        z-index: 1;
+      }
+
+      .plan--featured:hover {
+        box-shadow: 0 32px 100px rgba(109, 40, 217, 0.22);
+      }
+
+      @media (min-width: 961px) {
+        .plan--featured {
+          transform: scale(1.02);
+        }
+        .plan--featured:hover {
+          transform: scale(1.02) translateY(-2px);
+        }
+      }
+
+      .badge {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.06em;
+        color: #fff;
+        background: linear-gradient(135deg, rgba(109, 40, 217, 0.95), rgba(8, 145, 178, 0.88));
+        box-shadow: 0 10px 28px rgba(109, 40, 217, 0.35);
+        white-space: nowrap;
+      }
+
+      .planName {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .planPrice {
+        margin-top: 8px;
+        font-size: clamp(22px, 2.4vw, 28px);
+        font-weight: 780;
+        letter-spacing: -0.02em;
+      }
+
+      .planPrice span {
+        font-size: 0.55em;
+        font-weight: 650;
+        color: var(--muted);
+      }
+
+      ul.features {
+        margin: 18px 0 0;
+        padding: 0;
+        list-style: none;
+        flex: 1 1 auto;
+      }
+
+      ul.features li {
+        position: relative;
+        padding-left: 22px;
+        margin-bottom: 11px;
+        font-size: 14px;
+        color: rgba(15, 23, 42, 0.88);
+      }
+
+      ul.features li:last-child {
+        margin-bottom: 0;
+      }
+
+      ul.features li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.55em;
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--brand), var(--brand2));
+        opacity: 0.85;
+      }
+
+      .forWhom {
+        margin-top: 16px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: var(--panel);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .forWhom strong {
+        display: block;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.06em;
+        color: var(--faint);
+        margin-bottom: 4px;
+      }
+
+      .ctaBlock {
+        margin-top: 44px;
+        text-align: center;
+      }
+
+      .ctaNote {
+        font-size: 14px;
+        color: var(--muted);
+        margin-bottom: 14px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 14px 22px;
+        border-radius: 14px;
+        border: 1px solid rgba(15, 23, 42, 0.14);
+        background: rgba(255, 255, 255, 0.7);
+        color: var(--text);
+        font-weight: 650;
+        font-size: 15px;
+        letter-spacing: 0.2px;
+        transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+        user-select: none;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.88);
+        border-color: rgba(15, 23, 42, 0.22);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .btn:focus-visible {
+        outline: none;
+        box-shadow: var(--ring);
+      }
+
+      .btnPrimary {
+        border-color: rgba(109, 40, 217, 0.35);
+        background: linear-gradient(135deg, rgba(109, 40, 217, 0.92), rgba(8, 145, 178, 0.78));
+        box-shadow: 0 18px 60px rgba(109, 40, 217, 0.16);
+        color: rgba(255, 255, 255, 0.95);
+      }
+
+      .btnPrimary:hover {
+        border-color: rgba(255, 255, 255, 0.65);
+        background: linear-gradient(135deg, rgba(109, 40, 217, 0.98), rgba(8, 145, 178, 0.86));
+      }
+
+      footer {
+        margin-top: 56px;
+        padding: 24px 0;
+        text-align: center;
+        font-size: 12px;
+        color: var(--faint);
+        border-top: 1px solid rgba(15, 23, 42, 0.08);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap nav">
+        <div class="brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div class="brandText">
+            <div class="brandTitle">AI業務支援　料金表</div>
+            <div class="brandSub">AI × 人　つながるツール工房</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="wrap">
+        <section class="hero" aria-labelledby="page-title">
+          <h1 id="page-title">AI業務支援　料金表</h1>
+          <p class="heroLead">
+            業務内容に合わせて最適なプランをご提案します。内容・規模により料金が変動する場合があります。
+          </p>
+          <div class="commonBar" role="list">
+            <span class="chip" role="listitem">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10Z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+                <path
+                  d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                />
+              </svg>
+              オンライン対応可（海外からも対応）
+            </span>
+            <span class="chip" role="listitem">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M4 6.8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-4 3v-3H6a2 2 0 0 1-2-2V6.8Z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              まずは無料相談から
+            </span>
+          </div>
+        </section>
+
+        <section class="plans" aria-label="料金プラン一覧">
+          <article class="plan">
+            <div class="planName">ライトプラン</div>
+            <div class="planPrice">30,000円<span>〜</span></div>
+            <ul class="features">
+              <li>既存ツールのカスタマイズ</li>
+              <li>納品まで3〜5日</li>
+              <li>メールサポート1ヶ月</li>
+            </ul>
+            <div class="forWhom">
+              <strong>向いている方</strong>
+              まず試してみたい方
+            </div>
+          </article>
+
+          <article class="plan plan--featured">
+            <span class="badge">おすすめ</span>
+            <div class="planName">スタンダードプラン</div>
+            <div class="planPrice">50,000円<span>〜</span></div>
+            <ul class="features">
+              <li>クライアントの業務に合わせたオリジナルツール・アプリの開発</li>
+              <li>納品まで2週間</li>
+              <li>メール・LINEサポート3ヶ月</li>
+            </ul>
+            <div class="forWhom">
+              <strong>向いている方</strong>
+              業務効率化を本格的に進めたい方
+            </div>
+          </article>
+
+          <article class="plan">
+            <div class="planName">エンタープライズプラン</div>
+            <div class="planPrice">要相談</div>
+            <ul class="features">
+              <li>AIコマンドセンター導入</li>
+              <li>社内専用AIの構築</li>
+              <li>月額保守サポート付き</li>
+            </ul>
+            <div class="forWhom">
+              <strong>向いている方</strong>
+              会社全体でAIを活用したい方
+            </div>
+          </article>
+        </section>
+
+        <div class="ctaBlock">
+          <p class="ctaNote">ご不明点はお気軽にご相談ください。</p>
+          <a class="btn btnPrimary" href="#" target="_blank" rel="noopener noreferrer">
+            <span>無料相談する</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="wrap">© <span id="y"></span> AI × 人　つながるツール工房</div>
+    </footer>
+
+    <script>
+      (function () {
+        var y = document.getElementById("y");
+        if (y) y.textContent = String(new Date().getFullYear());
+      })();
+    </script>
+  </body>
+</html>
