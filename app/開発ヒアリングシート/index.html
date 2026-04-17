@@ -258,10 +258,10 @@
         <div class="progress-wrap">
           <div class="progress-meta">
             <span>進捗</span>
-            <span><strong id="step-num">1</strong> / 10</span>
+            <span><strong id="step-num">1</strong> / 13</span>
           </div>
-          <div class="progress-bar" role="progressbar" aria-valuemin="1" aria-valuemax="10" aria-valuenow="1" id="progress-bar">
-            <div class="progress-fill" id="progress-fill" style="width: 10%"></div>
+          <div class="progress-bar" role="progressbar" aria-valuemin="1" aria-valuemax="13" aria-valuenow="1" id="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 7.6923076923%"></div>
           </div>
         </div>
         <div class="step-label" id="step-label">STEP 1</div>
@@ -275,9 +275,9 @@
         <div class="progress-wrap">
           <div class="progress-meta">
             <span>進捗</span>
-            <span><strong>10</strong> / 10</span>
+            <span><strong>13</strong> / 13</span>
           </div>
-          <div class="progress-bar" role="progressbar" aria-valuenow="10" aria-valuemax="10" aria-valuemin="1">
+          <div class="progress-bar" role="progressbar" aria-valuenow="13" aria-valuemax="13" aria-valuemin="1">
             <div class="progress-fill" style="width: 100%"></div>
           </div>
         </div>
@@ -420,6 +420,36 @@
         },
         {
           id: 10,
+          question: "AIチャット機能は必要ですか？",
+          type: "choice",
+          choices: [
+            "はい（AIが質問に答えてくれる機能が欲しい）",
+            "いいえ（通常のツールで十分）",
+            "わからない・相談したい",
+          ]
+        },
+        {
+          id: 11,
+          question: "データを保存・蓄積する必要はありますか？",
+          type: "choice",
+          choices: [
+            "はい（顧客情報・売上など記録したい）",
+            "いいえ（その場で使えればOK）",
+            "わからない",
+          ]
+        },
+        {
+          id: 12,
+          question: "既存のツールと連携が必要ですか？",
+          type: "choice",
+          choices: [
+            "Excel・スプレッドシートと連携したい",
+            "LINEやメールと連携したい",
+            "特になし・わからない",
+          ]
+        },
+        {
+          id: 13,
           question: "その他、気になること・要望があれば教えてください。",
           type: "text",
           hint: "自由記述"
@@ -435,7 +465,10 @@
         "STEP7：いつまでに必要ですか？",
         "STEP8：ご予算のイメージは？",
         "STEP9：作りたいものについて、もう少し詳しく教えてください。",
-        "STEP10：その他、気になること・要望があれば教えてください。"
+        "STEP10：AIチャット機能は必要ですか？",
+        "STEP11：データを保存・蓄積する必要はありますか？",
+        "STEP12：既存のツールと連携が必要ですか？",
+        "STEP13：その他、気になること・要望があれば教えてください。"
       ];
 
            var OTHER_CHOICE = "その他・カスタマイズ希望（自由記載）";
@@ -454,7 +487,10 @@
         "STEP7：いつまでに必要ですか？",
         "STEP8：ご予算のイメージは？",
         "STEP9：作りたいものについて詳しく教えてください。",
-        "STEP10：その他、気になること・要望があれば教えてください。"
+        "STEP10：AIチャット機能は必要ですか？",
+        "STEP11：データを保存・蓄積する必要はありますか？",
+        "STEP12：既存のツールと連携が必要ですか？",
+        "STEP13：その他、気になること・要望があれば教えてください。"
       ];
 
       var CONTACT_OPTIONS = ["電話", "メール", "Zoom等ビデオ会議", "どれでもOK"];
