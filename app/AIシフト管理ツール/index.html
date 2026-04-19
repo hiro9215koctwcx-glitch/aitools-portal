@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AIシフト管理ツール</title>
+  <style>
+    :root {
+      --navy: #1B2A4A;
+      --navy-light: #243356;
+      --navy-muted: #3d4f73;
+      --surface: #f4f6fb;
+      --card: #ffffff;
+      --text: #1a1f2e;
+      --text-muted: #5c6478;
+      --border: #d8deeb;
+      --danger: #c0392b;
+      --warn: #f39c12;
+      --ok: #27ae60;
+      --shortage: #e74c3c;
+      --surplus: #3498db;
+      --fit: #2ecc71;
+      --radius: 12px;
+      --shadow: 0 8px 28px rgba(27, 42, 74, 0.12);
+      --font: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; font-family: var(--font); color: var(--text); background: var(--surface); }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-primary { background: var(--navy); color: #fff; }
+    .btn-primary:hover { background: var(--navy-light); }
+    .btn-secondary { background: #e8ecf4; color: var(--navy); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-ghost { background: transparent; color: var(--navy); border: 1px solid var(--border); }
+    .btn-block { width: 100%; margin-top: 8px; }
+    .hidden { display: none !important; }
+
+    /* App shell */
+    #app { min-height: 100vh; display: flex; flex-direction: column; }
+    .top-nav {
+      background: var(--navy);
+      color: #fff;
+      padding: 12px 16px 0;
+    }
+    .top-nav h2 { margin: 0 0 12px; font-size: 1.1rem; font-weight: 600; }
+    .tabs {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 0;
+    }
+    .tabs button {
+      flex: 0 0 auto;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.75);
+      font-size: 0.8rem;
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .tabs button.active {
+      background: var(--surface);
+      color: var(--navy);
+      font-weight: 700;
+    }
+    main { flex: 1; padding: 16px; max-width: 1200px; margin: 0 auto; width: 100%; }
+    .panel { display: none; }
+    .panel.active { display: block; animation: fade 0.2s ease; }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .toolbar .spacer { flex: 1; }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .staff-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 2px 12px rgba(27,42,74,0.08);
+      border: 1px solid var(--border);
+    }
+    .staff-card h3 { margin: 0 0 8px; font-size: 1rem; color: var(--navy); }
+    .staff-card .meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; }
+    .staff-card .row-btns { display: flex; gap: 8px; }
+
+    .calendar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .calendar-head h3 { margin: 0; font-size: 1.05rem; }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      background: var(--border);
+      padding: 6px;
+      border-radius: var(--radius);
+    }
+    .cal-dow {
+      text-align: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding: 4px;
+    }
+    .cal-cell {
+      min-height: 100px;
+      background: var(--card);
+      border-radius: 8px;
+      padding: 6px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.15s;
+    }
+    .cal-cell:hover { border-color: var(--navy-muted); }
+    .cal-cell.other { opacity: 0.45; }
+    .cal-cell .dnum { font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .cal-cell .shift-line {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 2px 0;
+    }
+    .cal-cell .warn-flag { color: var(--danger); font-size: 0.65rem; }
+
+    @media (max-width: 640px) {
+      .cal-cell { min-height: 76px; font-size: 0.65rem; }
+    }
+
+    table.data {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(27,42,74,0.06);
+      font-size: 0.85rem;
+    }
+    table.data th, table.data td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    table.data th { background: var(--navy); color: #fff; font-weight: 600; }
+    .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+    .pill.shortage { background: rgba(231,76,60,0.15); color: var(--shortage); }
+    .pill.surplus { background: rgba(52,152,219,0.15); color: var(--surplus); }
+    .pill.fit { background: rgba(46,204,113,0.15); color: var(--fit); }
+
+    .compare-grid {
+      display: grid;
+      gap: 10px;
+    }
+    .compare-row {
+      display: grid;
+      grid-template-columns: 1fr 100px 100px 100px;
+      gap: 8px;
+      align-items: center;
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+    @media (max-width: 640px) {
+      .compare-row {
+        grid-template-columns: 1fr;
+      }
+    }
+    .compare-row.shortage { border-left: 4px solid var(--shortage); }
+    .compare-row.surplus { border-left: 4px solid var(--surplus); }
+    .compare-row.fit { border-left: 4px solid var(--fit); }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,41,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+    .modal {
+      background: var(--card);
+      border-radius: var(--radius);
+      max-width: 480px;
+      width: 100%;
+      max-height: 90vh;
+      overflow: auto;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+    .modal h3 { margin: 0 0 14px; color: var(--navy); }
+    .modal .foot { margin-top: 18px; display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+
+    .gen-warn-wrap {
+      position: relative;
+      margin-top: 12px;
+      padding: 12px 40px 12px 12px;
+      background: #fdecea;
+      border-radius: 8px;
+      color: #922b21;
+      font-size: 0.85rem;
+    }
+    .gen-warn-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border: 1px solid rgba(146, 43, 33, 0.35);
+      border-radius: 6px;
+      background: #fff;
+      color: #922b21;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .gen-warn-close:hover { background: #fff5f5; }
+
+    .pref-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 16px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 8px 0 12px;
+    }
+    .pref-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .pref-cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      background: var(--border);
+      padding: 4px;
+      border-radius: 10px;
+      max-width: 520px;
+    }
+    .pref-cal-grid .cal-dow { font-size: 0.65rem; padding: 2px; }
+    .pref-cal-cell {
+      min-height: 36px;
+      background: var(--card);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--navy);
+      cursor: pointer;
+      border: 2px solid var(--border);
+      transition: border-color 0.12s, background 0.12s;
+    }
+    .pref-cal-cell:hover { border-color: var(--navy-muted); }
+    .pref-cal-cell.other { opacity: 0.35; cursor: default; }
+    .pref-cal-cell.st-none { background: var(--card); }
+    .pref-cal-cell.st-work { background: #c8ebd4; border-color: #27ae60; }
+    .pref-cal-cell.st-prefer { background: #fff3bf; border-color: #f1c40f; }
+    .pref-cal-cell.st-abs { background: #f5c6cb; border-color: #e74c3c; }
+
+    .req-simple-wrap { margin-top: 8px; overflow-x: auto; }
+    .req-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      background: var(--card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(27,42,74,0.06);
+    }
+    .req-table th, .req-table td {
+      padding: 8px 6px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    .req-table th { background: var(--navy); color: #fff; font-weight: 600; }
+    .req-table th:first-child, .req-table td:first-child { text-align: left; min-width: 72px; }
+    .req-table input[type="text"] { width: 100%; max-width: 100px; padding: 6px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; }
+    .req-table input[type="time"] { width: auto; padding: 6px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.8rem; }
+    .req-table input[type="number"] { width: 48px; padding: 6px; border: 1px solid var(--border); border-radius: 6px; text-align: center; }
+    .req-band-row .btn { padding: 6px 10px; font-size: 0.8rem; }
+    .req-opts { margin: 14px 0; padding: 12px; background: rgba(27,42,74,0.04); border-radius: 10px; font-size: 0.88rem; }
+    .req-opts label { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+
+    .budget-warn {
+      margin-top: 12px;
+      padding: 12px;
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 8px;
+      color: #856404;
+      font-size: 0.9rem;
+    }
+
+    .slot-editor {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+      background: var(--card);
+    }
+    .slot-editor .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; align-items: center; }
+    .slot-editor input[type="number"] { width: 64px; }
+    .slot-editor input[type="time"] { width: auto; }
+
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+    }
+    legend { font-weight: 600; color: var(--navy); padding: 0 6px; }
+
+    @media print {
+      .top-nav, .toolbar, .tabs, .no-print { display: none !important; }
+      main { padding: 0; max-width: none; }
+      .cal-grid { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header class="top-nav">
+      <h2>AIシフト管理ツール</h2>
+      <nav class="tabs" id="tabs"></nav>
+    </header>
+    <main>
+      <section id="panel-shift" class="panel active"></section>
+      <section id="panel-staff" class="panel"></section>
+      <section id="panel-prefs" class="panel"></section>
+      <section id="panel-compare" class="panel"></section>
+      <section id="panel-cost" class="panel"></section>
+      <section id="panel-settings" class="panel"></section>
+    </main>
+  </div>
+
+  <div id="modal-root"></div>
+
+  <script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'aiShiftTool_v1';
+
+  function uid() {
+    return 'id_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+  }
+
+  var state = loadState();
+
+  var currentYear = new Date().getFullYear();
+  var currentMonth = new Date().getMonth() + 1;
+
+  var shiftGenWarningsHidden = false;
+
+  var prefDraft = {};
+  var prefCal = {};
+
+  var TAB_DEF = [
+    { id: 'shift', label: 'シフト表', panel: 'panel-shift' },
+    { id: 'staff', label: 'スタッフ管理', panel: 'panel-staff' },
+    { id: 'prefs', label: 'シフト入力', panel: 'panel-prefs' },
+    { id: 'compare', label: '人数比較', panel: 'panel-compare' },
+    { id: 'cost', label: '人件費', panel: 'panel-cost' },
+    { id: 'settings', label: '設定', panel: 'panel-settings' }
+  ];
+
+  function loadState() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        var s = JSON.parse(raw);
+        return normalizeState(s);
+      }
+    } catch (e) {}
+    return defaultState();
+  }
+
+  function defaultRequiredBands() {
+    return [
+      { id: uid(), label: '朝', start: '06:00', end: '11:00', count: 2 },
+      { id: uid(), label: 'ランチ', start: '11:00', end: '14:00', count: 3 },
+      { id: uid(), label: 'アイドル', start: '14:00', end: '17:00', count: 1 },
+      { id: uid(), label: 'ディナー', start: '17:00', end: '22:00', count: 5 }
+    ];
+  }
+
+  function arraysEqual(a, b) {
+    if (!a || !b || a.length !== b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] !== b[i]) return false;
+    }
+    return true;
+  }
+
+  function migrateRequiredBands(s) {
+    if (s.requiredBands && s.requiredBands.length) {
+      if (!s.requiredWeekdayCounts) s.requiredWeekdayCounts = {};
+      if (typeof s.requiredUseWeekdayOverride !== 'boolean') s.requiredUseWeekdayOverride = false;
+      return;
+    }
+    var baseWd = 1;
+    var base = (s.requiredByWeekday && (s.requiredByWeekday[baseWd] || s.requiredByWeekday[0])) || null;
+    if (base && base.length) {
+      s.requiredBands = base.map(function (sl) {
+        return { id: sl.id || uid(), label: sl.label, start: sl.start, end: sl.end, count: sl.count };
+      });
+    } else {
+      s.requiredBands = defaultRequiredBands();
+    }
+    s.requiredWeekdayCounts = {};
+    var ref = s.requiredBands.map(function (b) { return b.count; });
+    var differ = false;
+    for (var wd = 0; wd < 7; wd++) {
+      var slots = (s.requiredByWeekday && s.requiredByWeekday[wd]) || [];
+      s.requiredWeekdayCounts[wd] = s.requiredBands.map(function (b, i) {
+        var m = slots[i];
+        if (m && m.label === b.label && m.start === b.start && m.end === b.end) return m.count;
+        for (var j = 0; j < slots.length; j++) {
+          if (slots[j].label === b.label) return slots[j].count;
+        }
+        return b.count;
+      });
+      if (!arraysEqual(s.requiredWeekdayCounts[wd], ref)) differ = true;
+    }
+    s.requiredUseWeekdayOverride = differ;
+  }
+
+  function rebuildRequiredByWeekdayState(obj) {
+    var bands = obj.requiredBands || [];
+    if (!bands.length) return;
+    var o = {};
+    for (var wd = 0; wd < 7; wd++) {
+      o[wd] = bands.map(function (b, i) {
+        var cnt = b.count;
+        if (obj.requiredUseWeekdayOverride && obj.requiredWeekdayCounts[wd] && obj.requiredWeekdayCounts[wd][i] != null) {
+          cnt = obj.requiredWeekdayCounts[wd][i];
+        }
+        return { id: b.id, label: b.label, start: b.start, end: b.end, count: Math.max(0, +cnt || 0) };
+      });
+    }
+    obj.requiredByWeekday = o;
+  }
+
+  function defaultState() {
+    var s = {
+      staff: [],
+      preferences: {},
+      requiredBands: defaultRequiredBands(),
+      requiredUseWeekdayOverride: false,
+      requiredWeekdayCounts: {},
+      requiredByWeekday: {},
+      shifts: {},
+      monthlyBudget: 0,
+      genWarnings: []
+    };
+    rebuildRequiredByWeekdayState(s);
+    return s;
+  }
+
+  function normalizeState(s) {
+    if (!s.staff) s.staff = [];
+    if (!s.preferences) s.preferences = {};
+    if (!s.requiredByWeekday) s.requiredByWeekday = {};
+    if (!s.shifts) s.shifts = {};
+    if (typeof s.monthlyBudget !== 'number') s.monthlyBudget = 0;
+    if (!Array.isArray(s.genWarnings)) s.genWarnings = [];
+    migrateRequiredBands(s);
+    rebuildRequiredByWeekdayState(s);
+    s.staff.forEach(function (st) {
+      if (!s.preferences[st.id]) {
+        s.preferences[st.id] = {
+          absoluteOffDates: [],
+          preferOffDates: [],
+          preferWorkDates: [],
+          shiftStart: '10:00',
+          shiftEnd: '18:00'
+        };
+      }
+    });
+    return s;
+  }
+
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function rebuildRequiredByWeekday() {
+    rebuildRequiredByWeekdayState(state);
+  }
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function ymd(y, m, d) { return y + '-' + pad2(m) + '-' + pad2(d); }
+
+  function parseYmd(str) {
+    var p = str.split('-');
+    return { y: +p[0], m: +p[1], d: +p[2] };
+  }
+
+  function daysInMonth(y, m) {
+    return new Date(y, m, 0).getDate();
+  }
+
+  function getMonday(d) {
+    var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var day = x.getDay();
+    var diff = day === 0 ? -6 : 1 - day;
+    x.setDate(x.getDate() + diff);
+    x.setHours(0, 0, 0, 0);
+    return x;
+  }
+
+  function weekKeyFromDate(d) {
+    return getMonday(d).toISOString().slice(0, 10);
+  }
+
+  function countStaffWorkDaysInWeek(staffId, weekKey, shifts) {
+    var n = 0;
+    for (var dateStr in shifts) {
+      if (!shifts.hasOwnProperty(dateStr)) continue;
+      var list = shifts[dateStr];
+      var has = list.some(function (a) { return a.staffId === staffId; });
+      if (!has) continue;
+      var parts = dateStr.split('-');
+      var dt = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+      if (weekKeyFromDate(dt) === weekKey) n++;
+    }
+    return n;
+  }
+
+  function timeToMin(t) {
+    var p = t.split(':');
+    return (+p[0]) * 60 + (+p[1] || 0);
+  }
+
+  function overlap(a0, a1, b0, b1) {
+    return a0 < b1 && b0 < a1;
+  }
+
+  function hasOverlapForStaff(assignments, staffId, start, end) {
+    var s0 = timeToMin(start);
+    var s1 = timeToMin(end);
+    for (var i = 0; i < assignments.length; i++) {
+      var a = assignments[i];
+      if (a.staffId !== staffId) continue;
+      if (overlap(s0, s1, timeToMin(a.start), timeToMin(a.end))) return true;
+    }
+    return false;
+  }
+
+  function staffById(id) {
+    for (var i = 0; i < state.staff.length; i++) {
+      if (state.staff[i].id === id) return state.staff[i];
+    }
+    return null;
+  }
+
+  function prefFor(id) {
+    return state.preferences[id] || {
+      absoluteOffDates: [],
+      preferOffDates: [],
+      preferWorkDates: [],
+      shiftStart: '10:00',
+      shiftEnd: '18:00'
+    };
+  }
+
+  function isAbsoluteOff(staffId, dateStr) {
+    var p = prefFor(staffId);
+    return p.absoluteOffDates.indexOf(dateStr) >= 0;
+  }
+
+  function isPreferOff(staffId, dateStr) {
+    var p = prefFor(staffId);
+    return p.preferOffDates.indexOf(dateStr) >= 0;
+  }
+
+  function isPreferWork(staffId, dateStr) {
+    var p = prefFor(staffId);
+    return p.preferWorkDates.indexOf(dateStr) >= 0;
+  }
+
+  function prefDayStateFromPrefs(p, dateStr) {
+    if (p.absoluteOffDates.indexOf(dateStr) >= 0) return 3;
+    if (p.preferOffDates.indexOf(dateStr) >= 0) return 2;
+    if (p.preferWorkDates.indexOf(dateStr) >= 0) return 1;
+    return 0;
+  }
+
+  function prefCellClass(st) {
+    if (st === 1) return 'st-work';
+    if (st === 2) return 'st-prefer';
+    if (st === 3) return 'st-abs';
+    return 'st-none';
+  }
+
+  function cyclePrefState(cur) {
+    return (cur + 1) % 4;
+  }
+
+  function applyPrefDraftToPreferences(sid) {
+    var p = prefFor(sid);
+    var d = prefDraft[sid];
+    if (d) {
+      for (var dateStr in d) {
+        if (!d.hasOwnProperty(dateStr)) continue;
+        var st = d[dateStr];
+        p.absoluteOffDates = p.absoluteOffDates.filter(function (x) { return x !== dateStr; });
+        p.preferOffDates = p.preferOffDates.filter(function (x) { return x !== dateStr; });
+        p.preferWorkDates = p.preferWorkDates.filter(function (x) { return x !== dateStr; });
+        if (st === 1) p.preferWorkDates.push(dateStr);
+        else if (st === 2) p.preferOffDates.push(dateStr);
+        else if (st === 3) p.absoluteOffDates.push(dateStr);
+      }
+      prefDraft[sid] = {};
+    }
+    state.preferences[sid] = p;
+    saveState();
+  }
+
+  function prefCellDisplayState(sid, dateStr, p) {
+    if (prefDraft[sid] && prefDraft[sid][dateStr] !== undefined) return prefDraft[sid][dateStr];
+    return prefDayStateFromPrefs(p, dateStr);
+  }
+
+  function buildPrefCalendarHtml(sid, y, m) {
+    var p = prefFor(sid);
+    var first = new Date(y, m - 1, 1);
+    var startPad = (first.getDay() + 6) % 7;
+    var dim = daysInMonth(y, m);
+    var prevDim = daysInMonth(y, m - 1);
+    var rows = [];
+    var dow = ['月', '火', '水', '木', '金', '土', '日'];
+    var i;
+    for (i = 0; i < 7; i++) rows.push('<div class="cal-dow">' + dow[i] + '</div>');
+    var cellCount = 0;
+    var c;
+    for (c = 0; c < startPad; c++) {
+      var pd = prevDim - startPad + c + 1;
+      rows.push('<div class="pref-cal-cell other">' + pd + '</div>');
+      cellCount++;
+    }
+    for (var r = 1; r <= dim; r++) {
+      var ds = ymd(y, m, r);
+      var st = prefCellDisplayState(sid, ds, p);
+      rows.push(
+        '<div class="pref-cal-cell ' + prefCellClass(st) + '" data-sid="' + sid + '" data-date="' + ds + '" title="' + ds + '">' + r + '</div>'
+      );
+      cellCount++;
+    }
+    var nd = 1;
+    while (cellCount % 7 !== 0) {
+      rows.push('<div class="pref-cal-cell other">' + nd + '</div>');
+      nd++;
+      cellCount++;
+    }
+    return '<div class="pref-cal-grid">' + rows.join('') + '</div>';
+  }
+
+  function generateShiftsForMonth(y, m) {
+    var staff = state.staff.slice();
+    var dim = daysInMonth(y, m);
+    var dayInfos = [];
+    var i;
+    for (i = 1; i <= dim; i++) {
+      var dateStr = ymd(y, m, i);
+      var dt = new Date(y, m - 1, i);
+      var wd = dt.getDay();
+      var slots = (state.requiredByWeekday[wd] || []).map(function (s) {
+        return { label: s.label, start: s.start, end: s.end, count: s.count };
+      });
+      var totalNeed = 0;
+      for (var j = 0; j < slots.length; j++) totalNeed += slots[j].count;
+      dayInfos.push({ dateStr: dateStr, date: dt, weekday: wd, slots: slots, totalNeed: totalNeed });
+    }
+    dayInfos.sort(function (a, b) { return b.totalNeed - a.totalNeed; });
+
+    var result = {};
+    for (i = 1; i <= dim; i++) {
+      result[ymd(y, m, i)] = [];
+    }
+
+    var warnings = [];
+
+    for (var di = 0; di < dayInfos.length; di++) {
+      var info = dayInfos[di];
+      var dateStr = info.dateStr;
+      var wk = weekKeyFromDate(info.date);
+      var sortedSlots = info.slots.slice().sort(function (a, b) { return b.count - a.count; });
+
+      for (var si = 0; si < sortedSlots.length; si++) {
+        var slot = sortedSlots[si];
+        var need = slot.count;
+
+        var candidates = staff.filter(function (s) {
+          if (isAbsoluteOff(s.id, dateStr)) return false;
+          if (countStaffWorkDaysInWeek(s.id, wk, result) >= s.maxWeeklyDays) return false;
+          if (hasOverlapForStaff(result[dateStr], s.id, slot.start, slot.end)) return false;
+          return true;
+        });
+
+        candidates.sort(function (a, b) {
+          var ap = isPreferOff(a.id, dateStr) ? 1 : 0;
+          var bp = isPreferOff(b.id, dateStr) ? 1 : 0;
+          if (ap !== bp) return ap - bp;
+          var aw = isPreferWork(a.id, dateStr) ? 0 : 1;
+          var bw = isPreferWork(b.id, dateStr) ? 0 : 1;
+          if (aw !== bw) return aw - bw;
+          return a.hourlyWage - b.hourlyWage;
+        });
+
+        var ci = 0;
+        while (need > 0 && ci < candidates.length) {
+          var s = candidates[ci++];
+          var p = prefFor(s.id);
+          var st = p.shiftStart || slot.start;
+          var en = p.shiftEnd || slot.end;
+          if (!overlap(timeToMin(st), timeToMin(en), timeToMin(slot.start), timeToMin(slot.end))) {
+            st = slot.start;
+            en = slot.end;
+          }
+          result[dateStr].push({
+            staffId: s.id,
+            start: st,
+            end: en,
+            slotLabel: slot.label
+          });
+          need--;
+        }
+
+        if (need > 0) {
+          warnings.push(dateStr + ' · ' + slot.label + '：必要' + slot.count + '人に対し、' + (slot.count - need) + '人しか配置できませんでした（不足' + need + '人）。');
+        }
+      }
+    }
+
+    return { shifts: result, warnings: warnings };
+  }
+
+  function assignmentHours(start, end) {
+    var h = (timeToMin(end) - timeToMin(start)) / 60;
+    return h > 0 ? h : 0;
+  }
+
+  function laborForRange(y, m, startDay, endDay) {
+    var byStaff = {};
+    var total = 0;
+    state.staff.forEach(function (s) { byStaff[s.id] = 0; });
+
+    for (var d = startDay; d <= endDay; d++) {
+      var dateStr = ymd(y, m, d);
+      var list = state.shifts[dateStr] || [];
+      for (var i = 0; i < list.length; i++) {
+        var a = list[i];
+        var st = staffById(a.staffId);
+        if (!st) continue;
+        var cost = assignmentHours(a.start, a.end) * st.hourlyWage;
+        byStaff[a.staffId] += cost;
+        total += cost;
+      }
+    }
+    return { total: total, byStaff: byStaff };
+  }
+
+  function laborMonth(y, m) {
+    var dim = daysInMonth(y, m);
+    return laborForRange(y, m, 1, dim);
+  }
+
+  function laborWeekContaining(y, m, day) {
+    var dt = new Date(y, m - 1, day);
+    var mon = getMonday(dt);
+    var sun = new Date(mon);
+    sun.setDate(sun.getDate() + 6);
+    var sy = mon.getFullYear();
+    var sm = mon.getMonth() + 1;
+    var sd = mon.getDate();
+    var ey = sun.getFullYear();
+    var em = sun.getMonth() + 1;
+    var ed = sun.getDate();
+
+    var total = 0;
+    var byStaff = {};
+    state.staff.forEach(function (s) { byStaff[s.id] = 0; });
+
+    var cur = new Date(sy, sm - 1, sd);
+    var end = new Date(ey, em - 1, ed);
+    while (cur <= end) {
+      var cy = cur.getFullYear();
+      var cm = cur.getMonth() + 1;
+      var cd = cur.getDate();
+      if (cy === y && cm === m) {
+        var r = laborForRange(y, m, cd, cd);
+        total += r.total;
+        for (var id in r.byStaff) {
+          if (r.byStaff.hasOwnProperty(id)) byStaff[id] += r.byStaff[id];
+        }
+      } else {
+        var ds = ymd(cy, cm, cd);
+        var list = state.shifts[ds] || [];
+        for (var i = 0; i < list.length; i++) {
+          var a = list[i];
+          var st = staffById(a.staffId);
+          if (!st) continue;
+          var cost = assignmentHours(a.start, a.end) * st.hourlyWage;
+          byStaff[a.staffId] = (byStaff[a.staffId] || 0) + cost;
+          total += cost;
+        }
+      }
+      cur.setDate(cur.getDate() + 1);
+    }
+    return { total: total, byStaff: byStaff, label: ymd(sy, sm, sd) + ' 〜 ' + ymd(ey, em, ed) };
+  }
+
+  function compareRowsForMonth(y, m) {
+    var rows = [];
+    var dim = daysInMonth(y, m);
+    for (var d = 1; d <= dim; d++) {
+      var dateStr = ymd(y, m, d);
+      var dt = new Date(y, m - 1, d);
+      var wd = dt.getDay();
+      var slots = state.requiredByWeekday[wd] || [];
+      var assigns = state.shifts[dateStr] || [];
+
+      for (var si = 0; si < slots.length; si++) {
+        var sl = slots[si];
+        var actual = 0;
+        for (var ai = 0; ai < assigns.length; ai++) {
+          var a = assigns[ai];
+          var covers = a.slotLabel === sl.label ||
+            overlap(timeToMin(a.start), timeToMin(a.end), timeToMin(sl.start), timeToMin(sl.end));
+          if (covers) actual++;
+        }
+        var need = sl.count;
+        var diff = actual - need;
+        var status = diff < 0 ? 'shortage' : (diff > 0 ? 'surplus' : 'fit');
+        rows.push({
+          dateStr: dateStr,
+          slotLabel: sl.label,
+          range: sl.start + '–' + sl.end,
+          need: need,
+          actual: actual,
+          status: status
+        });
+      }
+    }
+    return rows;
+  }
+
+  function exportShiftsCsv() {
+    var lines = ['日付,スタッフ名,開始,終了,枠'];
+    for (var dateStr in state.shifts) {
+      if (!state.shifts.hasOwnProperty(dateStr)) continue;
+      var list = state.shifts[dateStr];
+      for (var i = 0; i < list.length; i++) {
+        var a = list[i];
+        var st = staffById(a.staffId);
+        var name = st ? st.name : a.staffId;
+        lines.push([dateStr, name, a.start, a.end, a.slotLabel || ''].map(csvEscape).join(','));
+      }
+    }
+    return lines.join('\n');
+  }
+
+  function csvEscape(v) {
+    var s = String(v);
+    if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function importPrefsCsv(text) {
+    var lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(function (l) { return l.trim(); });
+    if (lines.length < 2) throw new Error('データがありません');
+    var header = lines[0].split(',').map(function (h) { return h.trim().replace(/^"|"$/g, ''); });
+    var hi = function (name) {
+      var idx = header.indexOf(name);
+      return idx >= 0 ? idx : null;
+    };
+    var iName = hi('スタッフ名') != null ? hi('スタッフ名') : 0;
+    var iDate = hi('日付') != null ? hi('日付') : 1;
+    var iType = hi('種別') != null ? hi('種別') : 2;
+    var iStart = hi('開始');
+    var iEnd = hi('終了');
+
+    for (var li = 1; li < lines.length; li++) {
+      var cols = parseCsvLine(lines[li]);
+      var name = cols[iName] && cols[iName].trim();
+      if (!name) continue;
+      var st = null;
+      for (var j = 0; j < state.staff.length; j++) {
+        if (state.staff[j].name === name) { st = state.staff[j]; break; }
+      }
+      if (!st) continue;
+      var dateStr = (cols[iDate] || '').trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) continue;
+      var typ = (cols[iType] || '').trim();
+      if (!state.preferences[st.id]) {
+        state.preferences[st.id] = { absoluteOffDates: [], preferOffDates: [], preferWorkDates: [], shiftStart: '10:00', shiftEnd: '18:00' };
+      }
+      var p = state.preferences[st.id];
+      if (typ === '絶対休み' || typ === 'absolute') {
+        if (p.absoluteOffDates.indexOf(dateStr) < 0) p.absoluteOffDates.push(dateStr);
+        p.preferOffDates = p.preferOffDates.filter(function (x) { return x !== dateStr; });
+      } else if (typ === 'できれば休み' || typ === 'prefer') {
+        if (p.preferOffDates.indexOf(dateStr) < 0) p.preferOffDates.push(dateStr);
+      } else if (typ === '希望出勤' || typ === 'work') {
+        if (p.preferWorkDates.indexOf(dateStr) < 0) p.preferWorkDates.push(dateStr);
+      }
+      if (iStart != null && iEnd != null && cols[iStart] && cols[iEnd]) {
+        p.shiftStart = cols[iStart].trim();
+        p.shiftEnd = cols[iEnd].trim();
+      }
+    }
+    saveState();
+  }
+
+  function parseCsvLine(line) {
+    var res = [];
+    var cur = '';
+    var inQ = false;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (inQ) {
+        if (c === '"') {
+          if (line[i + 1] === '"') { cur += '"'; i++; }
+          else inQ = false;
+        } else cur += c;
+      } else {
+        if (c === '"') inQ = true;
+        else if (c === ',') { res.push(cur); cur = ''; }
+        else cur += c;
+      }
+    }
+    res.push(cur);
+    return res;
+  }
+
+  /* ——— UI ——— */
+
+  function $(id) { return document.getElementById(id); }
+
+  function initApp() {
+    renderTabs();
+    var active = $('tabs').querySelector('.active');
+    var tabId = active ? active.dataset.tab : 'shift';
+    showPanel(tabId);
+  }
+
+  function renderTabs() {
+    var nav = $('tabs');
+    nav.innerHTML = '';
+    TAB_DEF.forEach(function (t) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = t.label;
+      b.dataset.tab = t.id;
+      if (t.id === 'shift') b.classList.add('active');
+      b.addEventListener('click', function () {
+        nav.querySelectorAll('button').forEach(function (x) { x.classList.remove('active'); });
+        b.classList.add('active');
+        showPanel(t.id);
+      });
+      nav.appendChild(b);
+    });
+  }
+
+  function showPanel(tabId) {
+    TAB_DEF.forEach(function (t) {
+      var p = $(t.panel);
+      if (!p) return;
+      p.classList.toggle('active', t.id === tabId);
+    });
+    if (tabId === 'shift') renderShiftPanel();
+    else if (tabId === 'staff') renderStaffPanel();
+    else if (tabId === 'prefs') renderPrefsPanel();
+    else if (tabId === 'compare') renderComparePanel();
+    else if (tabId === 'cost') renderCostPanel();
+    else if (tabId === 'settings') renderSettingsPanel();
+  }
+
+  function monthNavHtml(titleText) {
+    var t = titleText != null ? titleText : (currentYear + '年' + currentMonth + '月');
+    return (
+      '<div class="calendar-head">' +
+        '<button type="button" class="btn btn-secondary no-print cal-prev">← 前月</button>' +
+        '<h3 class="cal-title">' + t + '</h3>' +
+        '<button type="button" class="btn btn-secondary no-print cal-next">次月 →</button>' +
+      '</div>'
+    );
+  }
+
+  function bindMonthNav(panelEl, onChange) {
+    if (!panelEl) return;
+    var pr = panelEl.querySelector('.cal-prev');
+    var nx = panelEl.querySelector('.cal-next');
+    if (pr) pr.onclick = function () {
+      currentMonth--;
+      if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+      onChange();
+    };
+    if (nx) nx.onclick = function () {
+      currentMonth++;
+      if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+      onChange();
+    };
+  }
+
+  function renderShiftPanel() {
+    var panel = $('panel-shift');
+    var html = monthNavHtml(null);
+    html += '<div class="toolbar">';
+    html += '<button type="button" class="btn btn-primary" id="btn-gen">シフトを自動生成</button>';
+    html += '<button type="button" class="btn btn-secondary" id="btn-export">CSVエクスポート</button>';
+    html += '<button type="button" class="btn btn-ghost" id="btn-print">印刷用表示</button>';
+    html += '</div>';
+    if (state.genWarnings.length && !shiftGenWarningsHidden) {
+      html += '<div class="gen-warn-wrap"><button type="button" class="gen-warn-close no-print" id="btn-gen-warn-close" aria-label="警告を閉じる">✕ 閉じる</button><strong>前回生成の警告</strong><ul style="margin:8px 0 0 16px;padding-left:18px">';
+      state.genWarnings.forEach(function (w) { html += '<li>' + escapeHtml(w) + '</li>'; });
+      html += '</ul></div>';
+    }
+    html += buildCalendarHtml();
+    panel.innerHTML = html;
+    bindMonthNav(panel, renderShiftPanel);
+    var gwClose = $('btn-gen-warn-close');
+    if (gwClose) gwClose.onclick = function () {
+      shiftGenWarningsHidden = true;
+      renderShiftPanel();
+    };
+    var bg = $('btn-gen');
+    if (bg) bg.onclick = function () {
+      shiftGenWarningsHidden = false;
+      var g = generateShiftsForMonth(currentYear, currentMonth);
+      for (var k in g.shifts) {
+        if (g.shifts.hasOwnProperty(k)) state.shifts[k] = g.shifts[k];
+      }
+      state.genWarnings = g.warnings;
+      saveState();
+      renderShiftPanel();
+    };
+    var ex = $('btn-export');
+    if (ex) ex.onclick = function () {
+      downloadText('shifts_' + currentYear + '_' + pad2(currentMonth) + '.csv', exportShiftsCsv(), 'text/csv');
+    };
+    var prt = $('btn-print');
+    if (prt) prt.onclick = function () { window.print(); };
+
+    panel.querySelectorAll('.cal-cell').forEach(function (cell) {
+      cell.addEventListener('click', function () {
+        var ds = cell.dataset.date;
+        if (!ds) return;
+        openDayModal(ds);
+      });
+    });
+  }
+
+  function buildCalendarHtml() {
+    var y = currentYear;
+    var m = currentMonth;
+    var first = new Date(y, m - 1, 1);
+    var startPad = (first.getDay() + 6) % 7;
+    var dim = daysInMonth(y, m);
+    var prevDim = daysInMonth(y, m - 1);
+    var rows = [];
+    var dow = ['月', '火', '水', '木', '金', '土', '日'];
+    for (var i = 0; i < 7; i++) rows.push('<div class="cal-dow">' + dow[i] + '</div>');
+    var cellCount = 0;
+    var r, c;
+    for (c = 0; c < startPad; c++) {
+      var pd = prevDim - startPad + c + 1;
+      rows.push(emptyCell(y, m - 1, pd, true));
+      cellCount++;
+    }
+    for (r = 1; r <= dim; r++) {
+      rows.push(dayCell(y, m, r, false));
+      cellCount++;
+    }
+    var nd = 1;
+    while (cellCount % 7 !== 0) {
+      rows.push(emptyCell(y, m + 1, nd, true));
+      nd++;
+      cellCount++;
+    }
+    return '<div class="cal-grid">' + rows.join('') + '</div>';
+  }
+
+  function emptyCell(y, mo, d, other) {
+    return '<div class="cal-cell other"><div class="dnum">' + d + '</div></div>';
+  }
+
+  function dayCell(y, mo, d, other) {
+    var ds = ymd(y, mo, d);
+    var list = state.shifts[ds] || [];
+    var wd = new Date(y, mo - 1, d).getDay();
+    var slots = state.requiredByWeekday[wd] || [];
+    var needSum = 0;
+    for (var i = 0; i < slots.length; i++) needSum += slots[i].count;
+    var assignSum = list.length;
+    var flag = '';
+    if (assignSum < needSum) flag = '<div class="warn-flag">人手不足の可能性</div>';
+
+    var lines = '';
+    list.forEach(function (a) {
+      var st = staffById(a.staffId);
+      var nm = st ? st.name : '?';
+      lines += '<div class="shift-line">' + escapeHtml(nm) + ' ' + escapeHtml(a.start) + '-' + escapeHtml(a.end) + '</div>';
+    });
+
+    return (
+      '<div class="cal-cell" data-date="' + ds + '">' +
+        '<div class="dnum">' + d + '</div>' + flag + lines +
+      '</div>'
+    );
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function attrEncode(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
+  function openDayModal(dateStr) {
+    var list = state.shifts[dateStr] ? state.shifts[dateStr].slice() : [];
+    var parts = parseYmd(dateStr);
+    var wd = new Date(parts.y, parts.m - 1, parts.d).getDay();
+
+    var body = '<h3>' + dateStr + '（' + ['日', '月', '火', '水', '木', '金', '土'][wd] + '）</h3>';
+    body += '<p style="font-size:0.85rem;color:#666">配置一覧</p><ul id="day-assign-list" style="margin:0 0 12px;padding-left:18px">';
+    list.forEach(function (a, idx) {
+      var st = staffById(a.staffId);
+      body += '<li data-idx="' + idx + '">' + escapeHtml(st ? st.name : a.staffId) + ' ' + escapeHtml(a.start) + '-' + escapeHtml(a.end) + ' · ' + escapeHtml(a.slotLabel || '') +
+        ' <button type="button" class="btn btn-ghost btn-sm rm-a" data-idx="' + idx + '" style="padding:2px 8px;font-size:0.75rem">削除</button>' +
+        '</li>';
+    });
+    body += '</ul>';
+
+    body += '<fieldset><legend>手動で追加</legend>';
+    body += '<div class="field"><label>スタッフ</label><select id="add-staff">';
+    state.staff.forEach(function (s) {
+      body += '<option value="' + s.id + '">' + escapeHtml(s.name) + '</option>';
+    });
+    body += '</select></div>';
+    body += '<div class="field"><label>開始・終了</label><div style="display:flex;gap:8px"><input type="time" id="add-start" value="10:00" /><input type="time" id="add-end" value="18:00" /></div></div>';
+    body += '<div class="field"><label>枠ラベル</label><input type="text" id="add-label" placeholder="ランチ" /></div>';
+    body += '<button type="button" class="btn btn-primary" id="btn-add-a">追加</button>';
+    body += '</fieldset>';
+
+    body += '<div class="foot"><button type="button" class="btn btn-secondary" id="modal-close">閉じる</button></div>';
+
+    openModal(body);
+
+    $('modal-close').onclick = closeModal;
+    $('btn-add-a').onclick = function () {
+      var sid = $('add-staff').value;
+      var st = $('add-start').value;
+      var en = $('add-end').value;
+      var lb = $('add-label').value.trim();
+      if (!state.shifts[dateStr]) state.shifts[dateStr] = [];
+      state.shifts[dateStr].push({ staffId: sid, start: st, end: en, slotLabel: lb });
+      saveState();
+      closeModal();
+      renderShiftPanel();
+    };
+    document.querySelectorAll('.rm-a').forEach(function (b) {
+      b.onclick = function () {
+        var idx = +b.dataset.idx;
+        state.shifts[dateStr].splice(idx, 1);
+        saveState();
+        closeModal();
+        renderShiftPanel();
+      };
+    });
+  }
+
+  function openModal(html) {
+    var root = $('modal-root');
+    root.innerHTML = '<div class="modal-backdrop"><div class="modal">' + html + '</div></div>';
+    root.querySelector('.modal-backdrop').addEventListener('click', function (e) {
+      if (e.target.classList.contains('modal-backdrop')) closeModal();
+    });
+  }
+
+  function closeModal() {
+    $('modal-root').innerHTML = '';
+  }
+
+  function renderStaffPanel() {
+    var panel = $('panel-staff');
+    var html = '<div class="toolbar"><button type="button" class="btn btn-primary" id="btn-new-staff">＋ スタッフを追加</button></div>';
+    html += '<div class="card-grid" id="staff-cards"></div>';
+    panel.innerHTML = html;
+
+    var grid = $('staff-cards');
+    state.staff.forEach(function (s) {
+      var card = document.createElement('div');
+      card.className = 'staff-card';
+      card.innerHTML =
+        '<h3>' + escapeHtml(s.name) + '</h3>' +
+        '<div class="meta">時給 ¥' + s.hourlyWage + ' · 週最大 ' + s.maxWeeklyDays + ' 日</div>' +
+        '<div class="row-btns">' +
+        '<button type="button" class="btn btn-secondary btn-edit" data-id="' + s.id + '">編集</button>' +
+        '<button type="button" class="btn btn-danger btn-del" data-id="' + s.id + '">削除</button>' +
+        '</div>';
+      grid.appendChild(card);
+    });
+
+    $('btn-new-staff').onclick = function () { editStaffDialog(null); };
+    grid.querySelectorAll('.btn-edit').forEach(function (b) {
+      b.onclick = function () { editStaffDialog(b.dataset.id); };
+    });
+    grid.querySelectorAll('.btn-del').forEach(function (b) {
+      b.onclick = function () {
+        if (!confirm('削除しますか？')) return;
+        var id = b.dataset.id;
+        state.staff = state.staff.filter(function (x) { return x.id !== id; });
+        delete state.preferences[id];
+        for (var ds in state.shifts) {
+          if (!state.shifts.hasOwnProperty(ds)) continue;
+          state.shifts[ds] = state.shifts[ds].filter(function (a) { return a.staffId !== id; });
+        }
+        saveState();
+        renderStaffPanel();
+      };
+    });
+  }
+
+  function editStaffDialog(id) {
+    var s = id ? staffById(id) : null;
+    var body = '<h3>' + (s ? 'スタッフ編集' : 'スタッフ追加') + '</h3>';
+    body += '<div class="field"><label>名前</label><input id="f-name" value="' + (s ? attrEncode(s.name) : '') + '" /></div>';
+    body += '<div class="field"><label>時給（円）</label><input type="number" id="f-wage" min="0" value="' + (s ? s.hourlyWage : 1000) + '" /></div>';
+    body += '<div class="field"><label>週の最大勤務日数</label><input type="number" id="f-maxd" min="1" max="7" value="' + (s ? s.maxWeeklyDays : 5) + '" /></div>';
+    body += '<div class="foot"><button type="button" class="btn btn-secondary" id="m-cancel">キャンセル</button><button type="button" class="btn btn-primary" id="m-save">保存</button></div>';
+    openModal(body);
+    $('m-cancel').onclick = closeModal;
+    $('m-save').onclick = function () {
+      var name = $('f-name').value.trim();
+      var wage = +$('f-wage').value;
+      var maxd = +$('f-maxd').value;
+      if (!name) { alert('名前を入力してください'); return; }
+      if (!s) {
+        var nid = uid();
+        state.staff.push({ id: nid, name: name, hourlyWage: wage, maxWeeklyDays: maxd });
+        state.preferences[nid] = { absoluteOffDates: [], preferOffDates: [], preferWorkDates: [], shiftStart: '10:00', shiftEnd: '18:00' };
+      } else {
+        s.name = name;
+        s.hourlyWage = wage;
+        s.maxWeeklyDays = maxd;
+      }
+      saveState();
+      closeModal();
+      renderStaffPanel();
+    };
+  }
+
+  function renderPrefsPanel() {
+    var panel = $('panel-prefs');
+    var html = '<div class="toolbar">';
+    html += '<label class="btn btn-secondary" style="cursor:pointer">CSVインポート<input type="file" id="csv-in" accept=".csv,text/csv" class="hidden" /></label>';
+    html += '<span style="font-size:0.8rem;color:#666">列: スタッフ名,日付,種別,開始,終了（種別: 絶対休み / できれば休み / 希望出勤）</span>';
+    html += '</div>';
+    html += '<p style="font-size:0.85rem;color:#666;margin-top:0">カレンダーの日付をクリックして希望を切り替え、<strong>保存</strong>で確定します（①未選択 → ②希望出勤 → ③できれば休み → ④絶対休み → ①）。</p>';
+    html += '<div class="pref-legend"><span>🟢 希望出勤</span><span>🟡 できれば休み</span><span>🔴 絶対に休み</span><span>（白＝未設定）</span></div>';
+    html += '<div id="prefs-acc"></div>';
+    panel.innerHTML = html;
+
+    var acc = $('prefs-acc');
+    state.staff.forEach(function (s) {
+      if (!prefCal[s.id]) prefCal[s.id] = { y: new Date().getFullYear(), m: new Date().getMonth() + 1 };
+      if (!prefDraft[s.id]) prefDraft[s.id] = {};
+      var p = prefFor(s.id);
+      var cy = prefCal[s.id].y;
+      var cm = prefCal[s.id].m;
+      var box = document.createElement('fieldset');
+      box.innerHTML = '<legend>' + escapeHtml(s.name) + '</legend>';
+      box.innerHTML += '<div class="field"><label>勤務希望時間（自動生成時のデフォルト）</label><div style="display:flex;gap:8px;flex-wrap:wrap"><input type="time" class="p-start" data-id="' + s.id + '" value="' + p.shiftStart + '" /><span>〜</span><input type="time" class="p-end" data-id="' + s.id + '" value="' + p.shiftEnd + '" /></div></div>';
+      box.innerHTML += '<div class="calendar-head" style="margin-top:12px"><button type="button" class="btn btn-secondary pref-cal-prev" data-sid="' + s.id + '">← 前月</button><h3 class="pref-cal-title" data-sid="' + s.id + '">' + cy + '年' + cm + '月</h3><button type="button" class="btn btn-secondary pref-cal-next" data-sid="' + s.id + '">次月 →</button></div>';
+      box.innerHTML += '<div class="pref-cal-host" data-sid="' + s.id + '">' + buildPrefCalendarHtml(s.id, cy, cm) + '</div>';
+      box.innerHTML += '<button type="button" class="btn btn-primary btn-save-pref" data-id="' + s.id + '" style="margin-top:12px">保存</button>';
+      acc.appendChild(box);
+    });
+
+    acc.querySelectorAll('.pref-cal-prev').forEach(function (b) {
+      b.onclick = function () {
+        var sid = b.dataset.sid;
+        prefCal[sid].m--;
+        if (prefCal[sid].m < 1) { prefCal[sid].m = 12; prefCal[sid].y--; }
+        renderPrefsPanel();
+      };
+    });
+    acc.querySelectorAll('.pref-cal-next').forEach(function (b) {
+      b.onclick = function () {
+        var sid = b.dataset.sid;
+        prefCal[sid].m++;
+        if (prefCal[sid].m > 12) { prefCal[sid].m = 1; prefCal[sid].y++; }
+        renderPrefsPanel();
+      };
+    });
+
+    acc.addEventListener('click', function (e) {
+      var cell = e.target.closest('.pref-cal-cell[data-date]');
+      if (!cell) return;
+      var sid = cell.dataset.sid;
+      var ds = cell.dataset.date;
+      if (!prefDraft[sid]) prefDraft[sid] = {};
+      var p = prefFor(sid);
+      var cur = prefCellDisplayState(sid, ds, p);
+      prefDraft[sid][ds] = cyclePrefState(cur);
+      var cm = prefCal[sid];
+      var host = acc.querySelector('.pref-cal-host[data-sid="' + sid + '"]');
+      if (host) host.innerHTML = buildPrefCalendarHtml(sid, cm.y, cm.m);
+    });
+
+    acc.querySelectorAll('.btn-save-pref').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var id = b.dataset.id;
+        var box = b.closest('fieldset');
+        var p = prefFor(id);
+        p.shiftStart = box.querySelector('.p-start').value;
+        p.shiftEnd = box.querySelector('.p-end').value;
+        state.preferences[id] = p;
+        applyPrefDraftToPreferences(id);
+        alert('保存しました');
+        renderPrefsPanel();
+      });
+    });
+
+    var fin = $('csv-in');
+    if (fin) fin.onchange = function (e) {
+      var f = e.target.files[0];
+      if (!f) return;
+      var r = new FileReader();
+      r.onload = function () {
+        try {
+          importPrefsCsv(String(r.result));
+          alert('インポートしました');
+          prefDraft = {};
+          renderPrefsPanel();
+        } catch (err) {
+          alert('インポート失敗: ' + err.message);
+        }
+      };
+      r.readAsText(f);
+      fin.value = '';
+    };
+  }
+
+  function renderComparePanel() {
+    var panel = $('panel-compare');
+    var rows = compareRowsForMonth(currentYear, currentMonth);
+    var html = monthNavHtml(currentYear + '年' + currentMonth + '月 · 人数比較');
+    html += '<div class="compare-grid" id="cmp-list"></div>';
+    panel.innerHTML = html;
+    bindMonthNav(panel, renderComparePanel);
+
+    var list = $('cmp-list');
+    rows.forEach(function (r) {
+      var el = document.createElement('div');
+      el.className = 'compare-row ' + r.status;
+      var pill = r.status === 'shortage' ? '不足' : (r.status === 'surplus' ? '余剰' : '適正');
+      el.innerHTML =
+        '<div><strong>' + r.dateStr + '</strong> ' + escapeHtml(r.slotLabel) + '<br><span style="color:#666;font-size:0.8rem">' + escapeHtml(r.range) + '</span></div>' +
+        '<div>必要 <strong>' + r.need + '</strong></div>' +
+        '<div>実際 <strong>' + r.actual + '</strong></div>' +
+        '<div><span class="pill ' + r.status + '">' + pill + '</span></div>';
+      list.appendChild(el);
+    });
+  }
+
+  function renderCostPanel() {
+    var panel = $('panel-cost');
+    var lm = laborMonth(currentYear, currentMonth);
+    var today = new Date();
+    var wk = laborWeekContaining(today.getFullYear(), today.getMonth() + 1, today.getDate());
+
+    var html = monthNavHtml(currentYear + '年' + currentMonth + '月 · 人件費');
+    html += '<p style="font-size:1.1rem;margin-top:0">月間合計: <strong>¥' + Math.round(lm.total).toLocaleString() + '</strong></p>';
+    html += '<p style="font-size:0.95rem;color:#666">今週（' + wk.label + '）: <strong>¥' + Math.round(wk.total).toLocaleString() + '</strong></p>';
+
+    if (state.monthlyBudget > 0 && lm.total > state.monthlyBudget) {
+      html += '<div class="budget-warn">月間予算 ¥' + state.monthlyBudget.toLocaleString() + ' を超過しています（差額 ¥' + Math.round(lm.total - state.monthlyBudget).toLocaleString() + '）。</div>';
+    }
+
+    html += '<table class="data" style="margin-top:16px"><thead><tr><th>スタッフ</th><th>内訳（今月）</th></tr></thead><tbody>';
+    state.staff.forEach(function (s) {
+      var v = lm.byStaff[s.id] || 0;
+      html += '<tr><td>' + escapeHtml(s.name) + '</td><td>¥' + Math.round(v).toLocaleString() + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    panel.innerHTML = html;
+    bindMonthNav(panel, renderCostPanel);
+  }
+
+  function buildReqTheadRow(useOv) {
+    var wdLabs = ['日', '月', '火', '水', '木', '金', '土'];
+    var h = '<tr><th>時間帯名</th><th>開始</th><th>終了</th>';
+    if (!useOv) h += '<th>必要人数</th>';
+    else {
+      for (var w = 0; w < 7; w++) h += '<th>' + wdLabs[w] + '</th>';
+    }
+    h += '<th></th></tr>';
+    return h;
+  }
+
+  function bandRowHtml(b, idx, useOv, wk) {
+    var h = '<tr class="req-band-row" data-bid="' + b.id + '">';
+    h += '<td><input type="text" class="rb-label" value="' + escapeHtml(b.label) + '" /></td>';
+    h += '<td><input type="time" class="rb-start" value="' + b.start + '" /></td>';
+    h += '<td><input type="time" class="rb-end" value="' + b.end + '" /></td>';
+    if (!useOv) {
+      h += '<td><input type="number" class="rb-count" min="0" value="' + b.count + '" /></td>';
+    } else {
+      for (var wd = 0; wd < 7; wd++) {
+        var c = (wk[wd] && wk[wd][idx] != null) ? wk[wd][idx] : b.count;
+        h += '<td><input type="number" class="rb-wd" data-wd="' + wd + '" min="0" value="' + c + '" /></td>';
+      }
+    }
+    h += '<td><button type="button" class="btn btn-danger req-rm-band">削除</button></td>';
+    h += '</tr>';
+    return h;
+  }
+
+  function renderSettingsPanel() {
+    var panel = $('panel-settings');
+    var useOv = state.requiredUseWeekdayOverride;
+    var bands = state.requiredBands || [];
+    var wk = state.requiredWeekdayCounts || {};
+
+    var thead = buildReqTheadRow(useOv);
+    var tbody = '';
+    for (var bi = 0; bi < bands.length; bi++) {
+      tbody += bandRowHtml(bands[bi], bi, useOv, wk);
+    }
+
+    panel.innerHTML =
+      '<h3 style="color:var(--navy);margin-top:0">人件費予算（月）</h3>' +
+      '<p style="font-size:0.85rem;color:#666">0 の場合は警告を出しません。</p>' +
+      '<div class="field"><label>月間予算（円）</label><input type="number" id="budget-in" min="0" value="' + state.monthlyBudget + '" /></div>' +
+      '<button type="button" class="btn btn-primary" id="btn-budget-save">予算を保存</button>' +
+      '<h3 style="color:var(--navy);margin-top:28px">必要スタッフ人数（時間帯）</h3>' +
+      '<p style="font-size:0.85rem;color:#666">時間帯の名前・時間・人数を編集できます。チェックを入れると曜日ごとの人数を個別に設定できます。</p>' +
+      '<div class="req-opts"><label><input type="checkbox" id="req-weekday-ov" ' + (useOv ? 'checked' : '') + ' /> 曜日ごとに必要人数を変える</label></div>' +
+      '<div class="req-simple-wrap"><table class="req-table"><thead>' + thead + '</thead><tbody id="req-bands-body">' + tbody + '</tbody></table></div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;align-items:center">' +
+      '<button type="button" class="btn btn-secondary" id="req-add-band">＋ 時間帯を追加</button>' +
+      '<button type="button" class="btn btn-primary" id="btn-req-save">必要人数を保存</button>' +
+      '</div>';
+
+    $('btn-budget-save').onclick = function () {
+      state.monthlyBudget = +$('budget-in').value || 0;
+      saveState();
+      alert('保存しました');
+    };
+
+    $('req-weekday-ov').onchange = function () {
+      state.requiredUseWeekdayOverride = !!this.checked;
+      renderSettingsPanel();
+    };
+
+    var tbodyEl = $('req-bands-body');
+
+    $('req-add-band').onclick = function () {
+      var nb = { id: uid(), label: '枠', start: '10:00', end: '15:00', count: 1 };
+      state.requiredBands.push(nb);
+      var ix = state.requiredBands.length - 1;
+      for (var wd = 0; wd < 7; wd++) {
+        if (!state.requiredWeekdayCounts[wd]) state.requiredWeekdayCounts[wd] = [];
+        state.requiredWeekdayCounts[wd][ix] = nb.count;
+      }
+      rebuildRequiredByWeekday();
+      renderSettingsPanel();
+    };
+
+    tbodyEl.querySelectorAll('.req-rm-band').forEach(function (btn) {
+      btn.onclick = function () {
+        var row = btn.closest('tr');
+        var ix = Array.prototype.indexOf.call(tbodyEl.children, row);
+        if (ix < 0) return;
+        state.requiredBands.splice(ix, 1);
+        for (var wd = 0; wd < 7; wd++) {
+          if (state.requiredWeekdayCounts[wd]) state.requiredWeekdayCounts[wd].splice(ix, 1);
+        }
+        if (!state.requiredBands.length) {
+          state.requiredBands.push({ id: uid(), label: '枠', start: '10:00', end: '15:00', count: 1 });
+        }
+        rebuildRequiredByWeekday();
+        renderSettingsPanel();
+      };
+    });
+
+    $('btn-req-save').onclick = function () {
+      var rows = tbodyEl.querySelectorAll('.req-band-row');
+      var useO = $('req-weekday-ov').checked;
+      var newBands = [];
+      var newWk = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+      for (var ri = 0; ri < rows.length; ri++) {
+        var row = rows[ri];
+        var id = row.dataset.bid || uid();
+        var label = (row.querySelector('.rb-label') && row.querySelector('.rb-label').value.trim()) || '枠';
+        var start = row.querySelector('.rb-start').value;
+        var end = row.querySelector('.rb-end').value;
+        var count = 1;
+        if (!useO) {
+          count = Math.max(0, +(row.querySelector('.rb-count') && row.querySelector('.rb-count').value) || 0);
+        } else {
+          for (var wd = 0; wd < 7; wd++) {
+            var inp = row.querySelector('.rb-wd[data-wd="' + wd + '"]');
+            var v = Math.max(0, inp ? +inp.value || 0 : 0);
+            newWk[wd][ri] = v;
+          }
+          count = newWk[1][ri] != null ? newWk[1][ri] : 0;
+        }
+        newBands.push({ id: id, label: label, start: start, end: end, count: useO ? count : count });
+      }
+      state.requiredBands = newBands;
+      state.requiredUseWeekdayOverride = useO;
+      if (useO) {
+        state.requiredWeekdayCounts = newWk;
+      } else {
+        state.requiredWeekdayCounts = {};
+        for (var wdx = 0; wdx < 7; wdx++) {
+          state.requiredWeekdayCounts[wdx] = newBands.map(function (b) { return b.count; });
+        }
+      }
+      rebuildRequiredByWeekday();
+      saveState();
+      alert('保存しました');
+      renderSettingsPanel();
+    };
+  }
+
+  function downloadText(name, text, mime) {
+    var blob = new Blob([text], { type: mime || 'text/plain;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  initApp();
+})();
+  </script>
+</body>
+</html>
