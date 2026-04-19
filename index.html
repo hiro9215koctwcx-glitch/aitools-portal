@@ -189,6 +189,26 @@
       }
       .nav-links a:hover { color: var(--sky-dark); }
 
+      .nav-restaurant {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 18px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--white) !important;
+        background: linear-gradient(135deg, #FB923C, #EA580C);
+        box-shadow: 0 3px 14px rgba(234, 88, 12, 0.35);
+        transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s;
+      }
+      .nav-restaurant:hover {
+        color: var(--white) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(234, 88, 12, 0.45);
+        opacity: 0.95;
+      }
+
       .nav-cta {
         display: flex;
         align-items: center;
@@ -230,6 +250,18 @@
         border-bottom: 1px solid var(--gray-100);
       }
       .mobile-menu a:last-child { border-bottom: none; }
+
+      .mobile-menu a.nav-restaurant {
+        margin-top: 4px;
+        padding: 12px 16px;
+        justify-content: center;
+        border-radius: var(--radius-sm);
+        border: none;
+        background: linear-gradient(135deg, #FB923C, #EA580C);
+        color: var(--white) !important;
+        box-shadow: 0 3px 12px rgba(234, 88, 12, 0.3);
+      }
+      .mobile-menu a.nav-restaurant:hover { opacity: 0.95; }
 
       /* ========== Hero ========== */
       #hero {
@@ -305,6 +337,69 @@
         display: flex;
         gap: 16px;
         flex-wrap: wrap;
+      }
+
+      .hero-restaurant-card {
+        margin-top: 28px;
+        max-width: 520px;
+      }
+
+      .hero-restaurant-inner {
+        position: relative;
+        background: linear-gradient(155deg, #FFF8F0 0%, #FFEDD5 45%, #FDE7D6 100%);
+        border: 1px solid rgba(251, 146, 60, 0.32);
+        border-radius: var(--radius);
+        padding: 20px 22px 22px;
+        box-shadow: 0 10px 32px rgba(234, 88, 12, 0.09), var(--shadow-sm);
+      }
+
+      .hero-restaurant-inner::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background: radial-gradient(ellipse 120% 80% at 100% 0%, rgba(251, 146, 60, 0.12), transparent 55%);
+      }
+
+      .hero-restaurant-title {
+        position: relative;
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: var(--gray-900);
+        margin-bottom: 10px;
+        letter-spacing: 0.02em;
+      }
+
+      .hero-restaurant-text {
+        position: relative;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--gray-700);
+        line-height: 1.75;
+        margin-bottom: 16px;
+      }
+
+      .btn-restaurant {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 11px 20px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        border-radius: 50px;
+        color: var(--white);
+        background: linear-gradient(135deg, #F97316, #EA580C);
+        box-shadow: 0 4px 16px rgba(234, 88, 12, 0.3);
+        border: none;
+        transition: transform 0.18s, box-shadow 0.18s, opacity 0.18s;
+      }
+      .btn-restaurant:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 22px rgba(234, 88, 12, 0.38);
+        opacity: 0.95;
+        color: var(--white);
       }
 
       .hero-visual {
@@ -752,6 +847,20 @@
         .tools-grid, .pricing-grid { grid-template-columns: 1fr; }
         .about-text { padding: 20px; }
         .tool-category { padding: 22px 16px; }
+        .tool-card { padding: 22px 18px; gap: 14px; }
+        .tool-card--new { padding-top: 42px; }
+        .tool-card-footer:not(.tool-card-footer--stack) {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 12px;
+        }
+        .tool-card-footer:not(.tool-card-footer--stack) .badge-free {
+          align-self: flex-start;
+        }
+        .tool-card-footer:not(.tool-card-footer--stack) .btn {
+          width: 100%;
+          justify-content: center;
+        }
       }
     </style>
   </head>
@@ -769,6 +878,7 @@
           <li><a href="#tools">ツール一覧</a></li>
           <li><a href="#pricing">料金</a></li>
           <li><a href="#contact">お問い合わせ</a></li>
+          <li><a href="https://hiro9215koctwcx-glitch.github.io/restaurant-lp/" target="_blank" rel="noopener" class="nav-restaurant">🍽️ 飲食店の方へ</a></li>
         </ul>
         <div class="nav-cta">
           <a href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener" class="btn btn-primary" style="padding:10px 20px;font-size:0.85rem;">ご依頼はこちら</a>
@@ -782,6 +892,7 @@
         <a href="#tools" onclick="closeMobileMenu()">ツール一覧</a>
         <a href="#pricing" onclick="closeMobileMenu()">料金</a>
         <a href="#contact" onclick="closeMobileMenu()">お問い合わせ</a>
+        <a href="https://hiro9215koctwcx-glitch.github.io/restaurant-lp/" target="_blank" rel="noopener" class="nav-restaurant" onclick="closeMobileMenu()">🍽️ 飲食店の方へ</a>
         <a href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener">ご依頼はこちら →</a>
       </div>
     </nav>
@@ -805,6 +916,13 @@
             <div class="hero-buttons">
               <a href="#tools" class="btn btn-primary">🔧 ツールを見る</a>
               <a href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener" class="btn btn-outline">📋 ご依頼はこちら</a>
+            </div>
+            <div class="hero-restaurant-card">
+              <div class="hero-restaurant-inner">
+                <h2 class="hero-restaurant-title">🍽️ 飲食店オーナーさんへ</h2>
+                <p class="hero-restaurant-text">「シフト管理・売上管理・お客様管理を<br>まとめて解決する専用ページがあります」</p>
+                <a href="https://hiro9215koctwcx-glitch.github.io/restaurant-lp/" target="_blank" rel="noopener" class="btn-restaurant">飲食店専用ページを見る →</a>
+              </div>
             </div>
           </div>
 
@@ -1052,6 +1170,23 @@ document.getElementById('demoInput').addEventListener('keydown', e => {
           <h3 class="tool-category-heading">📊 業務効率化ツール</h3>
           <p class="tool-category-desc">日々の業務をAIで自動化・効率化するツールです</p>
           <div class="tools-grid">
+
+            <div class="tool-card tool-card--new">
+              <span class="badge-new" aria-label="新着">🆕 NEW</span>
+              <div class="tool-card-icon" style="background:#E0E7FF;">🗓️</div>
+              <div>
+                <div class="tool-card-title">AIシフト管理ツール</div>
+              </div>
+              <p class="tool-card-desc">
+                希望シフトをカレンダーで選ぶだけ。<br>
+                AIが自動で最適なシフトを生成します。<br>
+                人件費の自動計算・人手不足警告つき。
+              </p>
+              <div class="tool-card-footer">
+                <span class="badge-free">✅ 無料</span>
+                <a href="https://hiro9215koctwcx-glitch.github.io/shift-manager/" target="_blank" rel="noopener" class="btn btn-green">無料で使う →</a>
+              </div>
+            </div>
 
             <div class="tool-card">
               <div class="tool-card-icon" style="background:var(--sky-light);">📅</div>
