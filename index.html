@@ -468,15 +468,22 @@
       }
 
       .avatar-circle {
-        width: 160px;
-        height: 160px;
+        width: 150px;
+        height: 150px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--sky), var(--green));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 72px;
-        box-shadow: 0 8px 32px rgba(56,189,248,0.3);
+        overflow: hidden;
+        flex-shrink: 0;
+        margin: 0 auto;
+        box-shadow: 0 8px 32px rgba(56,189,248,0.28);
+        border: 3px solid var(--white);
+      }
+
+      .avatar-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
       }
 
       .avatar-name {
@@ -960,7 +967,9 @@
       <div class="container">
         <div class="about-inner">
           <div class="about-avatar">
-            <div class="avatar-circle">👨‍💻</div>
+            <div class="avatar-circle">
+              <img src="/profile.png" alt="牛島 史裕のプロフィール写真" width="150" height="150" loading="lazy" decoding="async" />
+            </div>
             <div class="avatar-name">牛島 史裕</div>
             <div class="avatar-role">AIトレーナー × ツール開発者</div>
           </div>
