@@ -56,6 +56,79 @@
       opacity: 0.92;
     }
 
+    /* 今月の合計（ページ上部） */
+    .hero-summary {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1rem 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-month-label {
+      margin: 0 0 0.85rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .hero-month-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    @media (min-width: 480px) {
+      .hero-month-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.65rem;
+      }
+    }
+
+    .hero-stat {
+      text-align: center;
+      border-radius: 10px;
+      padding: 0.9rem 0.65rem 1rem;
+      border: 1px solid var(--border);
+    }
+
+    .hero-stat.income {
+      background: var(--income-light);
+      border-color: rgba(46, 125, 74, 0.35);
+    }
+
+    .hero-stat.expense {
+      background: var(--expense-light);
+      border-color: rgba(198, 40, 40, 0.35);
+    }
+
+    .hero-stat.balance {
+      background: #E3F2FD;
+      border-color: rgba(21, 101, 192, 0.35);
+    }
+
+    .hero-stat-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .hero-stat-value {
+      font-size: clamp(1.35rem, 5.2vw, 1.85rem);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.2;
+      word-break: break-all;
+    }
+
+    .hero-stat.income .hero-stat-value { color: var(--income); }
+    .hero-stat.expense .hero-stat-value { color: var(--expense); }
+    .hero-stat.balance .hero-stat-value { color: var(--profit); }
+    .hero-stat.balance .hero-stat-value.negative { color: var(--expense); }
+
     .container {
       max-width: 960px;
       margin: 0 auto;
@@ -196,13 +269,24 @@
     }
 
     .field-row input {
-      width: 100px;
-      max-width: 42%;
-      padding: 0.35rem 0.45rem;
+      min-width: 0;
+      flex: 1 1 100px;
+      max-width: 100%;
+      padding: 0.45rem 0.5rem;
+      min-height: 40px;
       border: 1px solid var(--border);
       border-radius: 6px;
-      font-size: 0.85rem;
+      font-size: 1rem;
       text-align: right;
+    }
+
+    @media (min-width: 600px) {
+      .field-row input {
+        max-width: 42%;
+        min-height: auto;
+        font-size: 0.85rem;
+        padding: 0.35rem 0.45rem;
+      }
     }
 
     .field-row input:focus {
@@ -334,6 +418,18 @@
     .monthly-totals-table .col-expense { color: var(--expense); }
     .monthly-totals-table .col-profit { color: var(--profit); font-weight: 600; }
 
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 -0.15rem;
+      padding: 0 0.15rem;
+    }
+
+    .table-wrap .monthly-totals-table {
+      min-width: 320px;
+    }
+
     .rate-note {
       font-size: 0.75rem;
       color: var(--muted);
@@ -355,6 +451,35 @@
   </header>
 
   <div class="container">
+    <section class="card hero-summary" aria-labelledby="hero-month-title">
+      <p class="hero-month-label" id="hero-month-title">今月の合計</p>
+      <div class="hero-month-grid">
+        <div class="hero-stat income">
+          <div class="hero-stat-label">合計収入</div>
+          <div class="hero-stat-value" id="hero-income">¥0</div>
+        </div>
+        <div class="hero-stat expense">
+          <div class="hero-stat-label">合計支出</div>
+          <div class="hero-stat-value" id="hero-expense">¥0</div>
+        </div>
+        <div class="hero-stat balance">
+          <div class="hero-stat-label">収支差</div>
+          <div class="hero-stat-value" id="hero-balance">¥0</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="card chart-card">
+      <h2>月別の収入・支出（棒グラフ）</h2>
+      <p class="rate-note" style="margin-top:0;margin-bottom:0.75rem;">4月〜3月の各月の収入・支出・利益を比較できます。</p>
+      <div class="chart-legend">
+        <span><i class="lg-income"></i> 収入</span>
+        <span><i class="lg-expense"></i> 支出</span>
+        <span><i class="lg-profit"></i> 利益</span>
+      </div>
+      <canvas id="chartCanvas" width="900" height="280" aria-label="月別棒グラフ"></canvas>
+    </div>
+
     <div class="tabs" role="tablist">
       <button type="button" class="tab active" data-tab="income" role="tab" aria-selected="true">収入</button>
       <button type="button" class="tab" data-tab="expense" role="tab" aria-selected="false">支出</button>
@@ -396,27 +521,19 @@
         </div>
       </div>
 
-      <table class="monthly-totals-table" aria-label="月別集計">
-        <thead>
-          <tr>
-            <th>月</th>
-            <th>収入</th>
-            <th>支出</th>
-            <th>利益</th>
-          </tr>
-        </thead>
-        <tbody id="monthly-tbody"></tbody>
-      </table>
-    </div>
-
-    <div class="card chart-card">
-      <h2>月別グラフ（収入・支出・利益）</h2>
-      <div class="chart-legend">
-        <span><i class="lg-income"></i> 収入</span>
-        <span><i class="lg-expense"></i> 支出</span>
-        <span><i class="lg-profit"></i> 利益</span>
+      <div class="table-wrap">
+        <table class="monthly-totals-table" aria-label="月別集計">
+          <thead>
+            <tr>
+              <th>月</th>
+              <th>収入</th>
+              <th>支出</th>
+              <th>利益</th>
+            </tr>
+          </thead>
+          <tbody id="monthly-tbody"></tbody>
+        </table>
       </div>
-      <canvas id="chartCanvas" width="900" height="280" aria-label="月別棒グラフ"></canvas>
     </div>
   </div>
 
@@ -457,6 +574,13 @@
 
   function formatYen(n) {
     return '¥' + Math.round(n).toLocaleString('ja-JP');
+  }
+
+  /** 会計上の月インデックス（0=4月 … 11=3月）を、今日の日付で取得 */
+  function getFiscalMonthIndex() {
+    var m = new Date().getMonth();
+    if (m >= 3) return m - 3;
+    return m + 9;
   }
 
   function buildGrids() {
@@ -541,6 +665,22 @@
 
     var totalProfit = totalIncome - totalExpense;
 
+    var currentMi = getFiscalMonthIndex();
+    var thisIncome = incomes[currentMi];
+    var thisExpense = expenses[currentMi];
+    var thisBalance = profits[currentMi];
+    var heroTitle = document.getElementById('hero-month-title');
+    if (heroTitle) {
+      heroTitle.textContent = '今月（' + MONTH_LABELS[currentMi] + '）の合計';
+    }
+    document.getElementById('hero-income').textContent = formatYen(thisIncome);
+    document.getElementById('hero-expense').textContent = formatYen(thisExpense);
+    var balEl = document.getElementById('hero-balance');
+    if (balEl) {
+      balEl.textContent = formatYen(thisBalance);
+      balEl.classList.toggle('negative', thisBalance < 0);
+    }
+
     document.getElementById('sum-income-year').textContent = formatYen(totalIncome);
     document.getElementById('sum-expense-year').textContent = formatYen(totalExpense);
     document.getElementById('sum-profit-year').textContent = formatYen(totalProfit);
@@ -579,7 +719,7 @@
     var dpr = window.devicePixelRatio || 1;
 
     var cssW = canvas.clientWidth || w;
-    var cssH = Math.min(320, Math.max(220, cssW * 0.35));
+    var cssH = Math.min(340, Math.max(230, cssW * 0.36));
     canvas.style.height = cssH + 'px';
     canvas.width = Math.floor(cssW * dpr);
     canvas.height = Math.floor(cssH * dpr);
@@ -589,12 +729,15 @@
 
     ctx.clearRect(0, 0, w, h);
 
-    var padL = 44;
-    var padR = 12;
-    var padT = 16;
-    var padB = 36;
+    var narrow = w < 480;
+    var padL = narrow ? 36 : 44;
+    var padR = 8;
+    var padT = 14;
+    var padB = narrow ? 42 : 36;
     var chartW = w - padL - padR;
     var chartH = h - padT - padB;
+    var tickFont = narrow ? 9 : 10;
+    var monthFont = narrow ? 8.5 : 10;
 
     var maxVal = 0;
     for (var i = 0; i < 12; i++) {
@@ -618,9 +761,9 @@
       ctx.stroke();
       var val = topScale * (1 - g / gridLines);
       ctx.fillStyle = COLORS.axis;
-      ctx.font = '10px sans-serif';
+      ctx.font = tickFont + 'px "Hiragino Sans", sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText(val >= 10000 ? (val / 10000).toFixed(1) + '万' : String(Math.round(val)), padL - 6, y + 3);
+      ctx.fillText(val >= 10000 ? (val / 10000).toFixed(1) + '万' : String(Math.round(val)), padL - 4, y + 3);
     }
 
     var groupW = chartW / 12;
@@ -647,9 +790,9 @@
       }
 
       ctx.fillStyle = COLORS.axis;
-      ctx.font = '10px sans-serif';
+      ctx.font = monthFont + 'px "Hiragino Sans", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(MONTH_LABELS[m], padL + m * groupW + groupW / 2, h - 12);
+      ctx.fillText(MONTH_LABELS[m], padL + m * groupW + groupW / 2, h - 10);
     }
 
     ctx.strokeStyle = COLORS.axis;
