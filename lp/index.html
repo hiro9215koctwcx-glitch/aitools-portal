@@ -428,6 +428,41 @@
       text-align: left;
     }
     .intro-block p { margin-bottom: 1.25rem; color: var(--navy-800); }
+    .intro-block--with-photo {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 1.75rem;
+      text-align: left;
+    }
+    .intro-block__figure {
+      flex-shrink: 0;
+      width: 100%;
+      max-width: 200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .intro-block__img {
+      display: block;
+      width: clamp(150px, 42vw, 200px);
+      height: auto;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 50%;
+      margin: 0 auto;
+    }
+    .intro-block__text { flex: 1; min-width: 0; }
+    .intro-block__text p { margin-bottom: 1.25rem; color: var(--navy-800); }
+    .intro-block__text p:last-child { margin-bottom: 0; }
+    @media (max-width: 640px) {
+      .intro-block--with-photo {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+      }
+    }
 
     /* FAQ */
     .faq-list { max-width: 720px; margin: 0 auto; }
@@ -727,12 +762,25 @@
 
   <section id="about" aria-labelledby="about-title">
     <div class="container">
-      <h2 id="about-title" class="section-title">はじめまして、Takahiroです。</h2>
-      <div class="intro-block" style="margin-top:1.5rem;">
-        <p>場所を選ばず働ける力を作ること。<br />それが私の目標です。</p>
-        <p>その過程でAIと出会い、気づきました。<br />&ldquo;これは、忙しい社長の右腕になれる&rdquo;と。</p>
-        <p>現場が忙しくて、改善まで手が回らない。<br />ITは苦手で、何から始めればいいかわからない。<br />そんな社長のそばに、<br />&ldquo;詳しい人&rdquo;として寄り添いたいと思っています。</p>
-        <p>小さなお店や会社こそ、<br />AIで大きく変われると、本気で信じています。</p>
+      <h2 id="about-title" class="section-title">なぜAIツール工房を作ったのか</h2>
+      <div class="intro-block intro-block--with-photo" style="margin-top:1.5rem;">
+        <div class="intro-block__figure">
+          <img
+            class="intro-block__img"
+            src="../profile.png"
+            width="200"
+            height="200"
+            alt="プロフィール写真"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div class="intro-block__text">
+          <p>小さな会社ほど毎日忙しく、<br />『改善したいけど手が回らない』<br />という悩みを抱えています。</p>
+          <p>私は、AIを使って<br />そんな人の時間を増やしたいと思っています。</p>
+          <p>難しいITではなく<br />&ldquo;今あるムダを減らすこと&rdquo;<br />を大切にしています。</p>
+          <p>小さな相談からでも<br />一緒に改善していけたら嬉しいです。</p>
+        </div>
       </div>
     </div>
   </section>
