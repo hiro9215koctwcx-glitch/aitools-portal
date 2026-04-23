@@ -188,48 +188,102 @@
     }
 
     /* Diagnosis */
-    #診断 { scroll-margin-top: 80px; }
+    #診断 {
+      scroll-margin-top: 80px;
+      background: #f0f2f5;
+    }
     .diagnosis-box {
-      max-width: 520px;
+      max-width: 580px;
       margin: 0 auto;
-      background: var(--surface);
+      background: #fff;
       border: 1px solid var(--line);
       border-radius: var(--radius-lg);
-      padding: clamp(1.5rem, 4vw, 2rem);
+      padding: clamp(1.5rem, 4vw, 2.25rem);
       box-shadow: var(--shadow);
+    }
+    .diag-progress-wrap { margin-bottom: 1.5rem; }
+    .diag-progress-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    .diag-progress {
+      height: 8px;
+      border-radius: 99px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+    .diag-progress__bar {
+      height: 100%;
+      width: 20%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #1d4ed8, #1e3a5f);
+      transition: width 0.35s ease;
     }
     .diagnosis-step { display: none; }
     .diagnosis-step.is-active { display: block; }
-    .diagnosis-step h3 {
-      font-size: 0.9rem;
-      color: var(--accent);
+    .diagnosis-step .step-catch {
+      font-size: 0.8rem;
+      color: #1d4ed8;
       font-weight: 600;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.04em;
     }
-    .diagnosis-step p.q { font-weight: 600; color: var(--navy-900); margin-bottom: 1.25rem; }
-    .option-grid { display: flex; flex-direction: column; gap: 8px; }
-    .option-btn {
+    .diagnosis-step p.q { font-weight: 700; color: var(--navy-900); margin-bottom: 1.1rem; font-size: 1.02rem; }
+    .option-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .opt-card {
+      display: block;
+      position: relative;
       width: 100%;
       text-align: left;
-      padding: 12px 16px;
-      font-family: inherit;
-      font-size: 0.9rem;
-      border: 1px solid var(--line);
+      padding: 14px 16px 14px 48px;
+      font-size: 0.95rem;
+      border: 2px solid var(--line);
       border-radius: var(--radius);
       background: #fff;
       color: var(--navy-800);
       cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
     }
-    .option-btn:hover, .option-btn.is-selected {
-      border-color: var(--navy-800);
-      background: var(--soft);
+    .opt-card:has(:focus-visible) { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    .opt-card input {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      margin: 0;
+      cursor: pointer;
+      accent-color: #1d4ed8;
     }
+    .opt-card--check {
+      padding: 16px 16px 16px 52px;
+      min-height: 52px;
+    }
+    .opt-card--check input {
+      width: 22px;
+      height: 22px;
+    }
+    .opt-card:has(input:checked) {
+      border-color: #1d4ed8;
+      background: #eff6ff;
+      box-shadow: 0 0 0 1px rgba(29, 78, 216, 0.2);
+    }
+    .opt-card span.label-text { display: block; line-height: 1.45; }
     .step-nav {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 1.5rem;
+      margin-top: 1.6rem;
       gap: 12px;
     }
     .btn--ghost {
@@ -238,29 +292,64 @@
       border: 1px solid var(--line);
     }
     .btn--ghost:hover { color: var(--navy-800); border-color: var(--navy-800); }
-    .btn--sm { padding: 10px 18px; font-size: 0.85rem; }
-    .input-email {
+    .btn--next {
+      min-height: 52px;
+      padding: 14px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+    .input-stack {
+      margin-bottom: 1rem;
+    }
+    .input-stack label { display: block; font-size: 0.82rem; color: var(--muted); font-weight: 500; margin-bottom: 0.35rem; }
+    .input-field {
       width: 100%;
-      padding: 12px 14px;
+      padding: 14px 14px;
       font-family: inherit;
       font-size: 0.95rem;
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      margin-bottom: 1rem;
     }
-    .input-email:focus {
+    .input-field:focus {
       outline: none;
-      border-color: var(--navy-800);
-      box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.12);
+      border-color: #1d4ed8;
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
     }
-    .diagnosis-success {
-      display: none;
-      text-align: center;
-      padding: 1rem 0;
-    }
-    .diagnosis-success.is-visible { display: block; }
-    .diagnosis-form-wrap { }
     .diagnosis-form-wrap.is-hidden { display: none; }
+    .diag-progress-wrap.is-hidden { display: none; }
+
+    /* Result */
+    .diagnosis-result {
+      display: none;
+      text-align: left;
+    }
+    .diagnosis-result.is-visible { display: block; }
+    .result-lead { font-size: 0.85rem; font-weight: 600; color: #1d4ed8; margin-bottom: 0.75rem; }
+    .result-outcome { margin-bottom: 1.25rem; }
+    .result-line { color: var(--navy-800); line-height: 1.8; font-size: 0.95rem; margin: 0; }
+    .result-line + .result-time-em { margin-top: 0.35rem; }
+    .result-time-em + .result-line { margin-top: 0.5rem; }
+    .result-time-em { font-size: clamp(1.35rem, 3.2vw, 1.9rem); font-weight: 800; color: #1d4ed8; line-height: 1.45; margin: 0.5rem 0 0.5rem; }
+    .result-picks-head { font-size: 0.92rem; font-weight: 600; color: var(--navy-900); margin-bottom: 0.5rem; }
+    .result-picks { margin: 0 0 1.75rem 0; padding-left: 0; list-style: none; color: var(--navy-800); font-size: 0.92rem; }
+    .result-picks li { margin-bottom: 0.35rem; padding-left: 0; }
+    .result-cta { display: flex; flex-direction: column; gap: 12px; margin-top: 0.5rem; }
+    .result-cta a {
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      padding: 16px 22px; font-size: 1rem; font-weight: 600; border-radius: 999px;
+      text-decoration: none; font-family: inherit; transition: transform 0.15s, box-shadow 0.2s;
+    }
+    .result-cta-primary {
+      background: linear-gradient(180deg, #1e40af 0%, #1d4ed8 100%);
+      color: #fff; box-shadow: 0 6px 20px rgba(29, 78, 216, 0.35);
+    }
+    .result-cta-primary:hover { transform: translateY(-2px); text-decoration: none; color: #fff; }
+    .result-cta-sub {
+      background: #fff; color: var(--navy-800);
+      border: 2px solid #cbd5e1; font-size: 0.92rem; padding: 13px 20px; font-weight: 600;
+    }
+    .result-cta-sub:hover { border-color: var(--navy-800); text-decoration: none; color: var(--navy-800); }
+    .result-cta-note { font-size: 0.8rem; color: var(--muted); line-height: 1.7; text-align: center; margin-top: 0.25rem; }
 
     /* Cards grid */
     .card-grid {
@@ -435,82 +524,111 @@
       <p class="section-sub">3分でわかる 無料診断</p>
 
       <div class="diagnosis-box" id="diagnosis-box">
+        <div class="diag-progress-wrap" id="diag-progress-wrap">
+          <div class="diag-progress-label">
+            <span id="diag-step-text">STEP 1 / 5</span>
+          </div>
+          <div class="diag-progress">
+            <div class="diag-progress__bar" id="diag-progress-bar"></div>
+          </div>
+        </div>
+
         <div class="diagnosis-form-wrap" id="diagnosis-form-wrap">
-          <div class="diagnosis-step is-active" data-step="1">
-            <h3>Q1 / 5</h3>
+          <div class="diagnosis-step is-active" data-step="1" role="group" aria-labelledby="q1-title">
+            <p class="step-catch" id="q1-title">STEP 1 / 5</p>
             <p class="q">業種を教えてください</p>
-            <div class="option-grid" data-q="1">
-              <button type="button" class="option-btn" data-value="飲食店">飲食店</button>
-              <button type="button" class="option-btn" data-value="美容室・サロン">美容室・サロン</button>
-              <button type="button" class="option-btn" data-value="小売店">小売店</button>
-              <button type="button" class="option-btn" data-value="事務・サービス業">事務・サービス業</button>
-              <button type="button" class="option-btn" data-value="その他">その他</button>
+            <div class="option-grid" id="q1-group">
+              <label class="opt-card"><input type="radio" name="q1" value="飲食店" /><span class="label-text">飲食店</span></label>
+              <label class="opt-card"><input type="radio" name="q1" value="美容室・サロン" /><span class="label-text">美容室・サロン</span></label>
+              <label class="opt-card"><input type="radio" name="q1" value="小売店" /><span class="label-text">小売店</span></label>
+              <label class="opt-card"><input type="radio" name="q1" value="事務・サービス業" /><span class="label-text">事務・サービス業</span></label>
+              <label class="opt-card"><input type="radio" name="q1" value="その他" /><span class="label-text">その他</span></label>
             </div>
             <div class="step-nav">
               <span></span>
-              <button type="button" class="btn btn--primary btn--sm" id="next-1" disabled>次へ</button>
+              <button type="button" class="btn btn--primary btn--next" id="next-1" disabled>次へ</button>
             </div>
           </div>
 
-          <div class="diagnosis-step" data-step="2">
-            <h3>Q2 / 5</h3>
-            <p class="q">一番時間がかかっている作業は？</p>
-            <div class="option-grid" data-q="2">
-              <button type="button" class="option-btn" data-value="書類・請求書作成">書類・請求書作成</button>
-              <button type="button" class="option-btn" data-value="顧客管理">顧客管理</button>
-              <button type="button" class="option-btn" data-value="シフト管理">シフト管理</button>
-              <button type="button" class="option-btn" data-value="SNS・集客">SNS・集客</button>
-              <button type="button" class="option-btn" data-value="その他">その他</button>
+          <div class="diagnosis-step" data-step="2" role="group" aria-labelledby="q2-title">
+            <p class="step-catch" id="q2-title">STEP 2 / 5</p>
+            <p class="q">今、一番時間がかかっているのは？<br /><span style="font-size:0.8rem; font-weight:500; color:var(--muted);">（複数選択可）</span></p>
+            <div class="option-grid" id="q2-group">
+              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="問い合わせ対応" /><span class="label-text">問い合わせ対応</span></label>
+              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="書類作成" /><span class="label-text">書類作成</span></label>
+              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="SNS更新" /><span class="label-text">SNS更新</span></label>
+              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="顧客管理" /><span class="label-text">顧客管理</span></label>
+              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="見積もり作成" /><span class="label-text">見積もり作成</span></label>
+              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="スタッフ連絡" /><span class="label-text">スタッフ連絡</span></label>
+              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="予約管理" /><span class="label-text">予約管理</span></label>
+              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="その他" /><span class="label-text">その他</span></label>
             </div>
             <div class="step-nav">
-              <button type="button" class="btn btn--ghost btn--sm" data-back>戻る</button>
-              <button type="button" class="btn btn--primary btn--sm" id="next-2" disabled>次へ</button>
+              <button type="button" class="btn btn--ghost" data-back>戻る</button>
+              <button type="button" class="btn btn--primary btn--next" id="next-2" disabled>次へ</button>
             </div>
           </div>
 
-          <div class="diagnosis-step" data-step="3">
-            <h3>Q3 / 5</h3>
+          <div class="diagnosis-step" data-step="3" role="group" aria-labelledby="q3-title">
+            <p class="step-catch" id="q3-title">STEP 3 / 5</p>
             <p class="q">AIツールを使ったことはありますか？</p>
-            <div class="option-grid" data-q="3">
-              <button type="button" class="option-btn" data-value="ない">ない</button>
-              <button type="button" class="option-btn" data-value="少し使ったことがある">少し使ったことがある</button>
-              <button type="button" class="option-btn" data-value="使っているがうまく活用できていない">使っているがうまく活用できていない</button>
+            <div class="option-grid" id="q3-group">
+              <label class="opt-card"><input type="radio" name="q3" value="ない" /><span class="label-text">ない</span></label>
+              <label class="opt-card"><input type="radio" name="q3" value="少し使ったことがある" /><span class="label-text">少し使ったことがある</span></label>
+              <label class="opt-card"><input type="radio" name="q3" value="使っているがうまく活用できていない" /><span class="label-text">使っているがうまく活用できていない</span></label>
             </div>
             <div class="step-nav">
-              <button type="button" class="btn btn--ghost btn--sm" data-back>戻る</button>
-              <button type="button" class="btn btn--primary btn--sm" id="next-3" disabled>次へ</button>
+              <button type="button" class="btn btn--ghost" data-back>戻る</button>
+              <button type="button" class="btn btn--primary btn--next" id="next-3" disabled>次へ</button>
             </div>
           </div>
 
-          <div class="diagnosis-step" data-step="4">
-            <h3>Q4 / 5</h3>
+          <div class="diagnosis-step" data-step="4" role="group" aria-labelledby="q4-title">
+            <p class="step-catch" id="q4-title">STEP 4 / 5</p>
             <p class="q">ご希望の改善方法は？</p>
-            <div class="option-grid" data-q="4">
-              <button type="button" class="option-btn" data-value="まず診断結果だけ見たい">まず診断結果だけ見たい</button>
-              <button type="button" class="option-btn" data-value="無料相談を希望する">無料相談を希望する</button>
-              <button type="button" class="option-btn" data-value="具体的な見積もりが欲しい">具体的な見積もりが欲しい</button>
+            <div class="option-grid" id="q4-group">
+              <label class="opt-card"><input type="radio" name="q4" value="まず診断結果だけ見たい" /><span class="label-text">まず診断結果だけ見たい</span></label>
+              <label class="opt-card"><input type="radio" name="q4" value="無料相談を希望する" /><span class="label-text">無料相談を希望する</span></label>
+              <label class="opt-card"><input type="radio" name="q4" value="具体的な見積もりが欲しい" /><span class="label-text">具体的な見積もりが欲しい</span></label>
             </div>
             <div class="step-nav">
-              <button type="button" class="btn btn--ghost btn--sm" data-back>戻る</button>
-              <button type="button" class="btn btn--primary btn--sm" id="next-4" disabled>次へ</button>
+              <button type="button" class="btn btn--ghost" data-back>戻る</button>
+              <button type="button" class="btn btn--primary btn--next" id="next-4" disabled>次へ</button>
             </div>
           </div>
 
-          <div class="diagnosis-step" data-step="5">
-            <h3>Q5 / 5</h3>
-            <p class="q">メールアドレスを入力してください</p>
-            <input type="email" class="input-email" id="email-input" placeholder="example@email.com" autocomplete="email" />
-            <button type="button" class="btn btn--primary" id="submit-diagnosis" style="width:100%;">診断結果を受け取る</button>
+          <div class="diagnosis-step" data-step="5" role="group" aria-labelledby="q5-title">
+            <p class="step-catch" id="q5-title">STEP 5 / 5</p>
+            <p class="q">連絡先を教えてください</p>
+            <div class="input-stack">
+              <label for="name-input">お名前（任意）</label>
+              <input type="text" class="input-field" id="name-input" name="name" placeholder="山田 太郎" autocomplete="name" />
+            </div>
+            <div class="input-stack">
+              <label for="email-input">メールアドレス（必須）</label>
+              <input type="email" class="input-field" id="email-input" name="email" placeholder="example@email.com" autocomplete="email" required />
+            </div>
+            <button type="button" class="btn btn--primary btn--next" id="submit-diagnosis" style="width:100%;">診断結果を見る</button>
             <div class="step-nav" style="margin-top:1rem; justify-content:flex-start;">
-              <button type="button" class="btn btn--ghost btn--sm" data-back>戻る</button>
+              <button type="button" class="btn btn--ghost" data-back>戻る</button>
             </div>
           </div>
         </div>
 
-        <div class="diagnosis-success" id="diagnosis-success" role="status" aria-live="polite">
-          <p style="color:var(--navy-900); font-weight:600; line-height:1.85;">
-            ありがとうございます！<br />24時間以内に診断結果をメールでお送りします。
-          </p>
+        <div class="diagnosis-result" id="diagnosis-result" role="region" aria-live="polite" aria-label="診断結果">
+          <p class="result-lead">診断結果</p>
+          <div class="result-outcome" id="result-outcome">
+            <p class="result-line">あなたの会社では</p>
+            <p class="result-time-em" id="result-time-em"></p>
+            <p class="result-line">ムダな作業を減らせる可能性があります</p>
+          </div>
+          <p class="result-picks-head" id="result-picks-head">特に以下の改善から始めるのがおすすめです：</p>
+          <ul class="result-picks" id="result-picks"></ul>
+          <div class="result-cta">
+            <a class="result-cta-primary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料で改善プランを受け取る</a>
+            <a class="result-cta-sub" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">まず話だけ聞いてみる</a>
+            <p class="result-cta-note">無理な営業は一切しません。<br />小さな相談でも大丈夫です。</p>
+          </div>
         </div>
       </div>
     </div>
@@ -657,40 +775,136 @@
   <script>
     (function () {
       var current = 1;
-      var answers = {};
+      var maxStep = 5;
+      var q2Labels = [];
+      var stepTextEl = document.getElementById('diag-step-text');
+      var progressBar = document.getElementById('diag-progress-bar');
+      var progressWrap = document.getElementById('diag-progress-wrap');
+      var formWrap = document.getElementById('diagnosis-form-wrap');
+      var resultEl = document.getElementById('diagnosis-result');
+      var resultTimeEl = document.getElementById('result-time-em');
+      var resultPicks = document.getElementById('result-picks');
+      var picksHead = document.getElementById('result-picks-head');
+      var emailInput = document.getElementById('email-input');
+
+      function setProgress(n) {
+        if (stepTextEl) {
+          stepTextEl.textContent = 'STEP ' + n + ' / 5';
+        }
+        if (progressBar) {
+          progressBar.style.width = (n / 5) * 100 + '%';
+        }
+      }
 
       function showStep(n) {
         document.querySelectorAll('.diagnosis-step').forEach(function (el) {
           el.classList.toggle('is-active', parseInt(el.getAttribute('data-step'), 10) === n);
         });
         current = n;
+        setProgress(n);
       }
 
-      function bindOptions(stepNum, nextId) {
+      function q2CountChecked() {
+        return document.querySelectorAll('#q2-group input[name="q2"]:checked').length;
+      }
+
+      function syncNextRadio(stepNum, nextId) {
         var step = document.querySelector('.diagnosis-step[data-step="' + stepNum + '"]');
         if (!step) return;
         var nextBtn = document.getElementById(nextId);
         var grid = step.querySelector('.option-grid');
         if (!grid || !nextBtn) return;
-        var buttons = grid.querySelectorAll('.option-btn');
-        buttons.forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            buttons.forEach(function (b) { b.classList.remove('is-selected'); });
-            btn.classList.add('is-selected');
-            answers['q' + stepNum] = btn.getAttribute('data-value');
-            nextBtn.disabled = false;
-          });
+        function update() {
+          var checked = grid.querySelector('input:checked');
+          nextBtn.disabled = !checked;
+        }
+        grid.querySelectorAll('input').forEach(function (input) {
+          input.addEventListener('change', update);
         });
+        update();
         nextBtn.addEventListener('click', function () {
           if (nextBtn.disabled) return;
-          showStep(stepNum + 1);
+          if (stepNum < maxStep) showStep(stepNum + 1);
         });
       }
 
-      bindOptions(1, 'next-1');
-      bindOptions(2, 'next-2');
-      bindOptions(3, 'next-3');
-      bindOptions(4, 'next-4');
+      function syncQ2() {
+        var nextBtn = document.getElementById('next-2');
+        if (!nextBtn) return;
+        var grid = document.getElementById('q2-group');
+        if (!grid) return;
+        function update() {
+          nextBtn.disabled = q2CountChecked() < 1;
+        }
+        grid.querySelectorAll('input[name="q2"]').forEach(function (input) {
+          input.addEventListener('change', update);
+        });
+        update();
+        nextBtn.addEventListener('click', function () {
+          if (nextBtn.disabled) return;
+          q2Labels = Array.prototype.map.call(
+            document.querySelectorAll('#q2-group input[name="q2"]:checked'),
+            function (el) { return el.value; }
+          );
+          showStep(3);
+        });
+      }
+
+      syncNextRadio(1, 'next-1');
+      syncQ2();
+      syncNextRadio(3, 'next-3');
+      syncNextRadio(4, 'next-4');
+
+      document.getElementById('submit-diagnosis').addEventListener('click', function () {
+        var email = emailInput ? emailInput.value.trim() : '';
+        var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email) {
+          alert('メールアドレスを入力してください。');
+          if (emailInput) emailInput.focus();
+          return;
+        }
+        if (!re.test(email)) {
+          alert('メールアドレスの形式をご確認ください。');
+          if (emailInput) emailInput.focus();
+          return;
+        }
+        var n = q2Labels.length;
+        if (n <= 0) {
+          q2Labels = Array.prototype.map.call(
+            document.querySelectorAll('#q2-group input[name="q2"]:checked'),
+            function (el) { return el.value; }
+          );
+          n = q2Labels.length;
+        }
+        var timePhrase;
+        if (n >= 5) {
+          timePhrase = '毎月20時間以上';
+        } else if (n >= 3) {
+          timePhrase = '毎月10〜20時間ほど';
+        } else {
+          timePhrase = '毎月5〜10時間ほど';
+        }
+        if (resultTimeEl) {
+          resultTimeEl.textContent = timePhrase;
+        }
+        resultPicks.innerHTML = '';
+        q2Labels.forEach(function (label) {
+          var li = document.createElement('li');
+          li.textContent = '・' + label;
+          resultPicks.appendChild(li);
+        });
+        if (picksHead) {
+          picksHead.style.display = q2Labels.length ? 'block' : 'none';
+        }
+        resultPicks.style.display = q2Labels.length ? 'block' : 'none';
+
+        formWrap.classList.add('is-hidden');
+        if (progressWrap) {
+          progressWrap.classList.add('is-hidden');
+        }
+        resultEl.classList.add('is-visible');
+        resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
 
       document.querySelectorAll('[data-back]').forEach(function (btn) {
         btn.addEventListener('click', function () {
@@ -698,15 +912,7 @@
         });
       });
 
-      document.getElementById('submit-diagnosis').addEventListener('click', function () {
-        var email = document.getElementById('email-input').value.trim();
-        if (!email) {
-          alert('メールアドレスを入力してください。');
-          return;
-        }
-        document.getElementById('diagnosis-form-wrap').classList.add('is-hidden');
-        document.getElementById('diagnosis-success').classList.add('is-visible');
-      });
+      setProgress(1);
 
       document.querySelectorAll('.faq-item .faq-q').forEach(function (btn) {
         btn.addEventListener('click', function () {
