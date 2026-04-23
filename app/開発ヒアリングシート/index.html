@@ -245,23 +245,43 @@
       transform: none;
     }
     .btn-primary:disabled:hover { background: var(--accent); }
+    .voice-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+    .btn-voice {
+      padding: 0.55rem 0.9rem;
+      font-size: 0.88rem;
+      border: 2px solid var(--accent);
+      border-radius: var(--radius-sm);
+      background: var(--accent-soft);
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-voice:hover { background: rgba(62, 184, 232, 0.22); }
+    .btn-voice:disabled { opacity: 0.5; cursor: not-allowed; }
+    .voice-hint { font-size: 0.78rem; color: var(--text-muted); margin: 0; flex: 1 1 100%; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
       <h1>開発ヒアリングシート</h1>
-      <p>質問に答えて、ご要望をまとめましょう</p>
+      <p>目的を選び、所要に応じた内容をご記入ください</p>
     </header>
     <div class="card" id="app-card">
       <div id="screen-quiz" class="screen active">
         <div class="progress-wrap">
           <div class="progress-meta">
             <span>進捗</span>
-            <span><strong id="step-num">1</strong> / 13</span>
+            <span><strong id="step-num">1</strong> <span id="step-denom-wrap">/ <span id="step-denom">14</span></span></span>
           </div>
-          <div class="progress-bar" role="progressbar" aria-valuemin="1" aria-valuemax="13" aria-valuenow="1" id="progress-bar">
-            <div class="progress-fill" id="progress-fill" style="width: 7.6923076923%"></div>
+          <div class="progress-bar" role="progressbar" aria-valuemin="1" aria-valuemax="14" aria-valuenow="1" id="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width: 7.1428571429%"></div>
           </div>
         </div>
         <div class="step-label" id="step-label">STEP 1</div>
@@ -271,13 +291,35 @@
           <button type="button" class="btn-secondary" id="btn-back">戻る</button>
         </div>
       </div>
+      <div id="screen-consult-end" class="screen">
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span>進捗</span>
+            <span><strong>4</strong> / 4</span>
+          </div>
+          <div class="progress-bar" role="progressbar" aria-valuenow="4" aria-valuemax="4" aria-valuemin="1">
+            <div class="progress-fill" style="width: 100%"></div>
+          </div>
+        </div>
+        <div class="step-label">お問い合わせ</div>
+        <h2 class="question">お名前とメールアドレス</h2>
+        <p class="hint" style="margin-bottom: 1rem">送信内容を確認のうえ、ご連絡先をご記入ください。</p>
+        <label class="form-label" for="consult-cust-name">お名前 <span class="hint" style="font-weight:400">（必須）</span></label>
+        <input type="text" class="field-input" id="consult-cust-name" name="consult-cust-name" autocomplete="name" required>
+        <label class="form-label" for="consult-cust-email">メールアドレス <span class="hint" style="font-weight:400">（必須）</span></label>
+        <input type="email" class="field-input" id="consult-cust-email" name="consult-cust-email" autocomplete="email" required>
+        <div class="nav-row" style="margin-top: 1.25rem">
+          <button type="button" class="btn-secondary" id="btn-consult-end-back">戻る</button>
+          <button type="button" class="btn-primary" id="btn-consult-send" style="flex: 1">相談内容を送信する</button>
+        </div>
+      </div>
       <div id="screen-customer" class="screen">
         <div class="progress-wrap">
           <div class="progress-meta">
             <span>進捗</span>
-            <span><strong>13</strong> / 13</span>
+            <span><strong>15</strong> / 15</span>
           </div>
-          <div class="progress-bar" role="progressbar" aria-valuenow="13" aria-valuemax="13" aria-valuemin="1">
+          <div class="progress-bar" role="progressbar" aria-valuenow="15" aria-valuemax="15" aria-valuemin="1">
             <div class="progress-fill" style="width: 100%"></div>
           </div>
         </div>
@@ -495,6 +537,20 @@
 
       var CONTACT_OPTIONS = ["電話", "メール", "Zoom等ビデオ会議", "どれでもOK"];
 
+      var INTENT_CONSULT = "相談したい";
+      var INTENT_DEV = "開発を依頼したい";
+      var flowType = null;
+      var consultSubStep = 0;
+      var consultData = {
+        content: "",
+        method: "",
+        methodOnlineDetail: "",
+        methodOtherDetail: "",
+        timePreference: "",
+        name: "",
+        email: ""
+      };
+
       var answers = [];
       var currentIndex = 0;
       var customerInfo = {
@@ -508,7 +564,10 @@
       var elQuiz = document.getElementById("screen-quiz");
       var elCustomer = document.getElementById("screen-customer");
       var elSummary = document.getElementById("screen-summary");
+      var elConsultEnd = document.getElementById("screen-consult-end");
       var elStepNum = document.getElementById("step-num");
+      var elStepDenom = document.getElementById("step-denom");
+      var elStepDenomWrap = document.getElementById("step-denom-wrap");
       var elProgressFill = document.getElementById("progress-fill");
       var elProgressBar = document.getElementById("progress-bar");
       var elStepLabel = document.getElementById("step-label");
@@ -522,12 +581,52 @@
       var elBtnRestart = document.getElementById("btn-restart");
       var elBtnCustomerBack = document.getElementById("btn-customer-back");
       var elBtnCustomerNext = document.getElementById("btn-customer-next");
+      var elBtnConsultEndBack = document.getElementById("btn-consult-end-back");
+      var elBtnConsultSend = document.getElementById("btn-consult-send");
       var elCustContactWrap = document.getElementById("cust-contact-wrap");
       var elToast = document.getElementById("toast");
 
       function disp(v) {
         var s = v != null ? String(v).trim() : "";
         return s ? s : "（未入力）";
+      }
+
+      function formatConsultMethodBlock() {
+        var m = consultData.method || "";
+        var lines = [];
+        if (m === "メールにて") {
+          lines.push("メールにて");
+        } else if (m === "オンラインにて") {
+          lines.push("オンラインにて");
+          lines.push("詳細：" + disp(consultData.methodOnlineDetail));
+        } else if (m === "その他") {
+          lines.push("その他");
+          lines.push("詳細：" + disp(consultData.methodOtherDetail));
+        } else {
+          lines.push(disp(m));
+        }
+        lines.push("都合の良い時間帯：" + disp(consultData.timePreference));
+        return lines.join("\n");
+      }
+
+      function buildConsultEmailMessage() {
+        var parts = [
+          "【相談・お問い合わせ】",
+          "",
+          "■ 相談内容",
+          disp(consultData.content),
+          "",
+          "■ 相談方法・ご希望",
+          formatConsultMethodBlock(),
+          "",
+          "■ お名前",
+          disp(consultData.name),
+          "",
+          "■ メールアドレス",
+          disp(consultData.email),
+          ""
+        ];
+        return parts.join("\n").trim();
       }
 
       function buildSummaryText() {
@@ -549,6 +648,9 @@
       }
 
       function buildEmailMessage() {
+        if (flowType === "consult") {
+          return buildConsultEmailMessage();
+        }
         var parts = ["■ ヒアリング回答", ""];
         for (var i = 0; i < STEPS.length; i++) {
           var a = answers[i] != null ? String(answers[i]).trim() : "";
@@ -609,6 +711,7 @@
       function showCustomerScreen() {
         elQuiz.classList.remove("active");
         elSummary.classList.remove("active");
+        elConsultEnd.classList.remove("active");
         elCustomer.classList.add("active");
         document.getElementById("cust-company").value = customerInfo.company;
         document.getElementById("cust-name").value = customerInfo.name;
@@ -651,19 +754,339 @@
         }, ms);
       }
 
-      function setProgress(n) {
-        var pct = (n / STEPS.length) * 100;
-        elStepNum.textContent = String(n);
+      function updateQuizProgress(current, max) {
+        elStepNum.textContent = String(current);
+        elStepDenom.textContent = String(max);
+        elStepDenomWrap.style.display = "inline";
+        var pct = max > 0 ? (current / max) * 100 : 0;
         elProgressFill.style.width = pct + "%";
-        elProgressBar.setAttribute("aria-valuenow", String(n));
+        elProgressBar.setAttribute("aria-valuenow", String(current));
+        elProgressBar.setAttribute("aria-valuemax", String(max));
+      }
+
+      function updateProgressIntentEntry() {
+        elStepLabel.textContent = "STEP 1";
+        elStepNum.textContent = "1";
+        elStepDenomWrap.style.display = "none";
+        elProgressFill.style.width = "8%";
+        elProgressBar.setAttribute("aria-valuenow", "1");
+        elProgressBar.setAttribute("aria-valuemax", "1");
+      }
+
+      function updateProgressConsultQuiz() {
+        var cur = 2 + consultSubStep;
+        var max = 4;
+        elStepLabel.textContent = "STEP " + cur;
+        updateQuizProgress(cur, max);
+      }
+
+      function setProgressDevelopQuiz() {
+        var cur = 2 + currentIndex;
+        var max = 14;
+        elStepLabel.textContent = "STEP " + cur;
+        updateQuizProgress(cur, max);
+      }
+
+      var intentSelection = "";
+
+      function renderIntentStep() {
+        updateProgressIntentEntry();
+        elQuestion.textContent = "いま、どちらに近いご希望ですか？";
+        elNavBack.style.display = "none";
+        elChoices.innerHTML = "";
+        var container = document.createElement("div");
+        var wrap = document.createElement("div");
+        wrap.className = "choices";
+        var choiceButtons = [];
+        var opts = [INTENT_CONSULT, INTENT_DEV];
+        for (var ji = 0; ji < opts.length; ji++) {
+          (function (label) {
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "choice-btn";
+            btn.textContent = label;
+            if (label === intentSelection) {
+              btn.classList.add("is-selected");
+            }
+            btn.addEventListener("click", function () {
+              intentSelection = label;
+              for (var kb = 0; kb < choiceButtons.length; kb++) {
+                choiceButtons[kb].classList.remove("is-selected");
+              }
+              btn.classList.add("is-selected");
+            });
+            choiceButtons.push(btn);
+            wrap.appendChild(btn);
+          })(opts[ji]);
+        }
+        container.appendChild(wrap);
+        var row = document.createElement("div");
+        row.className = "nav-row";
+        row.style.marginTop = "1rem";
+        var btnNext = document.createElement("button");
+        btnNext.type = "button";
+        btnNext.className = "btn-primary";
+        btnNext.textContent = "次へ";
+        btnNext.addEventListener("click", function () {
+          if (!intentSelection) {
+            showToastMessage("いずれかを選んでください", 2200);
+            return;
+          }
+          if (intentSelection === INTENT_CONSULT) {
+            flowType = "consult";
+            consultSubStep = 0;
+          } else {
+            flowType = "develop";
+            currentIndex = 0;
+            answers = [];
+          }
+          renderStep();
+          window.scrollTo(0, 0);
+        });
+        row.appendChild(btnNext);
+        container.appendChild(row);
+        elChoices.appendChild(container);
+      }
+
+      function appendVoiceControls(container, textarea) {
+        var row = document.createElement("div");
+        row.className = "voice-row";
+        var btnV = document.createElement("button");
+        btnV.type = "button";
+        btnV.className = "btn-voice";
+        btnV.textContent = "音声入力";
+        var hint = document.createElement("p");
+        hint.className = "voice-hint";
+        hint.textContent = "（対応ブラウザではマイクから入力できます。スマホはキーボードの🎤からも可）";
+        btnV.addEventListener("click", function () {
+          var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+          if (!SR) {
+            showToastMessage("このブラウザではWeb音声入力に未対応です。端末の音声入力をご利用ください。", 4000);
+            return;
+          }
+          var rec = new SR();
+          rec.lang = "ja-JP";
+          rec.continuous = false;
+          rec.interimResults = false;
+          btnV.disabled = true;
+          rec.onend = function () {
+            btnV.disabled = false;
+          };
+          rec.onresult = function (e) {
+            var t = "";
+            for (var i = 0; i < e.results.length; i++) {
+              t += e.results[i][0].transcript;
+            }
+            var cur = textarea.value;
+            textarea.value = cur + (cur && /[^\n]$/.test(cur) ? " " : "") + t;
+          };
+          rec.onerror = function () {
+            showToastMessage("音声を認識できませんでした。もう一度お試しください。", 3000);
+            btnV.disabled = false;
+          };
+          rec.start();
+          showToastMessage("マイクに向かってお話しください", 2000);
+        });
+        row.appendChild(btnV);
+        row.appendChild(hint);
+        container.appendChild(row);
+      }
+
+      function renderConsultContentStep() {
+        updateProgressConsultQuiz();
+        elQuestion.textContent = "相談内容をご記入ください";
+        elNavBack.style.display = "flex";
+        elChoices.innerHTML = "";
+        var ta = document.createElement("textarea");
+        ta.className = "field";
+        ta.id = "consult-content";
+        ta.setAttribute("aria-label", "相談内容");
+        ta.value = consultData.content || "";
+        elChoices.appendChild(ta);
+        var h = document.createElement("p");
+        h.className = "hint";
+        h.textContent = "内容は後からでも追記できます。音声入力に対応しています。";
+        elChoices.appendChild(h);
+        appendVoiceControls(elChoices, ta);
+        var row = document.createElement("div");
+        row.className = "nav-row";
+        row.style.marginTop = "1rem";
+        var btnNext = document.createElement("button");
+        btnNext.type = "button";
+        btnNext.className = "btn-primary";
+        btnNext.textContent = "次へ";
+        btnNext.addEventListener("click", function () {
+          var v = ta.value.trim();
+          if (!v) {
+            showToastMessage("相談内容をご記入ください", 2200);
+            return;
+          }
+          consultData.content = v;
+          consultSubStep = 1;
+          renderStep();
+          window.scrollTo(0, 0);
+        });
+        row.appendChild(btnNext);
+        elChoices.appendChild(row);
+      }
+
+      function renderConsultMethodStep() {
+        updateProgressConsultQuiz();
+        elQuestion.textContent = "相談方法をお選びください";
+        elNavBack.style.display = "flex";
+        elChoices.innerHTML = "";
+        var methodOpts = [
+          { key: "メールにて", label: "メールにて" },
+          { key: "オンラインにて", label: "オンラインにて（希望や手段を下にご記入）" },
+          { key: "その他", label: "その他" }
+        ];
+        var selected = consultData.method || "";
+        var wrap = document.createElement("div");
+        wrap.className = "choices";
+        var choiceButtons = [];
+        for (var mi = 0; mi < methodOpts.length; mi++) {
+          (function (mo) {
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "choice-btn";
+            btn.textContent = mo.label;
+            if (mo.key === selected) {
+              btn.classList.add("is-selected");
+            }
+            btn.addEventListener("click", function () {
+              selected = mo.key;
+              consultData.method = selected;
+              for (var kb = 0; kb < choiceButtons.length; kb++) {
+                choiceButtons[kb].classList.remove("is-selected");
+              }
+              btn.classList.add("is-selected");
+              syncMethodExtra();
+            });
+            choiceButtons.push(btn);
+            wrap.appendChild(btn);
+          })(methodOpts[mi]);
+        }
+        elChoices.appendChild(wrap);
+        var extraOnline = document.createElement("div");
+        extraOnline.className = "optional-block";
+        var lo = document.createElement("label");
+        lo.className = "form-label";
+        lo.setAttribute("for", "consult-online-det");
+        lo.textContent = "オンラインのご希望";
+        var txOnline = document.createElement("textarea");
+        txOnline.id = "consult-online-det";
+        txOnline.className = "field";
+        txOnline.rows = 2;
+        txOnline.value = consultData.methodOnlineDetail || "";
+        txOnline.setAttribute("aria-label", "オンラインのご希望");
+        extraOnline.appendChild(lo);
+        extraOnline.appendChild(txOnline);
+        elChoices.appendChild(extraOnline);
+        var extraOther = document.createElement("div");
+        extraOther.className = "optional-block";
+        var loth = document.createElement("label");
+        loth.className = "form-label";
+        loth.setAttribute("for", "consult-other-det");
+        loth.textContent = "その他の内容";
+        var txOther = document.createElement("textarea");
+        txOther.id = "consult-other-det";
+        txOther.className = "field";
+        txOther.rows = 2;
+        txOther.value = consultData.methodOtherDetail || "";
+        txOther.setAttribute("aria-label", "その他の内容");
+        extraOther.appendChild(loth);
+        extraOther.appendChild(txOther);
+        elChoices.appendChild(extraOther);
+        extraOnline.style.display = "none";
+        extraOther.style.display = "none";
+        var timeWrap = document.createElement("div");
+        timeWrap.className = "optional-block";
+        var lt = document.createElement("label");
+        lt.className = "form-label";
+        lt.setAttribute("for", "consult-time");
+        lt.textContent = "都合の良い時間帯";
+        var txTime = document.createElement("textarea");
+        txTime.id = "consult-time";
+        txTime.className = "field";
+        txTime.rows = 2;
+        txTime.value = consultData.timePreference || "";
+        txTime.setAttribute("aria-label", "都合の良い時間帯");
+        timeWrap.appendChild(lt);
+        timeWrap.appendChild(txTime);
+        elChoices.appendChild(timeWrap);
+        function syncMethodExtra() {
+          extraOnline.style.display = selected === "オンラインにて" ? "block" : "none";
+          extraOther.style.display = selected === "その他" ? "block" : "none";
+        }
+        syncMethodExtra();
+        var row = document.createElement("div");
+        row.className = "nav-row";
+        row.style.marginTop = "1rem";
+        var btnNext = document.createElement("button");
+        btnNext.type = "button";
+        btnNext.className = "btn-primary";
+        btnNext.textContent = "次へ";
+        btnNext.addEventListener("click", function () {
+          if (!selected) {
+            showToastMessage("相談方法を1つ選んでください", 2400);
+            return;
+          }
+          consultData.method = selected;
+          consultData.methodOnlineDetail = txOnline.value.trim();
+          consultData.methodOtherDetail = txOther.value.trim();
+          consultData.timePreference = txTime.value.trim();
+          if (selected === "オンラインにて" && !consultData.methodOnlineDetail) {
+            showToastMessage("オンラインのご希望をご記入ください", 2400);
+            return;
+          }
+          if (selected === "その他" && !consultData.methodOtherDetail) {
+            showToastMessage("「その他」の内容をご記入ください", 2400);
+            return;
+          }
+          readConsultEndFormToData();
+          showConsultEndScreen();
+        });
+        row.appendChild(btnNext);
+        elChoices.appendChild(row);
+      }
+
+      function readConsultEndFormToData() {
+        var n = document.getElementById("consult-cust-name");
+        var e = document.getElementById("consult-cust-email");
+        if (n) consultData.name = n.value.trim();
+        if (e) consultData.email = e.value.trim();
+      }
+
+      function showConsultEndScreen() {
+        elQuiz.classList.remove("active");
+        elSummary.classList.remove("active");
+        elCustomer.classList.remove("active");
+        elConsultEnd.classList.add("active");
+        document.getElementById("consult-cust-name").value = consultData.name;
+        document.getElementById("consult-cust-email").value = consultData.email;
+        window.scrollTo(0, 0);
       }
 
       function renderStep() {
+        if (!flowType) {
+          renderIntentStep();
+          return;
+        }
+        if (flowType === "consult") {
+          if (consultSubStep === 0) {
+            renderConsultContentStep();
+            return;
+          }
+          if (consultSubStep === 1) {
+            renderConsultMethodStep();
+            return;
+          }
+        }
+
         var step = STEPS[currentIndex];
-        elStepLabel.textContent = "STEP " + step.id;
         elQuestion.textContent = step.question;
-        setProgress(currentIndex + 1);
-        elNavBack.style.display = currentIndex > 0 ? "flex" : "none";
+        setProgressDevelopQuiz();
+        elNavBack.style.display = "flex";
 
         elChoices.innerHTML = "";
 
@@ -805,6 +1228,9 @@
       }
 
       function goNext() {
+        if (flowType !== "develop") {
+          return;
+        }
         if (currentIndex < STEPS.length - 1) {
           currentIndex++;
           renderStep();
@@ -815,8 +1241,34 @@
       }
 
       function goBack() {
-        if (currentIndex > 0) {
-          currentIndex--;
+        if (!flowType) {
+          return;
+        }
+        if (flowType === "consult") {
+          if (consultSubStep === 0) {
+            flowType = null;
+            consultSubStep = 0;
+            renderStep();
+            window.scrollTo(0, 0);
+            return;
+          }
+          if (consultSubStep === 1) {
+            consultSubStep = 0;
+            renderStep();
+            window.scrollTo(0, 0);
+            return;
+          }
+        }
+        if (flowType === "develop") {
+          if (currentIndex > 0) {
+            currentIndex--;
+            renderStep();
+            window.scrollTo(0, 0);
+            return;
+          }
+          flowType = null;
+          currentIndex = 0;
+          answers = [];
           renderStep();
           window.scrollTo(0, 0);
         }
@@ -825,6 +1277,7 @@
       function showSummary() {
         elQuiz.classList.remove("active");
         elCustomer.classList.remove("active");
+        elConsultEnd.classList.remove("active");
         elSummary.classList.add("active");
         var text = buildSummaryText();
         elSummaryText.textContent = text;
@@ -834,13 +1287,30 @@
       function showQuiz() {
         elSummary.classList.remove("active");
         elCustomer.classList.remove("active");
+        elConsultEnd.classList.remove("active");
         elQuiz.classList.add("active");
       }
 
       function resetAll() {
+        flowType = null;
+        consultSubStep = 0;
+        intentSelection = "";
+        consultData = {
+          content: "",
+          method: "",
+          methodOnlineDetail: "",
+          methodOtherDetail: "",
+          timePreference: "",
+          name: "",
+          email: ""
+        };
         answers = [];
         currentIndex = 0;
         clearCustomerForm();
+        var cne = document.getElementById("consult-cust-name");
+        var cee = document.getElementById("consult-cust-email");
+        if (cne) cne.value = "";
+        if (cee) cee.value = "";
         showQuiz();
         renderStep();
       }
@@ -896,6 +1366,48 @@
       });
 
       elBtnRestart.addEventListener("click", resetAll);
+
+      elBtnConsultEndBack.addEventListener("click", function () {
+        readConsultEndFormToData();
+        consultSubStep = 1;
+        elConsultEnd.classList.remove("active");
+        elQuiz.classList.add("active");
+        renderStep();
+        window.scrollTo(0, 0);
+      });
+
+      elBtnConsultSend.addEventListener("click", function () {
+        readConsultEndFormToData();
+        var n = document.getElementById("consult-cust-name").value.trim();
+        var em = document.getElementById("consult-cust-email").value.trim();
+        if (!n || !em) {
+          showToastMessage("お名前とメールアドレスをご入力ください", 2800);
+          return;
+        }
+        consultData.name = n;
+        consultData.email = em;
+        if (typeof emailjs === "undefined") {
+          alert("送信に失敗しました。もう一度お試しください。");
+          return;
+        }
+        elBtnConsultSend.disabled = true;
+        elBtnConsultSend.textContent = "送信中...";
+        function resetConsultBtn() {
+          elBtnConsultSend.disabled = false;
+          elBtnConsultSend.textContent = "相談内容を送信する";
+        }
+        emailjs
+          .send(EMAIL_SERVICE_ID, EMAIL_TEMPLATE_ID, { message: buildConsultEmailMessage() })
+          .then(function () {
+            alert("送信しました！");
+            resetConsultBtn();
+            resetAll();
+          })
+          .catch(function () {
+            alert("送信に失敗しました。もう一度お試しください。");
+            resetConsultBtn();
+          });
+      });
 
       renderStep();
     })();
