@@ -1019,7 +1019,8 @@
           );
           n = q2Labels.length;
         }
-        var toName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'お客様';
+        var nameTrim = nameInput ? nameInput.value.trim() : '';
+        var toName = nameTrim ? nameTrim + '様' : 'お客様';
         var templateParams = {
           to_name: toName,
           to_email: email,
