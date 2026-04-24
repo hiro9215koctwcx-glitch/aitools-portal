@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script>emailjs.init("X3Au2ue1PZFWu5yq4");</script>
   <style>
     :root {
       --bg: #fafbfc;
@@ -325,6 +327,15 @@
     }
     .diagnosis-result.is-visible { display: block; }
     .result-lead { font-size: 0.85rem; font-weight: 600; color: #1d4ed8; margin-bottom: 0.75rem; }
+    .result-email-status {
+      display: none;
+      font-size: 0.95rem;
+      line-height: 1.75;
+      margin: 0 0 1rem;
+      color: var(--navy-800);
+    }
+    .result-email-status.is-visible { display: block; }
+    .result-email-status.is-error { color: #b91c1c; }
     .result-outcome { margin-bottom: 1.25rem; }
     .result-line { color: var(--navy-800); line-height: 1.8; font-size: 0.95rem; margin: 0; }
     .result-line + .result-time-em { margin-top: 0.35rem; }
@@ -660,6 +671,7 @@
 
         <div class="diagnosis-result" id="diagnosis-result" role="region" aria-live="polite" aria-label="診断結果">
           <p class="result-lead">診断結果</p>
+          <p class="result-email-status" id="result-email-status" role="status" aria-live="polite" hidden></p>
           <div class="result-outcome" id="result-outcome">
             <p class="result-line">あなたの会社では</p>
             <p class="result-time-em" id="result-time-em"></p>
@@ -843,6 +855,10 @@
       var resultPicks = document.getElementById('result-picks');
       var picksHead = document.getElementById('result-picks-head');
       var emailInput = document.getElementById('email-input');
+      var nameInput = document.getElementById('name-input');
+      var submitBtn = document.getElementById('submit-diagnosis');
+      var resultEmailStatus = document.getElementById('result-email-status');
+      var defaultSubmitLabel = '診断結果を見る';
 
       function setProgress(n) {
         if (stepTextEl) {
@@ -912,7 +928,77 @@
       syncNextRadio(3, 'next-3');
       syncNextRadio(4, 'next-4');
 
-      document.getElementById('submit-diagnosis').addEventListener('click', function () {
+      function getDiagnosisResultForEmail(n) {
+        if (n >= 5) {
+          return '多くの業務にムダが発生しています。改善することで毎月20時間以上、時間を生み出せる可能性があります。';
+        }
+        if (n >= 3) {
+          return '複数の業務を改善することで、毎月10〜20時間ほど時間を生み出せる可能性があります。';
+        }
+        return '業務の一部を改善することで、毎月5〜10時間ほど時間を生み出せる可能性があります。';
+      }
+
+      function applyResultContent() {
+        var n = q2Labels.length;
+        if (n <= 0) {
+          q2Labels = Array.prototype.map.call(
+            document.querySelectorAll('#q2-group input[name="q2"]:checked'),
+            function (el) { return el.value; }
+          );
+          n = q2Labels.length;
+        }
+        var timePhrase;
+        if (n >= 5) {
+          timePhrase = '毎月20時間以上';
+        } else if (n >= 3) {
+          timePhrase = '毎月10〜20時間ほど';
+        } else {
+          timePhrase = '毎月5〜10時間ほど';
+        }
+        if (resultTimeEl) {
+          resultTimeEl.textContent = timePhrase;
+        }
+        if (resultPicks) {
+          resultPicks.innerHTML = '';
+          q2Labels.forEach(function (label) {
+            var li = document.createElement('li');
+            li.textContent = '・' + label;
+            resultPicks.appendChild(li);
+          });
+        }
+        if (picksHead) {
+          picksHead.style.display = q2Labels.length ? 'block' : 'none';
+        }
+        if (resultPicks) {
+          resultPicks.style.display = q2Labels.length ? 'block' : 'none';
+        }
+      }
+
+      function showResultView() {
+        formWrap.classList.add('is-hidden');
+        if (progressWrap) {
+          progressWrap.classList.add('is-hidden');
+        }
+        resultEl.classList.add('is-visible');
+        resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function setEmailStatusSuccess() {
+        if (!resultEmailStatus) return;
+        resultEmailStatus.textContent = 'ありがとうございます！診断結果を24時間以内にメールでお送りします。';
+        resultEmailStatus.classList.add('is-visible');
+        resultEmailStatus.classList.remove('is-error');
+        resultEmailStatus.removeAttribute('hidden');
+      }
+
+      function setEmailStatusError() {
+        if (!resultEmailStatus) return;
+        resultEmailStatus.textContent = '送信に失敗しました。もう一度お試しください。';
+        resultEmailStatus.classList.add('is-visible', 'is-error');
+        resultEmailStatus.removeAttribute('hidden');
+      }
+
+      submitBtn.addEventListener('click', function () {
         var email = emailInput ? emailInput.value.trim() : '';
         var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!email) {
@@ -933,34 +1019,38 @@
           );
           n = q2Labels.length;
         }
-        var timePhrase;
-        if (n >= 5) {
-          timePhrase = '毎月20時間以上';
-        } else if (n >= 3) {
-          timePhrase = '毎月10〜20時間ほど';
-        } else {
-          timePhrase = '毎月5〜10時間ほど';
-        }
-        if (resultTimeEl) {
-          resultTimeEl.textContent = timePhrase;
-        }
-        resultPicks.innerHTML = '';
-        q2Labels.forEach(function (label) {
-          var li = document.createElement('li');
-          li.textContent = '・' + label;
-          resultPicks.appendChild(li);
-        });
-        if (picksHead) {
-          picksHead.style.display = q2Labels.length ? 'block' : 'none';
-        }
-        resultPicks.style.display = q2Labels.length ? 'block' : 'none';
+        var toName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'お客様';
+        var templateParams = {
+          to_name: toName,
+          to_email: email,
+          diagnosis_result: getDiagnosisResultForEmail(n)
+        };
 
-        formWrap.classList.add('is-hidden');
-        if (progressWrap) {
-          progressWrap.classList.add('is-hidden');
+        if (typeof emailjs === 'undefined' || !emailjs.send) {
+          applyResultContent();
+          setEmailStatusError();
+          showResultView();
+          return;
         }
-        resultEl.classList.add('is-visible');
-        resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        submitBtn.textContent = '送信中...';
+        submitBtn.disabled = true;
+
+        emailjs.send('service_c5okgq5', 'template_p5ohlro', templateParams)
+          .then(function () {
+            applyResultContent();
+            setEmailStatusSuccess();
+            showResultView();
+          })
+          .catch(function () {
+            applyResultContent();
+            setEmailStatusError();
+            showResultView();
+          })
+          .finally(function () {
+            submitBtn.textContent = defaultSubmitLabel;
+            submitBtn.disabled = false;
+          });
       });
 
       document.querySelectorAll('[data-back]').forEach(function (btn) {
