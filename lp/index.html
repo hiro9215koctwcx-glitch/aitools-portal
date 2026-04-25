@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <script>emailjs.init("X3Au2ue1PZFWu5yq4");</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg: #fafbfc;
@@ -859,6 +860,19 @@
       var submitBtn = document.getElementById('submit-diagnosis');
       var resultEmailStatus = document.getElementById('result-email-status');
       var defaultSubmitLabel = '診断結果を見る';
+      var supaClient = (function initSupa() {
+        try {
+          if (typeof supabase !== 'undefined' && typeof supabase.createClient === 'function') {
+            return supabase.createClient(
+              'https://qasetyuetdsnodhajgcv.supabase.co',
+              'sb_publishable_hKF8FDCjbpWoAy_v_Zur5Q_7fkullOa'
+            );
+          }
+        } catch (e) {
+          console.error('Supabase init failed', e);
+        }
+        return null;
+      })();
 
       function setProgress(n) {
         if (stepTextEl) {
@@ -1021,10 +1035,32 @@
         }
         var nameTrim = nameInput ? nameInput.value.trim() : '';
         var toName = nameTrim ? nameTrim + '様' : 'お客様';
+        var resultText = getDiagnosisResultForEmail(n);
+        var q1Checked = document.querySelector('input[name="q1"]:checked');
+        var industryVal = q1Checked ? q1Checked.value : '';
+        if (supaClient) {
+          supaClient
+            .from('diagnoses')
+            .insert({
+              industry: industryVal,
+              tasks: q2Labels.join(','),
+              email: email,
+              name: nameTrim,
+              result: resultText
+            })
+            .then(function (res) {
+              if (res && res.error) {
+                console.error('Supabase save failed', res.error);
+              }
+            })
+            .catch(function (err) {
+              console.error('Supabase save failed', err);
+            });
+        }
         var templateParams = {
           to_name: toName,
           to_email: email,
-          diagnosis_result: getDiagnosisResultForEmail(n)
+          diagnosis_result: resultText
         };
 
         if (typeof emailjs === 'undefined' || !emailjs.send) {
