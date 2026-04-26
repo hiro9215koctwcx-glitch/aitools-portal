@@ -410,6 +410,159 @@
     .case-before { color: var(--muted); margin-bottom: 0.25rem; }
     .case-after { color: var(--navy-800); font-weight: 500; }
 
+    /* Companion, consult grid, service flow */
+    #companion, #consult-topics, #service-flow { scroll-margin-top: 80px; }
+    .companion__lead {
+      text-align: center;
+      color: var(--navy-800);
+      font-size: 0.98rem;
+      line-height: 1.9;
+      max-width: 40em;
+      margin: 0 auto 2.5rem;
+    }
+    .companion__card-wrap { max-width: 520px; margin: 0 auto 1.5rem; }
+    .companion__card {
+      background: var(--navy-900);
+      color: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      padding: clamp(1.75rem, 4vw, 2.25rem) clamp(1.5rem, 4vw, 2rem) 1.75rem;
+      text-align: center;
+    }
+    .companion__badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.35em 0.9em;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+      letter-spacing: 0.04em;
+    }
+    .companion__card-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; line-height: 1.4; }
+    .companion__price { font-size: clamp(1.35rem, 3.5vw, 1.75rem); font-weight: 800; margin-bottom: 0.35rem; }
+    .companion__price-sub { font-size: 0.88rem; opacity: 0.9; margin-bottom: 1.35rem; }
+    .companion__list {
+      list-style: none;
+      text-align: left;
+      max-width: 20rem;
+      margin: 0 auto 1.25rem;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+    .companion__list li { position: relative; padding-left: 1.4em; margin-bottom: 0.55rem; }
+    .companion__list li::before {
+      content: "✔";
+      position: absolute;
+      left: 0;
+      color: #7dd3fc;
+      font-size: 0.85em;
+    }
+    .companion__outro { font-size: 0.95rem; line-height: 1.8; color: var(--navy-800); text-align: center; max-width: 28em; margin: 0 auto 1.5rem; }
+    .companion__legal { font-size: 0.78rem; line-height: 1.7; color: #94a3b8; text-align: left; max-width: 28em; margin: 0 auto; }
+    .consult-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem 1.25rem;
+      max-width: 960px;
+      margin: 0 auto 1.75rem;
+    }
+    @media (max-width: 900px) {
+      .consult-grid { grid-template-columns: 1fr; }
+    }
+    .consult-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.1rem 1.1rem 1rem;
+      box-shadow: var(--shadow);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .consult-card:hover { background: var(--soft); border-color: #cbd5e1; }
+    .consult-card__ico { flex-shrink: 0; font-size: 1.25rem; line-height: 1.4; }
+    .consult-card p { font-size: 0.92rem; color: var(--navy-800); margin: 0; line-height: 1.6; }
+    .consult__foot { text-align: center; color: var(--navy-800); font-size: 0.95rem; line-height: 1.85; max-width: 32em; margin: 0 auto; }
+    .flow-steps { max-width: 640px; margin: 0 auto; }
+    .flow-step__card {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.35rem 1.4rem;
+      box-shadow: var(--shadow);
+    }
+    .flow-step--featured .flow-step__card { border-color: #cbd5e1; padding-right: 5rem; }
+    .flow-step__badge {
+      position: absolute;
+      top: 0.85rem;
+      right: 1rem;
+      background: var(--navy-800);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.3em 0.65em;
+      border-radius: 6px;
+    }
+    .flow-step__num { font-size: 0.75rem; font-weight: 600; color: var(--accent); letter-spacing: 0.05em; margin-bottom: 0.35rem; }
+    .flow-step__name { font-size: 1.05rem; font-weight: 700; color: var(--navy-900); margin-bottom: 0.4rem; }
+    .flow-step__price { font-size: 0.95rem; font-weight: 600; color: var(--navy-800); margin-bottom: 0.5rem; }
+    .flow-step__desc, .flow-step__note { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+    .flow-step__desc { color: var(--navy-800); margin-bottom: 0.35rem; }
+    .flow-step__arrow {
+      text-align: center;
+      font-size: 1.5rem;
+      line-height: 1;
+      color: var(--muted);
+      padding: 0.4rem 0 0.55rem;
+      font-weight: 500;
+    }
+    .flow-foot { text-align: center; color: var(--navy-800); font-size: 0.95rem; line-height: 1.8; max-width: 32em; margin: 0 auto 2rem; }
+    .flow-cta { max-width: 420px; margin: 0 auto; }
+    .flow-cta__main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 16px 22px;
+      font-size: 1.02rem;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      color: #fff;
+      background: var(--navy-800);
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      font-family: inherit;
+      border: 2px solid var(--navy-800);
+      transition: background 0.2s, transform 0.15s;
+    }
+    .flow-cta__main:hover { background: var(--navy-700); color: #fff; text-decoration: none; transform: translateY(-2px); }
+    .flow-cta__main-note { font-size: 0.8rem; color: var(--muted); text-align: center; margin: 0.4rem 0 1.1rem; }
+    .flow-cta__sub {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      color: var(--navy-800);
+      background: #fff;
+      border: 2px solid var(--line);
+      border-radius: 999px;
+      font-family: inherit;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .flow-cta__sub:hover { border-color: var(--navy-800); text-decoration: none; color: var(--navy-800); }
+    .flow-cta__sub-note { font-size: 0.8rem; color: var(--muted); text-align: center; margin: 0.4rem 0 0.85rem; }
+    .flow-cta__common { font-size: 0.86rem; color: var(--muted); line-height: 1.75; text-align: center; }
+
     /* Table */
     .price-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .price-table {
@@ -747,6 +900,105 @@
     </div>
   </section>
 
+  <section id="companion" aria-labelledby="companion-title">
+    <div class="container">
+      <h2 id="companion-title" class="section-title">AI伴走サポート</h2>
+      <p class="companion__lead">
+        『詳しい人が社内にいたら&hellip;』<br />
+        そう思ったことはありませんか？<br />
+        難しいITコンサルではありません。<br />
+        あなたの会社の相談相手として、<br />
+        一緒に歩んでいきます。
+      </p>
+      <div class="companion__card-wrap">
+        <div class="companion__card" role="group" aria-label="AI伴走サポート人気プラン">
+          <span class="companion__badge">人気プラン</span>
+          <p class="companion__card-title">AI伴走サポート</p>
+          <p class="companion__price">月額 19,800円</p>
+          <p class="companion__price-sub">いつでも解約できます</p>
+          <ul class="companion__list">
+            <li>月2回（45分）オンライン相談</li>
+            <li>AIツール選定サポート</li>
+            <li>業務改善アドバイス</li>
+            <li>チャット相談（月5回まで）</li>
+            <li>月1回の改善提案レポート</li>
+          </ul>
+        </div>
+      </div>
+      <p class="companion__outro">難しいITコンサルではありません。<br />あなたの会社の相談相手です。</p>
+      <p class="companion__legal">
+        ※最低契約期間なし。合わなければいつでも終了できます。<br />
+        ※まずは単発相談からお試しいただけます。
+      </p>
+    </div>
+  </section>
+
+  <section id="consult-topics" aria-labelledby="consult-topics-title">
+    <div class="container">
+      <h2 id="consult-topics-title" class="section-title">こんな相談ができます</h2>
+      <p class="section-sub" style="margin-bottom:2rem;">&nbsp;</p>
+      <div class="consult-grid">
+        <div class="consult-card"><span class="consult-card__ico" aria-hidden="true">💬</span><p>自分の仕事にAIをどう使えるか知りたい</p></div>
+        <div class="consult-card"><span class="consult-card__ico" aria-hidden="true">💬</span><p>ChatGPTとClaudeの違いを知りたい</p></div>
+        <div class="consult-card"><span class="consult-card__ico" aria-hidden="true">💬</span><p>毎日の事務作業を少し減らしたい</p></div>
+        <div class="consult-card"><span class="consult-card__ico" aria-hidden="true">💬</span><p>どのAIツールを選べばいいかわからない</p></div>
+        <div class="consult-card"><span class="consult-card__ico" aria-hidden="true">💬</span><p>小さな自動化から始めてみたい</p></div>
+        <div class="consult-card"><span class="consult-card__ico" aria-hidden="true">💬</span><p>スタッフへのAI導入の進め方を知りたい</p></div>
+      </div>
+      <p class="consult__foot">
+        &ldquo;こんな相談していいのかな&rdquo;と思うことが<br />
+        実は一番大事な課題だったりします。
+      </p>
+    </div>
+  </section>
+
+  <section id="service-flow" aria-labelledby="service-flow-title">
+    <div class="container">
+      <h2 id="service-flow-title" class="section-title">小さく始めて、必要なら深く支援します。</h2>
+      <p class="section-sub" style="margin-bottom:2rem;">&nbsp;</p>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-step__card">
+            <p class="flow-step__num">STEP 1</p>
+            <p class="flow-step__name">単発相談</p>
+            <p class="flow-step__price">60分 / 5,000円〜</p>
+            <p class="flow-step__desc">「まず話を聞いてほしい」という方へ</p>
+            <p class="flow-step__note">オンライン（Zoom等）またはメール対応</p>
+          </div>
+        </div>
+        <p class="flow-step__arrow" aria-hidden="true">↓</p>
+        <div class="flow-step flow-step--featured">
+          <div class="flow-step__card">
+            <span class="flow-step__badge" aria-label="おすすめ">おすすめ</span>
+            <p class="flow-step__num">STEP 2</p>
+            <p class="flow-step__name">AI伴走サポート（月額）</p>
+            <p class="flow-step__price">月額 19,800円〜</p>
+            <p class="flow-step__desc">「継続的に相談できる人が欲しい」という方へ</p>
+            <p class="flow-step__note">月2回の相談＋チャットサポート付き</p>
+          </div>
+        </div>
+        <p class="flow-step__arrow" aria-hidden="true">↓</p>
+        <div class="flow-step">
+          <div class="flow-step__card">
+            <p class="flow-step__num">STEP 3</p>
+            <p class="flow-step__name">実装支援</p>
+            <p class="flow-step__price">5万円〜</p>
+            <p class="flow-step__desc">「実際にツールやシステムを作りたい」という方へ</p>
+            <p class="flow-step__note">要件定義から納品まで一貫サポート</p>
+          </div>
+        </div>
+      </div>
+      <p class="flow-foot">どのステップからでも始められます。<br />無理に次のステップを勧めることはありません。</p>
+      <div class="flow-cta">
+        <a class="flow-cta__main" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">まずは単発相談を試してみる</a>
+        <p class="flow-cta__main-note">60分 / 5,000円〜・オンラインで完結</p>
+        <a class="flow-cta__sub" href="#診断">無料診断を受けてみる</a>
+        <p class="flow-cta__sub-note">3分で業務改善のポイントがわかります</p>
+        <p class="flow-cta__common">無理な営業は一切しません。<br />&ldquo;話を聞くだけ&rdquo;でも大歓迎です。</p>
+      </div>
+    </div>
+  </section>
+
   <section id="pricing" aria-labelledby="pricing-title">
     <div class="container">
       <h2 id="pricing-title" class="section-title">料金の目安</h2>
@@ -789,10 +1041,10 @@
           />
         </div>
         <div class="intro-block__text">
-          <p>小さな会社ほど毎日忙しく、<br />『改善したいけど手が回らない』<br />という悩みを抱えています。</p>
-          <p>私は、AIを使って<br />そんな人の時間を増やしたいと思っています。</p>
-          <p>難しいITではなく<br />&ldquo;今あるムダを減らすこと&rdquo;<br />を大切にしています。</p>
-          <p>小さな相談からでも<br />一緒に改善していけたら嬉しいです。</p>
+          <p>多くの会社は毎日忙しく、<br />『改善したいけど手が回らない』<br />という悩みを抱えています。</p>
+          <p>私がやりたいのは、<br />AIそのものを売ることではありません。<br />人の時間を増やすことです。</p>
+          <p>システムを押しつけるのではなく、<br />『困ったときに相談できる人』として<br />そばにいたいと思っています。</p>
+          <p>規模は関係ありません。<br />会社も、個人事業主も、<br />AIで大きく変われると、本気で信じています。</p>
         </div>
       </div>
     </div>
