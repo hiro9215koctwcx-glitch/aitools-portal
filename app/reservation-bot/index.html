@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ご予約 | デモ店舗</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&family=Noto+Serif+JP:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1c1917;
+      --ink-soft: #44403c;
+      --paper: #faf8f5;
+      --paper-deep: #f0ebe3;
+      --accent: #7c6a58;
+      --accent-light: #a89882;
+      --border: #d6cfc4;
+      --success: #3f6212;
+      --warn: #b45309;
+      --muted: #78716c;
+      --radius: 10px;
+      --shadow: 0 8px 24px rgba(28, 25, 23, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans JP", system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--ink);
+      background: linear-gradient(165deg, var(--paper) 0%, #ebe6dc 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 3rem;
+    }
+
+    header {
+      text-align: center;
+      padding: 1.5rem 0 1.25rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+
+    header h1 {
+      font-family: "Noto Serif JP", serif;
+      font-weight: 700;
+      font-size: clamp(1.35rem, 5vw, 1.6rem);
+      letter-spacing: 0.12em;
+      margin: 0 0 0.35rem;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.15rem;
+      margin-bottom: 1.1rem;
+      box-shadow: var(--shadow);
+    }
+
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .cal-nav h2 {
+      font-family: "Noto Serif JP", serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    button.nav-btn {
+      font-family: inherit;
+      border: 1px solid var(--border);
+      background: var(--paper-deep);
+      color: var(--ink);
+      padding: 0.45rem 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    button.nav-btn:hover:not(:disabled) {
+      background: #e5dfd3;
+    }
+
+    button.nav-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 6px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .cal-cell {
+      aspect-ratio: 1;
+      min-height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      color: var(--ink);
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .cal-cell.muted {
+      color: #a8a29e;
+      background: #f5f5f4;
+      cursor: default;
+    }
+
+    .cal-cell.today {
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .cal-cell.selected {
+      background: #ede8df;
+      border-color: var(--accent);
+    }
+
+    .cal-cell.has-open::after {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      margin-top: 2px;
+    }
+
+    .cal-cell.all-full {
+      opacity: 0.65;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1rem;
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      margin-top: 0.65rem;
+    }
+
+    .slots-title {
+      font-family: "Noto Serif JP", serif;
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.65rem;
+    }
+
+    .slot-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .slot-btn {
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .slot-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: #faf9f6;
+    }
+
+    .slot-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .slot-btn.selected-slot {
+      border-color: var(--accent);
+      background: #f4f0e8;
+    }
+
+    .badge {
+      font-size: 1.05rem;
+      font-weight: 600;
+      min-width: 1.5em;
+      text-align: center;
+    }
+
+    .badge.ok { color: var(--success); }
+    .badge.low { color: var(--warn); }
+    .badge.no { color: #991b1b; }
+
+    .form-group {
+      margin-bottom: 0.9rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--ink-soft);
+      margin-bottom: 0.3rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 0.65rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .form-group input:focus {
+      outline: 2px solid var(--accent-light);
+      outline-offset: 1px;
+    }
+
+    .submit-row {
+      margin-top: 1rem;
+    }
+
+    .btn-primary {
+      width: 100%;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.85rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #6b5c4d;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .msg {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .msg.show {
+      display: block;
+    }
+
+    .msg.error {
+      background: #fef2f2;
+      color: #7f1d1d;
+      border: 1px solid #fecaca;
+    }
+
+    .msg.success {
+      background: #f0fdf4;
+      color: #14532d;
+      border: 1px solid #bbf7d0;
+    }
+
+    .msg.info {
+      background: #f8fafc;
+      color: var(--ink-soft);
+      border: 1px solid var(--border);
+    }
+
+    .loading {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      padding: 0.5rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .selected-summary {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>ご予約</h1>
+      <p id="storeLabel">—</p>
+    </header>
+
+    <div id="globalError" class="msg error" role="alert"></div>
+
+    <section class="panel" aria-labelledby="cal-heading">
+      <div class="cal-nav">
+        <button type="button" class="nav-btn" id="prevMonth" aria-label="前の月">‹</button>
+        <h2 id="cal-heading"></h2>
+        <button type="button" class="nav-btn" id="nextMonth" aria-label="次の月">›</button>
+      </div>
+      <div id="calendarLoading" class="loading hidden">読み込み中…</div>
+      <div class="cal-weekdays" aria-hidden="true">
+        <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
+      </div>
+      <div class="cal-grid" id="calGrid" role="grid"></div>
+      <div class="legend">
+        <span><span class="badge ok">○</span> 空き十分（2席以上）</span>
+        <span><span class="badge low">△</span> 残り1席</span>
+        <span><span class="badge no">×</span> 満席・休止</span>
+      </div>
+    </section>
+
+    <section class="panel hidden" id="slotsPanel" aria-live="polite">
+      <h3 class="slots-title" id="slotsTitle">時間をお選びください</h3>
+      <div id="slotsLoading" class="loading hidden">読み込み中…</div>
+      <div class="slot-list" id="slotList"></div>
+    </section>
+
+    <section class="panel hidden" id="formPanel">
+      <p class="selected-summary" id="selectedSummary"></p>
+      <form id="reservationForm" novalidate>
+        <div class="form-group">
+          <label for="guestName">お名前</label>
+          <input id="guestName" name="name" type="text" autocomplete="name" required maxlength="80" />
+        </div>
+        <div class="form-group">
+          <label for="guestPhone">電話番号</label>
+          <input id="guestPhone" name="phone" type="tel" autocomplete="tel" required maxlength="30" />
+        </div>
+        <div class="form-group">
+          <label for="guestCount">人数</label>
+          <input id="guestCount" name="guests" type="number" inputmode="numeric" min="1" max="50" required />
+        </div>
+        <div class="submit-row">
+          <button type="submit" class="btn-primary" id="submitBtn">予約を送信</button>
+        </div>
+      </form>
+      <div id="formMsg" class="msg success" role="status"></div>
+      <div id="formError" class="msg error" role="alert"></div>
+    </section>
+
+    <footer>お問い合わせはお電話でも承ります。</footer>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+
+    const SUPABASE_URL = "https://qasetyuetdsnodhajgcv.supabase.co"
+    const SUPABASE_ANON_KEY = "sb_publishable_hKF8FDCjbpWoAy_v_Zur5Q_7fkullOa"
+    const STORE_NAME = "デモ店舗"
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+    const els = {
+      storeLabel: document.getElementById("storeLabel"),
+      globalError: document.getElementById("globalError"),
+      calHeading: document.getElementById("cal-heading"),
+      prevMonth: document.getElementById("prevMonth"),
+      nextMonth: document.getElementById("nextMonth"),
+      calGrid: document.getElementById("calGrid"),
+      calendarLoading: document.getElementById("calendarLoading"),
+      slotsPanel: document.getElementById("slotsPanel"),
+      slotsTitle: document.getElementById("slotsTitle"),
+      slotsLoading: document.getElementById("slotsLoading"),
+      slotList: document.getElementById("slotList"),
+      formPanel: document.getElementById("formPanel"),
+      selectedSummary: document.getElementById("selectedSummary"),
+      form: document.getElementById("reservationForm"),
+      guestName: document.getElementById("guestName"),
+      guestPhone: document.getElementById("guestPhone"),
+      guestCount: document.getElementById("guestCount"),
+      submitBtn: document.getElementById("submitBtn"),
+      formMsg: document.getElementById("formMsg"),
+      formError: document.getElementById("formError"),
+    }
+
+    els.storeLabel.textContent = STORE_NAME
+
+    let viewYear = new Date().getFullYear()
+    let viewMonth = new Date().getMonth()
+    let selectedDate = null
+    let selectedTime = null
+    let monthAvailability = []
+    let slotDayAvailability = []
+
+    function pad2(n) {
+      return String(n).padStart(2, "0")
+    }
+
+    function toDateStr(d) {
+      return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+    }
+
+    function parseDateStr(s) {
+      const [y, m, d] = s.split("-").map(Number)
+      return new Date(y, m - 1, d)
+    }
+
+    function showGlobalError(text) {
+      els.globalError.textContent = text
+      els.globalError.classList.add("show")
+    }
+
+    function clearGlobalError() {
+      els.globalError.textContent = ""
+      els.globalError.classList.remove("show")
+    }
+
+    function monthRange(year, month) {
+      const first = new Date(year, month, 1)
+      const last = new Date(year, month + 1, 0)
+      return { start: toDateStr(first), end: toDateStr(last) }
+    }
+
+    function summarizeDay(slots) {
+      if (!slots.length) return { hasOpen: false, allFull: true }
+      let hasOpen = false
+      let allFull = true
+      for (const row of slots) {
+        const open = row.is_open !== false
+        const seats = Number(row.available_seats)
+        if (open && seats > 0) {
+          hasOpen = true
+          allFull = false
+        }
+      }
+      return { hasOpen, allFull: !hasOpen }
+    }
+
+    function slotSymbol(row) {
+      if (row.is_open === false) return { sym: "×", cls: "no" }
+      const seats = Number(row.available_seats)
+      if (seats >= 2) return { sym: "○", cls: "ok" }
+      if (seats === 1) return { sym: "△", cls: "low" }
+      return { sym: "×", cls: "no" }
+    }
+
+    function timeSortKey(t) {
+      return String(t || "")
+        .replace(/:/g, "")
+        .padStart(6, "0")
+    }
+
+    /** @param {unknown} t */
+    function normalizeTimeValue(t) {
+      if (t == null) return ""
+      const s = String(t)
+      const m = s.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?/)
+      if (!m) return s
+      const h = m[1].padStart(2, "0")
+      const min = m[2]
+      const sec = m[3] != null ? m[3] : "00"
+      return `${h}:${min}:${sec}`
+    }
+
+    function timesEqual(a, b) {
+      return normalizeTimeValue(a) === normalizeTimeValue(b)
+    }
+
+    async function loadMonthAvailability() {
+      clearGlobalError()
+      els.calendarLoading.classList.remove("hidden")
+      const { start, end } = monthRange(viewYear, viewMonth)
+      const { data, error } = await db
+        .from("availability")
+        .select("id, date, time, max_seats, available_seats, is_open")
+        .gte("date", start)
+        .lte("date", end)
+        .order("date", { ascending: true })
+        .order("time", { ascending: true })
+
+      els.calendarLoading.classList.add("hidden")
+      if (error) {
+        showGlobalError(`カレンダーの読み込みに失敗しました：${error.message}`)
+        monthAvailability = []
+        return
+      }
+      monthAvailability = data || []
+      renderCalendar()
+    }
+
+    function rowsForDate(dateStr) {
+      return monthAvailability.filter((r) => r.date === dateStr)
+    }
+
+    function renderCalendar() {
+      const title = new Date(viewYear, viewMonth, 1).toLocaleDateString("ja-JP", {
+        year: "numeric",
+        month: "long",
+      })
+      els.calHeading.textContent = title
+
+      const firstDow = new Date(viewYear, viewMonth, 1).getDay()
+      const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
+      const today = new Date()
+      const todayStr = toDateStr(today)
+
+      els.calGrid.replaceChildren()
+      const grouped = new Map()
+      for (const row of monthAvailability) {
+        if (!grouped.has(row.date)) grouped.set(row.date, [])
+        grouped.get(row.date).push(row)
+      }
+
+      for (let i = 0; i < firstDow; i++) {
+        const cell = document.createElement("div")
+        cell.className = "cal-cell muted"
+        els.calGrid.appendChild(cell)
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const d = new Date(viewYear, viewMonth, day)
+        const dateStr = toDateStr(d)
+        const cell = document.createElement("button")
+        cell.type = "button"
+        cell.className = "cal-cell"
+        cell.setAttribute("role", "gridcell")
+        cell.textContent = String(day)
+
+        if (dateStr === todayStr) cell.classList.add("today")
+
+        const rows = grouped.get(dateStr) || []
+        const { hasOpen, allFull } = summarizeDay(rows)
+
+        if (rows.length && hasOpen) cell.classList.add("has-open")
+        if (rows.length && allFull) cell.classList.add("all-full")
+
+        const past =
+          d <
+          new Date(today.getFullYear(), today.getMonth(), today.getDate())
+        if (past) {
+          cell.classList.add("muted")
+          cell.disabled = true
+        } else {
+          cell.addEventListener("click", () => onSelectDate(dateStr))
+        }
+
+        if (selectedDate === dateStr) cell.classList.add("selected")
+        els.calGrid.appendChild(cell)
+      }
+
+      refreshNavButtons()
+    }
+
+    function refreshNavButtons() {
+      const now = new Date()
+      const minYM = new Date(now.getFullYear(), now.getMonth(), 1)
+      const view = new Date(viewYear, viewMonth, 1)
+      els.prevMonth.disabled = view <= minYM
+    }
+
+    async function onSelectDate(dateStr) {
+      selectedDate = dateStr
+      selectedTime = null
+      els.formMsg.classList.remove("show")
+      els.formError.classList.remove("show")
+      els.formPanel.classList.add("hidden")
+      els.slotsPanel.classList.remove("hidden")
+      renderCalendar()
+
+      const label = parseDateStr(dateStr).toLocaleDateString("ja-JP", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "short",
+      })
+      els.slotsTitle.textContent = `${label} の時間帯`
+
+      clearGlobalError()
+      els.slotsLoading.classList.remove("hidden")
+      els.slotList.replaceChildren()
+
+      let rows = rowsForDate(dateStr)
+      if (!rows.length) {
+        const { data, error } = await db
+          .from("availability")
+          .select("id, date, time, max_seats, available_seats, is_open")
+          .eq("date", dateStr)
+          .order("time", { ascending: true })
+
+        if (error) {
+          els.slotsLoading.classList.add("hidden")
+          showGlobalError(`時間帯の取得に失敗しました：${error.message}`)
+          return
+        }
+        rows = data || []
+      }
+      els.slotsLoading.classList.add("hidden")
+
+      if (!rows.length) {
+        const p = document.createElement("p")
+        p.className = "msg info show"
+        p.style.display = "block"
+        p.textContent = "この日の空き枠はまだありません。別の日をお選びください。"
+        els.slotList.appendChild(p)
+        return
+      }
+
+      const sorted = rows.slice().sort((a, b) => {
+        return timeSortKey(a.time).localeCompare(timeSortKey(b.time))
+      })
+      slotDayAvailability = sorted
+
+      for (const row of sorted) {
+        const { sym, cls } = slotSymbol(row)
+        const btn = document.createElement("button")
+        btn.type = "button"
+        btn.className = "slot-btn"
+        const timeLabel = formatTimeLabel(row.time)
+        btn.innerHTML = `<span>${escapeHtml(timeLabel)}</span><span class="badge ${cls}" aria-hidden="true">${sym}</span>`
+
+        const bookable = row.is_open !== false && Number(row.available_seats) > 0
+        if (!bookable) btn.disabled = true
+        else {
+          btn.addEventListener("click", () => selectSlot(row, btn))
+        }
+        els.slotList.appendChild(btn)
+      }
+    }
+
+    function formatTimeLabel(t) {
+      if (t == null) return "—"
+      const s = String(t)
+      const m = s.match(/^(\d{1,2}):(\d{2})/)
+      if (m) return `${m[1]}:${m[2]}`
+      return s
+    }
+
+    function escapeHtml(s) {
+      const div = document.createElement("div")
+      div.textContent = s
+      return div.innerHTML
+    }
+
+    function selectSlot(row, btnEl) {
+      selectedTime = row.time
+      document.querySelectorAll(".slot-btn.selected-slot").forEach((b) => {
+        b.classList.remove("selected-slot")
+      })
+      btnEl.classList.add("selected-slot")
+
+      const dLabel = parseDateStr(selectedDate).toLocaleDateString("ja-JP", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "short",
+      })
+      els.selectedSummary.textContent = `${dLabel} ${formatTimeLabel(row.time)} 〜`
+      els.formPanel.classList.remove("hidden")
+      els.formMsg.classList.remove("show")
+      els.formError.classList.remove("show")
+      els.form.scrollIntoView({ behavior: "smooth", block: "nearest" })
+    }
+
+    els.prevMonth.addEventListener("click", () => {
+      if (viewMonth === 0) {
+        viewMonth = 11
+        viewYear -= 1
+      } else {
+        viewMonth -= 1
+      }
+      selectedDate = null
+      selectedTime = null
+      els.slotsPanel.classList.add("hidden")
+      els.formPanel.classList.add("hidden")
+      loadMonthAvailability()
+    })
+
+    els.nextMonth.addEventListener("click", () => {
+      if (viewMonth === 11) {
+        viewMonth = 0
+        viewYear += 1
+      } else {
+        viewMonth += 1
+      }
+      selectedDate = null
+      selectedTime = null
+      els.slotsPanel.classList.add("hidden")
+      els.formPanel.classList.add("hidden")
+      loadMonthAvailability()
+    })
+
+    els.form.addEventListener("submit", async (e) => {
+      e.preventDefault()
+      els.formError.classList.remove("show")
+      els.formMsg.classList.remove("show")
+
+      if (!selectedDate || selectedTime == null) {
+        els.formError.textContent = "日付と時間帯を選択してください。"
+        els.formError.classList.add("show")
+        return
+      }
+
+      const name = els.guestName.value.trim()
+      const phone = els.guestPhone.value.trim()
+      const guests = parseInt(els.guestCount.value, 10)
+
+      if (!name) {
+        els.formError.textContent = "お名前を入力してください。"
+        els.formError.classList.add("show")
+        return
+      }
+      if (!phone) {
+        els.formError.textContent = "電話番号を入力してください。"
+        els.formError.classList.add("show")
+        return
+      }
+      if (!Number.isFinite(guests) || guests < 1 || guests > 50) {
+        els.formError.textContent = "人数は1〜50で入力してください。"
+        els.formError.classList.add("show")
+        return
+      }
+
+      const row = slotDayAvailability.find((r) => timesEqual(r.time, selectedTime))
+      if (row) {
+        if (row.is_open === false) {
+          els.formError.textContent = "この時間帯は現在ご予約を受け付けておりません。"
+          els.formError.classList.add("show")
+          return
+        }
+        if (Number(row.available_seats) < guests) {
+          els.formError.textContent = "空き席が足りません。人数を変更するか、別の時間帯をお選びください。"
+          els.formError.classList.add("show")
+          return
+        }
+      }
+
+      els.submitBtn.disabled = true
+      try {
+        const insertPayload = {
+          name,
+          phone,
+          date: selectedDate,
+          time: selectedTime,
+          guests,
+          status: "pending",
+          store_name: STORE_NAME,
+        }
+
+        const { error: insErr } = await db.from("reservations").insert(insertPayload)
+        if (insErr) throw insErr
+
+        if (row && row.id != null) {
+          const nextSeats = Math.max(0, Number(row.available_seats) - guests)
+          await db
+            .from("availability")
+            .update({ available_seats: nextSeats })
+            .eq("id", row.id)
+        }
+
+        els.formMsg.textContent = "予約を受け付けました。担当者よりご連絡いたします。"
+        els.formMsg.classList.add("show")
+        els.form.reset()
+        selectedTime = null
+        document.querySelectorAll(".slot-btn.selected-slot").forEach((b) => {
+          b.classList.remove("selected-slot")
+        })
+        els.formPanel.classList.add("hidden")
+        els.slotsPanel.classList.add("hidden")
+        selectedDate = null
+        await loadMonthAvailability()
+      } catch (err) {
+        const msg =
+          err && typeof err === "object" && "message" in err
+            ? String(err.message)
+            : "送信に失敗しました。通信状況をご確認のうえ、再度お試しください。"
+        els.formError.textContent = msg
+        els.formError.classList.add("show")
+      } finally {
+        els.submitBtn.disabled = false
+      }
+    })
+
+    loadMonthAvailability().catch((e) => {
+      showGlobalError(
+        e && e.message ? String(e.message) : "初期読み込みに失敗しました。",
+      )
+    })
+  </script>
+</body>
+</html>

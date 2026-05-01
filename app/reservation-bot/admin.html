@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>管理画面 | デモ店舗</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f4f4f5;
+      --card: #fff;
+      --border: #e4e4e7;
+      --text: #18181b;
+      --muted: #71717a;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+      --success: #16a34a;
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans JP", system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    .layout {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1rem 0.85rem 2.5rem;
+    }
+
+    header {
+      margin-bottom: 1.25rem;
+    }
+
+    header h1 {
+      font-size: clamp(1.15rem, 4vw, 1.35rem);
+      font-weight: 600;
+      margin: 0 0 0.2rem;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+
+    .tab {
+      appearance: none;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 0.65rem 1rem;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+
+    .tab:hover {
+      color: var(--text);
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: flex-end;
+      margin-bottom: 0.85rem;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      min-width: 0;
+    }
+
+    .field label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field select {
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 0.45rem 0.55rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      min-height: 2.25rem;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: 2px solid #93c5fd;
+      outline-offset: 0;
+    }
+
+    .btn {
+      font-family: inherit;
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+      min-height: 2.25rem;
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    .btn-danger {
+      background: #fff;
+      color: var(--danger);
+      border-color: #fecaca;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #fef2f2;
+    }
+
+    .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+      min-height: auto;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.5rem 0.45rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    th {
+      font-weight: 600;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .st-pending {
+      background: #fef9c3;
+      color: #854d0e;
+    }
+
+    .st-confirmed {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .st-cancelled {
+      background: #f4f4f5;
+      color: #52525b;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .msg {
+      padding: 0.65rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      margin-bottom: 0.75rem;
+      display: none;
+    }
+
+    .msg.show {
+      display: block;
+    }
+
+    .msg.error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .msg.success {
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .msg.info {
+      background: #eff6ff;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .subheading {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0 0 0.65rem;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .loading {
+      color: var(--muted);
+      font-size: 0.85rem;
+      padding: 0.5rem 0;
+    }
+
+    h2.visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <header>
+      <h1>管理画面</h1>
+      <p id="storeLine">—</p>
+    </header>
+
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab active" role="tab" aria-selected="true" id="tabRes" data-tab="reservations">
+        予約一覧
+      </button>
+      <button type="button" class="tab" role="tab" aria-selected="false" id="tabAv" data-tab="availability">
+        空き枠管理
+      </button>
+    </div>
+
+    <div id="msgRes" class="msg" role="status"></div>
+    <div id="msgAv" class="msg" role="status"></div>
+
+    <section id="panelRes" class="panel" aria-labelledby="tabRes">
+      <div class="row">
+        <div class="field">
+          <label for="filterResDate">日付で絞り込み</label>
+          <input id="filterResDate" type="date" />
+        </div>
+        <button type="button" class="btn btn-primary" id="btnLoadRes">読み込み</button>
+        <button type="button" class="btn" id="btnClearResFilter">全件表示</button>
+      </div>
+      <div id="resLoading" class="loading hidden">読み込み中…</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th>時間</th>
+              <th>お名前</th>
+              <th>電話</th>
+              <th>人数</th>
+              <th>店舗</th>
+              <th>ステータス</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="resBody"></tbody>
+        </table>
+      </div>
+      <p class="muted" id="resEmpty" style="display: none;">該当する予約はありません。</p>
+    </section>
+
+    <section id="panelAv" class="panel hidden" aria-labelledby="tabAv">
+      <h2 class="subheading">空き枠を1件追加</h2>
+      <div class="row">
+        <div class="field">
+          <label for="addDate">日付</label>
+          <input id="addDate" type="date" required />
+        </div>
+        <div class="field">
+          <label for="addTime">時間帯</label>
+          <input id="addTime" type="time" required />
+        </div>
+        <div class="field">
+          <label for="addMax">最大席数</label>
+          <input id="addMax" type="number" min="1" max="999" value="4" />
+        </div>
+        <button type="button" class="btn btn-primary" id="btnAddOne">登録</button>
+      </div>
+
+      <h2 class="subheading">一括生成</h2>
+      <p class="muted" style="margin-top: -0.35rem;">開始日〜終了日の各日について、営業時間内を指定間隔で分割して空き枠を作成します（既存と同じ日時はスキップします）。</p>
+      <div class="row">
+        <div class="field">
+          <label for="bulkStart">開始日</label>
+          <input id="bulkStart" type="date" />
+        </div>
+        <div class="field">
+          <label for="bulkEnd">終了日</label>
+          <input id="bulkEnd" type="date" />
+        </div>
+        <div class="field">
+          <label for="bulkOpen">営業開始</label>
+          <input id="bulkOpen" type="time" value="11:00" />
+        </div>
+        <div class="field">
+          <label for="bulkClose">営業終了</label>
+          <input id="bulkClose" type="time" value="22:00" />
+        </div>
+        <div class="field">
+          <label for="bulkInterval">枠間隔</label>
+          <select id="bulkInterval">
+            <option value="30">30分</option>
+            <option value="60">60分</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bulkMax">最大席数</label>
+          <input id="bulkMax" type="number" min="1" max="999" value="6" />
+        </div>
+        <button type="button" class="btn btn-primary" id="btnBulk">一括生成</button>
+      </div>
+
+      <h2 class="subheading">登録済み空き枠</h2>
+      <div class="row">
+        <div class="field">
+          <label for="avFrom">表示：開始日</label>
+          <input id="avFrom" type="date" />
+        </div>
+        <div class="field">
+          <label for="avTo">終了日</label>
+          <input id="avTo" type="date" />
+        </div>
+        <button type="button" class="btn btn-primary" id="btnLoadAv">表示</button>
+      </div>
+      <div id="avLoading" class="loading hidden">読み込み中…</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>日付</th>
+              <th>時間</th>
+              <th>最大</th>
+              <th>残席</th>
+              <th>営業</th>
+              <th>削除</th>
+            </tr>
+          </thead>
+          <tbody id="avBody"></tbody>
+        </table>
+      </div>
+      <p class="muted" id="avEmpty" style="display: none;">該当する空き枠がありません。</p>
+    </section>
+  </div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+
+    const SUPABASE_URL = "https://qasetyuetdsnodhajgcv.supabase.co"
+    const SUPABASE_ANON_KEY = "sb_publishable_hKF8FDCjbpWoAy_v_Zur5Q_7fkullOa"
+    const STORE_NAME = "デモ店舗"
+    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+    const $ = (id) => document.getElementById(id)
+
+    $("storeLine").textContent = `店舗：${STORE_NAME}`
+
+    const state = {
+      tab: "reservations",
+      reservations: [],
+    }
+
+    function showMsg(which, type, text) {
+      const el = which === "av" ? $("msgAv") : $("msgRes")
+      const other = which === "av" ? $("msgRes") : $("msgAv")
+      other.classList.remove("show")
+      el.className = `msg show ${type}`
+      el.textContent = text
+    }
+
+    function hideMsgs() {
+      $("msgAv").classList.remove("show")
+      $("msgRes").classList.remove("show")
+    }
+
+    function pad2(n) {
+      return String(n).padStart(2, "0")
+    }
+
+    function toDateStr(d) {
+      return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+    }
+
+    function parseTimeToMinutes(timeStr) {
+      if (!timeStr) return null
+      const parts = String(timeStr).split(":")
+      const h = Number(parts[0])
+      const m = Number(parts[1] || 0)
+      if (!Number.isFinite(h) || !Number.isFinite(m)) return null
+      return h * 60 + m
+    }
+
+    function minutesToDbTime(mins) {
+      const h = Math.floor(mins / 60)
+      const m = mins % 60
+      return `${pad2(h)}:${pad2(m)}:00`
+    }
+
+    function formatTimeShort(t) {
+      if (t == null) return "—"
+      const m = String(t).match(/^(\d{1,2}):(\d{2})/)
+      if (m) return `${Number(m[1])}:${m[2]}`
+      return String(t)
+    }
+
+    function setupTabs() {
+      document.querySelectorAll(".tab").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const name = btn.getAttribute("data-tab")
+          if (!name) return
+          state.tab = name
+          document.querySelectorAll(".tab").forEach((b) => {
+            const on = b.getAttribute("data-tab") === name
+            b.classList.toggle("active", on)
+            b.setAttribute("aria-selected", on ? "true" : "false")
+          })
+          $("panelRes").classList.toggle("hidden", name !== "reservations")
+          $("panelAv").classList.toggle("hidden", name !== "availability")
+          hideMsgs()
+        })
+      })
+    }
+
+    async function loadReservations() {
+      hideMsgs()
+      $("resLoading").classList.remove("hidden")
+      const { data, error } = await db
+        .from("reservations")
+        .select("id, created_at, name, phone, date, time, guests, status, store_name")
+        .order("date", { ascending: false })
+        .order("time", { ascending: false })
+
+      $("resLoading").classList.add("hidden")
+      if (error) {
+        showMsg("res", "error", `予約の取得に失敗しました：${error.message}`)
+        state.reservations = []
+        renderReservations()
+        return
+      }
+      state.reservations = data || []
+      renderReservations()
+    }
+
+    function renderReservations() {
+      const filter = $("filterResDate").value
+      const rows = filter
+        ? state.reservations.filter((r) => r.date === filter)
+        : state.reservations.slice()
+
+      const tbody = $("resBody")
+      tbody.replaceChildren()
+
+      $("resEmpty").style.display = rows.length ? "none" : "block"
+
+      for (const r of rows) {
+        const tr = document.createElement("tr")
+        const st = r.status || ""
+        let pillClass = "st-pending"
+        if (st === "confirmed") pillClass = "st-confirmed"
+        else if (st === "cancelled") pillClass = "st-cancelled"
+
+        const actions = document.createElement("div")
+        actions.className = "actions"
+
+        if (st === "pending") {
+          const b1 = document.createElement("button")
+          b1.type = "button"
+          b1.className = "btn btn-sm btn-primary"
+          b1.textContent = "確定"
+          b1.addEventListener("click", () => updateReservationStatus(r.id, "confirmed"))
+          actions.appendChild(b1)
+        }
+
+        if (st === "pending" || st === "confirmed") {
+          const b2 = document.createElement("button")
+          b2.type = "button"
+          b2.className = "btn btn-sm btn-danger"
+          b2.textContent = "キャンセル"
+          b2.addEventListener("click", () => updateReservationStatus(r.id, "cancelled"))
+          actions.appendChild(b2)
+        }
+
+        tr.innerHTML = `
+          <td>${escapeHtml(r.date || "")}</td>
+          <td>${escapeHtml(formatTimeShort(r.time))}</td>
+          <td>${escapeHtml(r.name || "")}</td>
+          <td>${escapeHtml(r.phone || "")}</td>
+          <td>${escapeHtml(String(r.guests ?? ""))}</td>
+          <td>${escapeHtml(r.store_name || "")}</td>
+          <td><span class="status-pill ${pillClass}">${escapeHtml(labelStatus(st))}</span></td>
+          <td></td>
+        `
+        tr.lastElementChild.appendChild(actions)
+        tbody.appendChild(tr)
+      }
+    }
+
+    function labelStatus(s) {
+      if (s === "pending") return "保留"
+      if (s === "confirmed") return "確定"
+      if (s === "cancelled") return "キャンセル"
+      return s || "—"
+    }
+
+    function escapeHtml(s) {
+      const d = document.createElement("div")
+      d.textContent = s
+      return d.innerHTML
+    }
+
+    async function updateReservationStatus(id, status) {
+      hideMsgs()
+      const { error } = await db.from("reservations").update({ status }).eq("id", id)
+      if (error) {
+        showMsg("res", "error", `更新に失敗しました：${error.message}`)
+        return
+      }
+      showMsg("res", "success", "ステータスを更新しました。")
+      await loadReservations()
+    }
+
+    async function addOneAvailability() {
+      hideMsgs()
+      const date = $("addDate").value
+      const timeRaw = $("addTime").value
+      const maxSeats = parseInt($("addMax").value, 10)
+
+      if (!date) {
+        showMsg("av", "error", "日付を入力してください。")
+        return
+      }
+      if (!timeRaw) {
+        showMsg("av", "error", "時間帯を入力してください。")
+        return
+      }
+      if (!Number.isFinite(maxSeats) || maxSeats < 1) {
+        showMsg("av", "error", "最大席数は1以上の数値にしてください。")
+        return
+      }
+
+      const openM = parseTimeToMinutes(timeRaw)
+      if (openM == null) {
+        showMsg("av", "error", "時間の形式が不正です。")
+        return
+      }
+      const timeDb = minutesToDbTime(openM)
+
+      const payload = {
+        date,
+        time: timeDb,
+        max_seats: maxSeats,
+        available_seats: maxSeats,
+        is_open: true,
+      }
+
+      const { error } = await db.from("availability").insert(payload)
+      if (error) {
+        showMsg("av", "error", `登録に失敗しました：${error.message}`)
+        return
+      }
+      showMsg("av", "success", "空き枠を登録しました。")
+      await loadAvailabilityList()
+    }
+
+    function enumerateBulkSlots(startDateStr, endDateStr, openStr, closeStr, intervalMin) {
+      const openM = parseTimeToMinutes(openStr)
+      const closeM = parseTimeToMinutes(closeStr)
+      if (openM == null || closeM == null) return { error: "営業時間の形式が不正です。" }
+      if (closeM <= openM) return { error: "営業終了は営業開始より後にしてください。" }
+      if (!intervalMin || intervalMin <= 0) return { error: "枠間隔が不正です。" }
+
+      const start = new Date(startDateStr + "T12:00:00")
+      const end = new Date(endDateStr + "T12:00:00")
+      if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+        return { error: "期間の日付が不正です。" }
+      }
+      if (end < start) return { error: "終了日は開始日以降にしてください。" }
+
+      const out = []
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const dateStr = toDateStr(d)
+        for (let t = openM; t < closeM; t += intervalMin) {
+          out.push({ date: dateStr, time: minutesToDbTime(t) })
+        }
+      }
+      return { rows: out }
+    }
+
+    async function bulkGenerate() {
+      hideMsgs()
+      const start = $("bulkStart").value
+      const end = $("bulkEnd").value
+      const op = $("bulkOpen").value
+      const cl = $("bulkClose").value
+      const intervalMin = parseInt($("bulkInterval").value, 10)
+      const maxSeats = parseInt($("bulkMax").value, 10)
+
+      if (!start || !end) {
+        showMsg("av", "error", "開始日・終了日を入力してください。")
+        return
+      }
+      if (!Number.isFinite(maxSeats) || maxSeats < 1) {
+        showMsg("av", "error", "最大席数は1以上にしてください。")
+        return
+      }
+
+      const gen = enumerateBulkSlots(start, end, op, cl, intervalMin)
+      if (gen.error) {
+        showMsg("av", "error", gen.error)
+        return
+      }
+
+      const { rows } = gen
+      if (!rows.length) {
+        showMsg("av", "info", "生成対象の枠がありません。")
+        return
+      }
+
+      const dates = [...new Set(rows.map((r) => r.date))]
+      const minD = dates.reduce((a, b) => (a < b ? a : b))
+      const maxD = dates.reduce((a, b) => (a > b ? a : b))
+
+      const { data: existing, error: exErr } = await db
+        .from("availability")
+        .select("date, time")
+        .gte("date", minD)
+        .lte("date", maxD)
+
+      if (exErr) {
+        showMsg("av", "error", `既存枠の確認に失敗しました：${exErr.message}`)
+        return
+      }
+
+      const exSet = new Set(
+        (existing || []).map((r) => `${r.date}|${normalizeTimeKey(r.time)}`),
+      )
+
+      const toInsert = []
+      for (const r of rows) {
+        const key = `${r.date}|${normalizeTimeKey(r.time)}`
+        if (exSet.has(key)) continue
+        toInsert.push({
+          date: r.date,
+          time: r.time,
+          max_seats: maxSeats,
+          available_seats: maxSeats,
+          is_open: true,
+        })
+        exSet.add(key)
+      }
+
+      if (!toInsert.length) {
+        showMsg("av", "info", "すべて既に登録済みのため、新規作成はありません。")
+        return
+      }
+
+      const chunk = 80
+      let inserted = 0
+      for (let i = 0; i < toInsert.length; i += chunk) {
+        const part = toInsert.slice(i, i + chunk)
+        const { error } = await db.from("availability").insert(part)
+        if (error) {
+          showMsg(
+            "av",
+            "error",
+            `一括登録の途中で失敗しました（${inserted}件まで反映）：${error.message}`,
+          )
+          await loadAvailabilityList()
+          return
+        }
+        inserted += part.length
+      }
+
+      showMsg("av", "success", `${inserted}件の空き枠を作成しました。`)
+      await loadAvailabilityList()
+    }
+
+    function normalizeTimeKey(t) {
+      const m = String(t || "").match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?/)
+      if (!m) return String(t || "")
+      return `${m[1].padStart(2, "0")}:${m[2]}:00`
+    }
+
+    function setDefaultAvRange() {
+      const today = new Date()
+      const to = new Date(today)
+      to.setDate(to.getDate() + 30)
+      $("avFrom").value = toDateStr(today)
+      $("avTo").value = toDateStr(to)
+      $("bulkStart").value = toDateStr(today)
+      $("bulkEnd").value = toDateStr(to)
+      $("addDate").value = toDateStr(today)
+    }
+
+    async function loadAvailabilityList() {
+      hideMsgs()
+      $("avLoading").classList.remove("hidden")
+      const from = $("avFrom").value
+      const to = $("avTo").value
+
+      if (!from || !to) {
+        $("avLoading").classList.add("hidden")
+        showMsg("av", "error", "表示期間の開始日・終了日を入力してください。")
+        return
+      }
+      if (to < from) {
+        $("avLoading").classList.add("hidden")
+        showMsg("av", "error", "終了日は開始日以降にしてください。")
+        return
+      }
+
+      const { data, error } = await db
+        .from("availability")
+        .select("id, date, time, max_seats, available_seats, is_open")
+        .gte("date", from)
+        .lte("date", to)
+        .order("date", { ascending: true })
+        .order("time", { ascending: true })
+
+      $("avLoading").classList.add("hidden")
+      if (error) {
+        showMsg("av", "error", `空き枠の取得に失敗しました：${error.message}`)
+        $("avBody").replaceChildren()
+        $("avEmpty").style.display = "block"
+        return
+      }
+
+      const list = data || []
+      const tbody = $("avBody")
+      tbody.replaceChildren()
+      $("avEmpty").style.display = list.length ? "none" : "block"
+
+      for (const r of list) {
+        const tr = document.createElement("tr")
+        const openLabel = r.is_open === false ? "休止" : "営業"
+        tr.innerHTML = `
+          <td>${escapeHtml(r.date || "")}</td>
+          <td>${escapeHtml(formatTimeShort(r.time))}</td>
+          <td>${escapeHtml(String(r.max_seats ?? ""))}</td>
+          <td>${escapeHtml(String(r.available_seats ?? ""))}</td>
+          <td>${escapeHtml(openLabel)}</td>
+          <td></td>
+        `
+        const del = document.createElement("button")
+        del.type = "button"
+        del.className = "btn btn-sm btn-danger"
+        del.textContent = "削除"
+        del.addEventListener("click", () => deleteAvailability(r.id))
+        tr.lastElementChild.appendChild(del)
+        tbody.appendChild(tr)
+      }
+    }
+
+    async function deleteAvailability(id) {
+      hideMsgs()
+      if (!confirm("この空き枠を削除しますか？")) return
+      const { error } = await db.from("availability").delete().eq("id", id)
+      if (error) {
+        showMsg("av", "error", `削除に失敗しました：${error.message}`)
+        return
+      }
+      showMsg("av", "success", "削除しました。")
+      await loadAvailabilityList()
+    }
+
+    $("btnLoadRes").addEventListener("click", () => loadReservations())
+    $("btnClearResFilter").addEventListener("click", () => {
+      $("filterResDate").value = ""
+      renderReservations()
+    })
+    $("filterResDate").addEventListener("change", () => renderReservations())
+
+    $("btnAddOne").addEventListener("click", () => addOneAvailability().catch((e) => {
+      showMsg("av", "error", e && e.message ? String(e.message) : "予期しないエラーが発生しました。")
+    }))
+    $("btnBulk").addEventListener("click", () => bulkGenerate().catch((e) => {
+      showMsg("av", "error", e && e.message ? String(e.message) : "予期しないエラーが発生しました。")
+    }))
+    $("btnLoadAv").addEventListener("click", () => loadAvailabilityList().catch((e) => {
+      showMsg("av", "error", e && e.message ? String(e.message) : "予期しないエラーが発生しました。")
+    }))
+
+    setupTabs()
+    setDefaultAvRange()
+
+    loadReservations().catch((e) => {
+      showMsg("res", "error", e && e.message ? String(e.message) : "初期読み込みに失敗しました。")
+    })
+  </script>
+</body>
+</html>
