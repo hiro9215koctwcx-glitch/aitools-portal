@@ -745,13 +745,14 @@
     }
 
     /* Reservation LP blocks */
-    #dual-experience, #trust-shops, #empathy, #reservation-loss, #reservation-free, #owner-benefits, #ai-school, #school-follow-cta { scroll-margin-top: 80px; }
+    #dual-experience, #trust-shops, #empathy, #reservation-loss, #industry-examples, #reservation-free, #owner-benefits, #ai-school, #school-follow-cta { scroll-margin-top: 80px; }
     html:not(.lp-banner-dismissed) #診断,
     html:not(.lp-banner-dismissed) #pricing,
     html:not(.lp-banner-dismissed) #dual-experience,
     html:not(.lp-banner-dismissed) #trust-shops,
     html:not(.lp-banner-dismissed) #empathy,
     html:not(.lp-banner-dismissed) #reservation-loss,
+    html:not(.lp-banner-dismissed) #industry-examples,
     html:not(.lp-banner-dismissed) #reservation-free,
     html:not(.lp-banner-dismissed) #owner-benefits,
     html:not(.lp-banner-dismissed) #ai-school,
@@ -790,6 +791,141 @@
       line-height: 1.85;
     }
     .loss-list li { margin-bottom: 0.65rem; }
+
+    /* 業種別事例（CSSのみタブ／モバイルは縦アコーディオン風） */
+    .industry-cases .section-title {
+      color: var(--brand-navy);
+    }
+    .industry-widget {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      max-width: 920px;
+      margin: 0 auto;
+      border: 2px solid rgba(2, 128, 144, 0.22);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .industry-widget__state {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+      opacity: 0;
+    }
+    .industry-widget__tab {
+      flex: 1 1 25%;
+      min-width: 0;
+      margin: 0;
+      padding: 14px 12px;
+      text-align: center;
+      font-size: clamp(0.78rem, 2.2vw, 0.9rem);
+      font-weight: 700;
+      color: var(--brand-navy);
+      background: linear-gradient(180deg, #f8fafc 0%, #e8f7f5 100%);
+      border: none;
+      border-bottom: 3px solid rgba(2, 128, 144, 0.2);
+      border-right: 1px solid var(--line);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    @media (min-width: 769px) {
+      .industry-widget__tab--4 {
+        border-right: none;
+      }
+    }
+    .industry-widget__tab:hover {
+      background: rgba(2, 128, 144, 0.1);
+      color: var(--brand-teal);
+    }
+    #industry-ex-1:checked ~ label[for="industry-ex-1"],
+    #industry-ex-2:checked ~ label[for="industry-ex-2"],
+    #industry-ex-3:checked ~ label[for="industry-ex-3"],
+    #industry-ex-4:checked ~ label[for="industry-ex-4"] {
+      background: var(--brand-teal);
+      color: #fff;
+      border-bottom-color: var(--brand-mint);
+      box-shadow: inset 0 -1px 0 var(--brand-mint);
+    }
+    .industry-widget__panel {
+      display: none;
+      width: 100%;
+      padding: clamp(1.25rem, 3vw, 1.75rem) clamp(1.15rem, 3vw, 1.5rem);
+      background: #fff;
+      border-top: 1px solid rgba(2, 128, 144, 0.12);
+    }
+    #industry-ex-1:checked ~ .industry-widget__panel--1,
+    #industry-ex-2:checked ~ .industry-widget__panel--2,
+    #industry-ex-3:checked ~ .industry-widget__panel--3,
+    #industry-ex-4:checked ~ .industry-widget__panel--4 {
+      display: block;
+    }
+    .industry-widget__list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      text-align: left;
+    }
+    .industry-widget__list li {
+      position: relative;
+      padding-left: 1.75em;
+      margin-bottom: 0.85rem;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      color: var(--navy-800);
+    }
+    .industry-widget__list li:last-child {
+      margin-bottom: 0;
+    }
+    .industry-widget__list li::before {
+      content: "✅";
+      position: absolute;
+      left: 0;
+      top: 0.05em;
+      line-height: 1.4;
+    }
+    @media (min-width: 769px) {
+      .industry-widget__tab--1 { order: 1; }
+      .industry-widget__tab--2 { order: 2; }
+      .industry-widget__tab--3 { order: 3; }
+      .industry-widget__tab--4 { order: 4; }
+      .industry-widget__panel {
+        order: 10;
+        flex: 0 0 100%;
+        width: 100%;
+        border-top: 3px solid rgba(2, 195, 154, 0.35);
+      }
+    }
+    @media (max-width: 768px) {
+      .industry-widget {
+        flex-direction: column;
+        flex-wrap: nowrap;
+      }
+      .industry-widget__tab,
+      .industry-widget__panel {
+        order: unset !important;
+        flex: none !important;
+      }
+      .industry-widget__tab {
+        width: 100%;
+        text-align: left;
+        padding-left: 1.1rem;
+        border-right: none;
+        border-bottom:1px solid var(--line);
+      }
+      .industry-widget__panel {
+        border-top: none;
+        border-bottom: 2px solid rgba(2, 128, 144, 0.12);
+      }
+    }
+
     .res-yes-list {
       list-style: none;
       max-width: 520px;
@@ -1385,6 +1521,54 @@
         <li>ダブルブッキング1回 → 信頼と売上を同時に失う</li>
         <li>営業時間外の問い合わせ → 他の店に流れている</li>
       </ul>
+    </div>
+  </section>
+
+  <section id="industry-examples" class="industry-cases" aria-labelledby="industry-examples-title">
+    <div class="container">
+      <h2 id="industry-examples-title" class="section-title">あなたの業種で、こんなことができます</h2>
+      <p class="section-sub" style="margin-bottom:1.5rem;">&nbsp;</p>
+      <div class="industry-widget">
+        <input class="industry-widget__state" type="radio" name="industry-ex" id="industry-ex-1" checked>
+        <input class="industry-widget__state" type="radio" name="industry-ex" id="industry-ex-2">
+        <input class="industry-widget__state" type="radio" name="industry-ex" id="industry-ex-3">
+        <input class="industry-widget__state" type="radio" name="industry-ex" id="industry-ex-4">
+
+        <label class="industry-widget__tab industry-widget__tab--1" for="industry-ex-1">飲食店オーナー <span aria-hidden="true">🍴</span></label>
+        <div class="industry-widget__panel industry-widget__panel--1">
+          <ul class="industry-widget__list">
+            <li>予約電話、もう取り逃しません。LINEから自動で受付、3万円・1週間で稼働</li>
+            <li>常連さんへのお知らせ配信、月3時間→5分に。月1.5万円で全部おまかせ</li>
+            <li>メニュー写真の撮影＆投稿、AIが手伝います</li>
+          </ul>
+        </div>
+
+        <label class="industry-widget__tab industry-widget__tab--2" for="industry-ex-2">美容室オーナー <span aria-hidden="true">💇</span></label>
+        <div class="industry-widget__panel industry-widget__panel--2">
+          <ul class="industry-widget__list">
+            <li>次回予約のリマインド、お客様が喜ぶ自動配信</li>
+            <li>カルテ管理をスマホひとつで。3万円・2週間で完了</li>
+            <li>インスタ投稿ネタ、AIが毎月30本提案</li>
+          </ul>
+        </div>
+
+        <label class="industry-widget__tab industry-widget__tab--3" for="industry-ex-3">個人事業主 <span aria-hidden="true">💼</span></label>
+        <div class="industry-widget__panel industry-widget__panel--3">
+          <ul class="industry-widget__list">
+            <li>請求書作成、月3時間→5分。レシート撮るだけのツール、3万円</li>
+            <li>メール返信文、AIに下書きを任せる</li>
+            <li>提案書・見積書のテンプレート、業種に合わせてカスタム制作</li>
+          </ul>
+        </div>
+
+        <label class="industry-widget__tab industry-widget__tab--4" for="industry-ex-4">整体院・サロン <span aria-hidden="true">🌿</span></label>
+        <div class="industry-widget__panel industry-widget__panel--4">
+          <ul class="industry-widget__list">
+            <li>初診カウンセリングシート、AIが自動でまとめ</li>
+            <li>LINE公式の自動応答、24時間返信、3万円から</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </section>
 
