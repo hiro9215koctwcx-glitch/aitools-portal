@@ -138,6 +138,37 @@
       box-shadow: var(--shadow);
     }
     .btn--primary:hover { background: var(--navy-700); text-decoration: none; color: #fff; transform: translateY(-2px); }
+    .btn--primary-hero {
+      padding: 17px 28px;
+      font-size: 1.08rem;
+      background: linear-gradient(180deg, #1e40af 0%, #1d4ed8 100%);
+      box-shadow: 0 8px 24px rgba(29, 78, 216, 0.4);
+    }
+    .btn--primary-hero:hover {
+      background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+    }
+    .btn--sub-cta {
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--muted);
+      background: var(--surface);
+      border: 2px solid var(--line);
+      box-shadow: none;
+    }
+    .btn--sub-cta:hover {
+      color: var(--navy-800);
+      border-color: #cbd5e1;
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+    .reassurance-text {
+      font-size: 0.76rem;
+      color: #94a3b8;
+      line-height: 1.55;
+      text-align: center;
+      margin: 0.15rem 0 0;
+    }
     .btn--secondary {
       background: #fff;
       color: var(--navy-800);
@@ -647,6 +678,11 @@
       font-size: 1.05rem;
       min-height: 52px;
     }
+    .cta-stack .btn--primary.btn--primary-hero {
+      padding: 17px 28px;
+      font-size: 1.08rem;
+      min-height: 56px;
+    }
     .cta-stack .btn--secondary {
       width: 100%;
       justify-content: center;
@@ -654,6 +690,13 @@
       padding: 10px 18px;
       font-size: 0.875rem;
       font-weight: 600;
+    }
+    .cta-stack .btn--sub-cta {
+      width: auto;
+      align-self: center;
+      min-height: 0;
+      padding: 8px 16px;
+      font-size: 0.8rem;
     }
     .cta-stack .hero-owner-note { margin-top: 0; margin-bottom: 0; }
     .dual-grid {
@@ -694,6 +737,132 @@
       margin-bottom: 1.2rem;
     }
     .dual-col .cta-stack { margin-top: auto; max-width: none; width: 100%; }
+
+    /* Before / After 比較 */
+    .before-after-wrap {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1rem 1.25rem;
+      max-width: 920px;
+      margin: 0 auto;
+      align-items: stretch;
+    }
+    .before-after__col {
+      border-radius: var(--radius);
+      padding: 1.5rem 1.35rem 1.4rem;
+      box-shadow: var(--shadow);
+    }
+    .before-after__col--before {
+      background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%);
+      border: 1px solid #94a3b8;
+      color: #475569;
+    }
+    .before-after__col--before h3 {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: #475569;
+      margin-bottom: 0.85rem;
+    }
+    .before-after__col--before ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .before-after__col--before li {
+      position: relative;
+      padding-left: 1.15em;
+      margin-bottom: 0.65rem;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: #57534e;
+    }
+    .before-after__col--before li::before {
+      content: "・";
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+      color: #78716c;
+    }
+    .before-after__col--after {
+      background: linear-gradient(165deg, #eff6ff 0%, #ffffff 55%);
+      border: 1px solid #93c5fd;
+      color: var(--navy-800);
+    }
+    .before-after__col--after h3 {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: #1d4ed8;
+      margin-bottom: 0.85rem;
+    }
+    .before-after__col--after ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .before-after__col--after li {
+      position: relative;
+      padding-left: 1.15em;
+      margin-bottom: 0.65rem;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--navy-800);
+      font-weight: 500;
+    }
+    .before-after__col--after li::before {
+      content: "・";
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+      color: #1d4ed8;
+    }
+    .before-after__arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      padding: 0 0.25rem;
+    }
+    @media (max-width: 720px) {
+      .before-after-wrap {
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
+      }
+      .before-after__arrow {
+        padding: 0.35rem 0;
+        transform: rotate(90deg);
+      }
+    }
+
+    .mid-cta {
+      background: var(--soft);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: clamp(2.25rem, 5vw, 3rem) 0;
+    }
+    .mid-cta__lead {
+      text-align: center;
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin-bottom: 1.15rem;
+      line-height: 1.55;
+    }
+    .mid-cta .cta-stack .btn--primary {
+      background: linear-gradient(180deg, #1e40af 0%, #1d4ed8 100%);
+      box-shadow: 0 6px 20px rgba(29, 78, 216, 0.35);
+    }
+
+    .consult-sub {
+      text-align: center;
+      font-size: 0.92rem;
+      color: var(--navy-800);
+      line-height: 1.75;
+      max-width: 32em;
+      margin: 1.25rem auto 0;
+    }
 
     .hero-owner-note { font-size: 0.78rem; color: var(--muted); margin-top: 0.35rem; line-height: 1.5; }
     .program-first-list {
@@ -903,8 +1072,9 @@
       <h1 class="hero__catch">予約管理、まだ電話とノートでやっていますか？</h1>
       <p class="hero__sub">AIが自動で受け付けるから、営業時間外でも予約が入る。<br />飲食店・美容院・整体院オーナーのためのAI予約システム、無料で試せます</p>
       <div class="cta-stack">
-        <a class="btn btn--primary" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">無料で試してみる（お客様用・予約デモ）</a>
-        <a class="btn btn--secondary" href="https://reservation-bot-beryl.vercel.app/admin.html" target="_blank" rel="noopener noreferrer">管理画面を見る（オーナー様用）</a>
+        <a class="btn btn--primary btn--primary-hero" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">無料で試してみる（予約デモ）</a>
+        <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
+        <a class="btn btn--sub-cta" href="https://reservation-bot-beryl.vercel.app/admin.html" target="_blank" rel="noopener noreferrer">オーナー向け管理画面を見る</a>
         <p class="hero-owner-note">※予約の確認・管理ができる画面です</p>
       </div>
       <p class="hero__note">無理な営業は一切しません。小さな相談でも大丈夫です。</p>
@@ -913,24 +1083,25 @@
 
   <section id="dual-experience" aria-labelledby="dual-experience-title">
     <div class="container">
-      <h2 id="dual-experience-title" class="section-title">お客様とオーナー、それぞれの体験</h2>
-      <p class="section-sub" style="margin-bottom:1.5rem;">&nbsp;</p>
-      <div class="dual-grid">
-        <div class="dual-col">
-          <p class="dual-col__title">お客様</p>
-          <p class="dual-col__desc">スマホで簡単に予約できる</p>
-          <p class="dual-col__change">電話しなくていい → 24時間いつでも予約</p>
-          <div class="cta-stack">
-            <a class="btn btn--primary" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">予約画面を体験する</a>
-          </div>
+      <h2 id="dual-experience-title" class="section-title">予約の受け方、こう変わります</h2>
+      <p class="section-sub" style="margin-bottom:1.5rem;">Before → After</p>
+      <div class="before-after-wrap">
+        <div class="before-after__col before-after__col--before">
+          <h3>今まで</h3>
+          <ul>
+            <li>電話で予約受付 → 作業が止まる</li>
+            <li>手書きの予約台帳 → 書き間違い・ダブルブッキング</li>
+            <li>営業時間外は対応不可 → 機会損失</li>
+          </ul>
         </div>
-        <div class="dual-col">
-          <p class="dual-col__title">オーナー様</p>
-          <p class="dual-col__desc">予約が自動で一覧管理される</p>
-          <p class="dual-col__change">1件ずつ対応 → 自動で整理される</p>
-          <div class="cta-stack">
-            <a class="btn btn--secondary" href="https://reservation-bot-beryl.vercel.app/admin.html" target="_blank" rel="noopener noreferrer">管理画面を見る</a>
-          </div>
+        <div class="before-after__arrow" aria-hidden="true">→</div>
+        <div class="before-after__col before-after__col--after">
+          <h3>AIを使うと</h3>
+          <ul>
+            <li>24時間自動で予約受付</li>
+            <li>カレンダーで一目管理・ミスゼロ</li>
+            <li>寝ている間も予約が入る</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -949,6 +1120,16 @@
         </ul>
       </div>
       <p class="empathy-closing">── それ、全部AIが解決できます ──</p>
+    </div>
+  </section>
+
+  <section class="mid-cta" aria-label="予約デモの案内">
+    <div class="container">
+      <p class="mid-cta__lead">まずは実際に触ってみてください。</p>
+      <div class="cta-stack cta-stack--center">
+        <a class="btn btn--primary btn--primary-hero" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">予約デモを体験する（無料）</a>
+        <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
+      </div>
     </div>
   </section>
 
@@ -976,8 +1157,9 @@
       </ul>
       <p class="res-emphasis">1日1時間削減 → 月30時間を取り戻せる</p>
       <div class="cta-stack cta-stack--center" style="margin-top:1rem;">
-        <a class="btn btn--primary" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">無料で試してみる（お客様用・予約デモ）</a>
-        <a class="btn btn--secondary" href="https://reservation-bot-beryl.vercel.app/admin.html" target="_blank" rel="noopener noreferrer">管理画面を見る（オーナー様用）</a>
+        <a class="btn btn--primary btn--primary-hero" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">無料で試してみる（予約デモ）</a>
+        <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
+        <a class="btn btn--sub-cta" href="https://reservation-bot-beryl.vercel.app/admin.html" target="_blank" rel="noopener noreferrer">オーナー向け管理画面を見る</a>
         <p class="hero-owner-note" style="text-align:center;">※予約の確認・管理ができる画面です</p>
       </div>
       <p class="res-note">※デモ用サンプルです。導入費用0円でご相談できます。</p>
@@ -994,6 +1176,14 @@
         <div class="benefit-voice"><span class="benefit-voice__ico" aria-hidden="true">🌙</span><p>「寝ている間に予約が入っていた」</p></div>
       </div>
       <p class="benefit-summary">時間が増える → お客様対応の質が上がる → リピーターが増える → 売上が安定する</p>
+    </div>
+  </section>
+
+  <section class="mid-cta" aria-label="予約デモへの誘導">
+    <div class="container">
+      <div class="cta-stack cta-stack--center">
+        <a class="btn btn--primary btn--primary-hero" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">無料で試してみる（予約デモ）</a>
+      </div>
     </div>
   </section>
 
@@ -1358,13 +1548,15 @@
 
   <section id="school-follow-cta" class="school-follow-cta" aria-labelledby="school-follow-cta-title">
     <div class="container">
-      <h2 id="school-follow-cta-title" class="section-title">まずは無料相談で</h2>
-      <p class="school-follow-cta__body">
-        あなたの業務に合った改善プランをご提案します。
-        <span class="school-follow-cta__note">※AIスクールや個別サポートもご用意しています。</span>
-      </p>
-      <div class="cta-stack cta-stack--center">
-        <a class="btn btn--primary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料相談はこちら</a>
+      <h2 id="school-follow-cta-title" class="section-title">無料相談で、こんなことがわかります</h2>
+      <ul class="res-yes-list" style="margin-bottom:1.25rem;">
+        <li>あなたの業務のどこにムダがあるか</li>
+        <li>AIでどこまで改善できるか</li>
+        <li>導入にいくらかかるか（ほとんど無料）</li>
+      </ul>
+      <p class="consult-sub">売り込みはしません。まず現状を一緒に整理します。</p>
+      <div class="cta-stack cta-stack--center" style="margin-top:1.5rem;">
+        <a class="btn btn--primary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料相談を申し込む</a>
       </div>
     </div>
   </section>
