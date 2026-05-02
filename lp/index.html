@@ -594,6 +594,14 @@
     .case-before { color: var(--muted); margin-bottom: 0.25rem; }
     .case-after { color: var(--navy-800); font-weight: 500; }
 
+    /* 改善実績の直後が料金プランのとき、区切りの余白をやや詰める */
+    #cases:has(+ #pricing.plan-section) {
+      padding-bottom: clamp(2.25rem, 4.5vw, 3.5rem);
+    }
+    #cases + #pricing.plan-section {
+      padding-top: clamp(2.25rem, 4.5vw, 3.5rem);
+    }
+
     /* Pricing plans (3 tiers) */
     #pricing { scroll-margin-top: 80px; }
     .plan-section {
