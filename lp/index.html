@@ -96,24 +96,89 @@
 
     /* Hero */
     .hero {
-      padding: clamp(3rem, 8vw, 5.5rem) 0;
+      padding: clamp(2.75rem, 7vw, 5rem) 0;
       background: linear-gradient(180deg, #ffffff 0%, var(--soft) 100%);
       border-bottom: 1px solid var(--line);
     }
+    .hero .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
     .hero__catch {
-      font-size: clamp(1.5rem, 4.2vw, 2.15rem);
+      font-size: clamp(1.35rem, 4.5vw, 2rem);
       font-weight: 700;
       color: var(--navy-900);
       line-height: 1.45;
       letter-spacing: 0.02em;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.1rem;
+      max-width: 22em;
     }
     .hero__sub {
-      font-size: clamp(0.95rem, 2.2vw, 1.05rem);
+      font-size: clamp(0.92rem, 2.8vw, 1.08rem);
       color: var(--muted);
-      max-width: 32em;
-      margin-bottom: 2rem;
+      max-width: 36rem;
+      margin-bottom: 1.85rem;
       font-weight: 500;
+      line-height: 1.85;
+      text-align: center;
+    }
+    .hero__ctas {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 12px 14px;
+      width: 100%;
+      max-width: 540px;
+    }
+    .hero__ctas .btn {
+      flex: 1 1 auto;
+      min-width: min(100%, 240px);
+    }
+    @media (max-width: 480px) {
+      .hero__ctas {
+        flex-direction: column;
+        max-width: 100%;
+      }
+      .hero__ctas .btn {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+    .btn--hero-consult {
+      background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+      color: #fff !important;
+      border: 2px solid #b91c1c;
+      box-shadow: 0 8px 24px rgba(220, 38, 38, 0.38);
+      padding: 15px 22px;
+      font-size: clamp(0.9rem, 2.5vw, 1.02rem);
+      font-weight: 700;
+    }
+    .btn--hero-consult:hover {
+      background: linear-gradient(180deg, #f87171 0%, #ef4444 100%);
+      color: #fff !important;
+      text-decoration: none;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(220, 38, 38, 0.45);
+    }
+    .btn--hero-service {
+      background: #028090;
+      color: #fff !important;
+      border: 2px solid #026d7a;
+      box-shadow: 0 6px 20px rgba(2, 128, 144, 0.35);
+      padding: 15px 22px;
+      font-size: clamp(0.9rem, 2.5vw, 1.02rem);
+      font-weight: 700;
+    }
+    .btn--hero-service:hover {
+      background: #026974;
+      color: #fff !important;
+      text-decoration: none;
+      transform: translateY(-2px);
+      border-color: #015a66;
+      box-shadow: 0 8px 24px rgba(2, 128, 144, 0.42);
     }
     .btn-row {
       display: flex;
@@ -1112,15 +1177,12 @@
 
   <section class="hero">
     <div class="container">
-      <h1 class="hero__catch">予約管理、まだ電話とノートでやっていますか？</h1>
-      <p class="hero__sub">AIが自動で受け付けるから、営業時間外でも予約が入る。<br />飲食店・美容院・整体院オーナーのためのAI予約システム、無料で試せます</p>
-      <div class="cta-stack">
-        <a class="btn btn--primary btn--primary-hero" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">無料で試してみる（予約デモ）</a>
-        <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
-        <a class="btn btn--sub-cta" href="https://reservation-bot-beryl.vercel.app/admin.html" target="_blank" rel="noopener noreferrer">オーナー向け管理画面を見る</a>
-        <p class="hero-owner-note">※予約の確認・管理ができる画面です</p>
+      <h1 class="hero__catch">あなたの「あと1時間」を、AIで取り戻しませんか。</h1>
+      <p class="hero__sub">予約電話の取り逃し、SNS投稿のネタ切れ、請求書の手作業——<br />小さなお店・個人事業主の毎日の「もったいない時間」を、AI×アプリで軽くします。</p>
+      <div class="hero__ctas">
+        <a class="btn btn--hero-consult" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">🌱 まずは無料相談（先着3名）</a>
+        <a class="btn btn--hero-service" href="#pricing">🚀 サービスを見てみる</a>
       </div>
-      <p class="hero__note">無理な営業は一切しません。小さな相談でも大丈夫です。</p>
     </div>
   </section>
 
