@@ -496,7 +496,14 @@
       font-weight: 500;
     }
     .flow-foot { text-align: center; color: var(--navy-800); font-size: 0.95rem; line-height: 1.8; max-width: 32em; margin: 0 auto 2rem; }
-    .flow-cta { max-width: 420px; margin: 0 auto; }
+    .flow-cta {
+      max-width: 420px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+    }
     .flow-cta__main {
       display: flex;
       align-items: center;
@@ -539,7 +546,7 @@
     .flow-cta__common { font-size: 0.86rem; color: var(--muted); line-height: 1.75; text-align: center; }
 
     /* Reservation LP blocks */
-    #empathy, #reservation-loss, #reservation-free, #owner-benefits, #mid-demo-cta, #ai-school { scroll-margin-top: 80px; }
+    #dual-experience, #empathy, #reservation-loss, #reservation-free, #owner-benefits, #ai-school, #school-follow-cta { scroll-margin-top: 80px; }
     .empathy-list { max-width: 560px; margin: 0 auto 1.5rem; }
     .empathy-list ul { list-style: none; }
     .empathy-list li {
@@ -623,29 +630,130 @@
       max-width: 34em;
       margin: 0 auto;
     }
-    .mid-cta {
+
+    .cta-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.65rem;
+      max-width: 440px;
+    }
+    .cta-stack--center { margin-left: auto; margin-right: auto; }
+    .cta-stack .btn--primary {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+      padding: 16px 22px;
+      font-size: 1.05rem;
+      min-height: 52px;
+    }
+    .cta-stack .btn--secondary {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+      padding: 10px 18px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    .cta-stack .hero-owner-note { margin-top: 0; margin-bottom: 0; }
+    .dual-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem 1.5rem;
+      max-width: 920px;
+      margin: 0 auto;
+    }
+    @media (max-width: 720px) {
+      .dual-grid { grid-template-columns: 1fr; }
+    }
+    .dual-col {
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.35rem 1.4rem;
+      box-shadow: var(--shadow);
+    }
+    .dual-col__title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin-bottom: 0.65rem;
+    }
+    .dual-col__desc {
+      font-size: 0.92rem;
+      color: var(--navy-800);
+      line-height: 1.65;
+      margin-bottom: 0.5rem;
+    }
+    .dual-col__change {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 1.2rem;
+    }
+    .dual-col .cta-stack { margin-top: auto; max-width: none; width: 100%; }
+
+    .hero-owner-note { font-size: 0.78rem; color: var(--muted); margin-top: 0.35rem; line-height: 1.5; }
+    .program-first-list {
+      list-style: none;
+      max-width: 520px;
+      margin: 0 auto 1.5rem;
+    }
+    .program-first-list li {
+      position: relative;
+      padding-left: 1.15em;
+      margin-bottom: 0.55rem;
+      font-size: 0.95rem;
+      color: var(--navy-800);
+      line-height: 1.65;
+    }
+    .program-first-list li::before {
+      content: "・";
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .program-body {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.85;
+      max-width: 32em;
+      margin: 0 auto 1rem;
+    }
+    .program-section-label {
+      text-align: center;
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+    .program-closing {
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--navy-800);
+      line-height: 1.85;
+      max-width: 32em;
+      margin: 0 auto;
+    }
+    .school-follow-cta {
       background: var(--soft);
       border-top: 1px solid var(--line);
       border-bottom: 1px solid var(--line);
     }
-    .ai-school-list {
-      list-style: none;
-      max-width: 520px;
-      margin: 0 auto 1.75rem;
-    }
-    .ai-school-list li {
-      position: relative;
-      padding-left: 1.85em;
-      margin-bottom: 0.55rem;
-      font-size: 0.95rem;
+    .school-follow-cta__body {
+      text-align: center;
       color: var(--navy-800);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      max-width: 32em;
+      margin: 0 auto 1.5rem;
     }
-    .ai-school-list li::before {
-      content: "✅";
-      position: absolute;
-      left: 0;
-      line-height: 1.5;
-    }
+    .school-follow-cta__note { display: block; margin-top: 0.65rem; font-size: 0.88rem; color: var(--muted); }
 
     /* Table */
     .price-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -763,6 +871,14 @@
     .final-cta .btn--primary:hover { background: var(--soft); color: var(--navy-900); }
     .final-cta .btn--secondary { border-color: rgba(255,255,255,0.4); color: #fff; background: transparent; }
     .final-cta .btn--secondary:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: #fff; }
+    .final-cta .btn-row {
+      flex-direction: column;
+      align-items: stretch;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .final-cta .btn-row .btn { width: 100%; justify-content: center; }
 
     footer {
       text-align: center;
@@ -786,11 +902,37 @@
     <div class="container">
       <h1 class="hero__catch">予約管理、まだ電話とノートでやっていますか？</h1>
       <p class="hero__sub">AIが自動で受け付けるから、営業時間外でも予約が入る。<br />飲食店・美容院・整体院オーナーのためのAI予約システム、無料で試せます</p>
-      <div class="btn-row">
-        <a class="btn btn--primary" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">無料で予約ページを見る</a>
-        <a class="btn btn--secondary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料相談はこちら</a>
+      <div class="cta-stack">
+        <a class="btn btn--primary" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">無料で試してみる（お客様用・予約デモ）</a>
+        <a class="btn btn--secondary" href="https://reservation-bot-beryl.vercel.app/admin.html" target="_blank" rel="noopener noreferrer">管理画面を見る（オーナー様用）</a>
+        <p class="hero-owner-note">※予約の確認・管理ができる画面です</p>
       </div>
       <p class="hero__note">無理な営業は一切しません。小さな相談でも大丈夫です。</p>
+    </div>
+  </section>
+
+  <section id="dual-experience" aria-labelledby="dual-experience-title">
+    <div class="container">
+      <h2 id="dual-experience-title" class="section-title">お客様とオーナー、それぞれの体験</h2>
+      <p class="section-sub" style="margin-bottom:1.5rem;">&nbsp;</p>
+      <div class="dual-grid">
+        <div class="dual-col">
+          <p class="dual-col__title">お客様</p>
+          <p class="dual-col__desc">スマホで簡単に予約できる</p>
+          <p class="dual-col__change">電話しなくていい → 24時間いつでも予約</p>
+          <div class="cta-stack">
+            <a class="btn btn--primary" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">予約画面を体験する</a>
+          </div>
+        </div>
+        <div class="dual-col">
+          <p class="dual-col__title">オーナー様</p>
+          <p class="dual-col__desc">予約が自動で一覧管理される</p>
+          <p class="dual-col__change">1件ずつ対応 → 自動で整理される</p>
+          <div class="cta-stack">
+            <a class="btn btn--secondary" href="https://reservation-bot-beryl.vercel.app/admin.html" target="_blank" rel="noopener noreferrer">管理画面を見る</a>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -833,8 +975,10 @@
         <li>飲食店・美容院・整体院で使える</li>
       </ul>
       <p class="res-emphasis">1日1時間削減 → 月30時間を取り戻せる</p>
-      <div class="btn-row" style="justify-content:center;">
-        <a class="btn btn--primary" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">実際の予約ページを見る</a>
+      <div class="cta-stack cta-stack--center" style="margin-top:1rem;">
+        <a class="btn btn--primary" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">無料で試してみる（お客様用・予約デモ）</a>
+        <a class="btn btn--secondary" href="https://reservation-bot-beryl.vercel.app/admin.html" target="_blank" rel="noopener noreferrer">管理画面を見る（オーナー様用）</a>
+        <p class="hero-owner-note" style="text-align:center;">※予約の確認・管理ができる画面です</p>
       </div>
       <p class="res-note">※デモ用サンプルです。導入費用0円でご相談できます。</p>
     </div>
@@ -850,16 +994,6 @@
         <div class="benefit-voice"><span class="benefit-voice__ico" aria-hidden="true">🌙</span><p>「寝ている間に予約が入っていた」</p></div>
       </div>
       <p class="benefit-summary">時間が増える → お客様対応の質が上がる → リピーターが増える → 売上が安定する</p>
-    </div>
-  </section>
-
-  <section id="mid-demo-cta" class="mid-cta" aria-labelledby="mid-demo-cta-title">
-    <div class="container">
-      <h2 id="mid-demo-cta-title" class="section-title">まず、無料で使ってみてください。</h2>
-      <p class="section-sub" style="margin-bottom:1.25rem;">&nbsp;</p>
-      <div class="btn-row" style="justify-content:center;">
-        <a class="btn btn--primary" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">予約ページのデモを見る</a>
-      </div>
     </div>
   </section>
 
@@ -1210,15 +1344,27 @@
 
   <section id="ai-school" class="ai-school" aria-labelledby="ai-school-title">
     <div class="container">
-      <h2 id="ai-school-title" class="section-title">AI業務改善 実践プログラム（全7回）</h2>
-      <p class="section-sub" style="margin-bottom:1.5rem;">自分でもAIツールを作れるようになりたい方へ</p>
-      <ul class="ai-school-list">
-        <li>1対1の伴走サポート</li>
-        <li>実務に直結した内容のみ</li>
-        <li>全7回で業務効率化を完成させる</li>
+      <h2 id="ai-school-title" class="section-title">AIって、実は難しくない。</h2>
+      <p class="program-body">はじめてでも大丈夫。<br />一緒にやりながら、仕事をラクにしていきます。</p>
+      <p class="program-section-label">AI活用 はじめの一歩プログラム（全7回）</p>
+      <ul class="program-first-list">
+        <li>わからないことは、すぐ聞ける1対1サポート</li>
+        <li>「明日から使える」実務直結の内容だけ</li>
+        <li>7回終わるころには、自分でツールが作れるように</li>
       </ul>
-      <div class="btn-row" style="justify-content:center;">
-        <a class="btn btn--primary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">詳細を見る</a>
+      <p class="program-closing">&ldquo;AIって難しそう&rdquo;が、&ldquo;これなら私でもできる&rdquo;に変わります。</p>
+    </div>
+  </section>
+
+  <section id="school-follow-cta" class="school-follow-cta" aria-labelledby="school-follow-cta-title">
+    <div class="container">
+      <h2 id="school-follow-cta-title" class="section-title">まずは無料相談で</h2>
+      <p class="school-follow-cta__body">
+        あなたの業務に合った改善プランをご提案します。
+        <span class="school-follow-cta__note">※AIスクールや個別サポートもご用意しています。</span>
+      </p>
+      <div class="cta-stack cta-stack--center">
+        <a class="btn btn--primary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料相談はこちら</a>
       </div>
     </div>
   </section>
