@@ -577,7 +577,7 @@
     .flow-cta__common { font-size: 0.86rem; color: var(--muted); line-height: 1.75; text-align: center; }
 
     /* Reservation LP blocks */
-    #dual-experience, #empathy, #reservation-loss, #reservation-free, #owner-benefits, #ai-school, #school-follow-cta { scroll-margin-top: 80px; }
+    #dual-experience, #trust-shops, #empathy, #reservation-loss, #reservation-free, #owner-benefits, #ai-school, #school-follow-cta { scroll-margin-top: 80px; }
     .empathy-list { max-width: 560px; margin: 0 auto 1.5rem; }
     .empathy-list ul { list-style: none; }
     .empathy-list li {
@@ -753,14 +753,14 @@
       box-shadow: var(--shadow);
     }
     .before-after__col--before {
-      background: linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%);
-      border: 1px solid #94a3b8;
-      color: #475569;
+      background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+      border: 1px solid #64748b;
+      color: #334155;
     }
     .before-after__col--before h3 {
       font-size: 1.12rem;
       font-weight: 700;
-      color: #475569;
+      color: #334155;
       margin-bottom: 0.85rem;
     }
     .before-after__col--before ul {
@@ -773,15 +773,15 @@
       padding-left: 1.15em;
       margin-bottom: 0.65rem;
       font-size: 0.92rem;
-      line-height: 1.6;
-      color: #57534e;
+      line-height: 1.65;
+      color: #1e293b;
     }
     .before-after__col--before li::before {
       content: "・";
       position: absolute;
       left: 0;
       font-weight: 700;
-      color: #78716c;
+      color: #475569;
     }
     .before-after__col--after {
       background: linear-gradient(165deg, #eff6ff 0%, #ffffff 55%);
@@ -804,7 +804,7 @@
       padding-left: 1.15em;
       margin-bottom: 0.65rem;
       font-size: 0.92rem;
-      line-height: 1.6;
+      line-height: 1.65;
       color: var(--navy-800);
       font-weight: 500;
     }
@@ -863,6 +863,55 @@
       max-width: 32em;
       margin: 1.25rem auto 0;
     }
+
+    /* 信頼：業種カード */
+    .trust-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 960px;
+      margin: 0 auto 1.35rem;
+    }
+    @media (max-width: 720px) {
+      .trust-cards { grid-template-columns: 1fr; }
+    }
+    .trust-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.35rem;
+      box-shadow: var(--shadow);
+    }
+    .trust-card__ico {
+      font-size: 1.85rem;
+      line-height: 1;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+    .trust-card h3 {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin-bottom: 0.5rem;
+    }
+    .trust-card p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin: 0;
+    }
+    .trust-cards__foot {
+      text-align: center;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--navy-800);
+      line-height: 1.65;
+      max-width: 36em;
+      margin: 0 auto;
+    }
+
+    .flow-cta .reassurance-text { margin-bottom: 0.35rem; }
+    .result-cta .reassurance-text { margin-top: 0.1rem; }
 
     .hero-owner-note { font-size: 0.78rem; color: var(--muted); margin-top: 0.35rem; line-height: 1.5; }
     .program-first-list {
@@ -1040,6 +1089,7 @@
     .final-cta .btn--primary:hover { background: var(--soft); color: var(--navy-900); }
     .final-cta .btn--secondary { border-color: rgba(255,255,255,0.4); color: #fff; background: transparent; }
     .final-cta .btn--secondary:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: #fff; }
+    .final-cta .reassurance-text { color: #94a3b8; margin-bottom: 0.35rem; }
     .final-cta .btn-row {
       flex-direction: column;
       align-items: stretch;
@@ -1083,27 +1133,52 @@
 
   <section id="dual-experience" aria-labelledby="dual-experience-title">
     <div class="container">
-      <h2 id="dual-experience-title" class="section-title">予約の受け方、こう変わります</h2>
+      <h2 id="dual-experience-title" class="section-title">現場のストレスが、こう変わります</h2>
       <p class="section-sub" style="margin-bottom:1.5rem;">Before → After</p>
       <div class="before-after-wrap">
         <div class="before-after__col before-after__col--before">
           <h3>今まで</h3>
           <ul>
-            <li>電話で予約受付 → 作業が止まる</li>
-            <li>手書きの予約台帳 → 書き間違い・ダブルブッキング</li>
-            <li>営業時間外は対応不可 → 機会損失</li>
+            <li>電話が鳴るたびに手が止まる</li>
+            <li>手書き台帳、書き間違いが不安</li>
+            <li>営業時間外は対応できない、機会を逃す</li>
           </ul>
         </div>
         <div class="before-after__arrow" aria-hidden="true">→</div>
         <div class="before-after__col before-after__col--after">
           <h3>AIを使うと</h3>
           <ul>
-            <li>24時間自動で予約受付</li>
-            <li>カレンダーで一目管理・ミスゼロ</li>
-            <li>寝ている間も予約が入る</li>
+            <li>24時間、自動で予約を受付</li>
+            <li>カレンダーで一目管理、ミスの心配なし</li>
+            <li>寝ている間も予約が入る、安心感</li>
           </ul>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section id="trust-shops" aria-labelledby="trust-shops-title">
+    <div class="container">
+      <h2 id="trust-shops-title" class="section-title">こんなお店で使えます</h2>
+      <p class="section-sub" style="margin-bottom:1.5rem;">&nbsp;</p>
+      <div class="trust-cards">
+        <div class="trust-card">
+          <span class="trust-card__ico" aria-hidden="true">🍽️</span>
+          <h3>飲食店</h3>
+          <p>「予約電話が減って、調理に集中できるように」</p>
+        </div>
+        <div class="trust-card">
+          <span class="trust-card__ico" aria-hidden="true">✂️</span>
+          <h3>美容院・サロン</h3>
+          <p>「ダブルブッキングがゼロになった」</p>
+        </div>
+        <div class="trust-card">
+          <span class="trust-card__ico" aria-hidden="true">💆</span>
+          <h3>整体院・マッサージ</h3>
+          <p>「営業時間外でも予約が入るようになった」</p>
+        </div>
+      </div>
+      <p class="trust-cards__foot">1日1時間削減 → 月30時間を取り戻せます</p>
     </div>
   </section>
 
@@ -1183,6 +1258,7 @@
     <div class="container">
       <div class="cta-stack cta-stack--center">
         <a class="btn btn--primary btn--primary-hero" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">無料で試してみる（予約デモ）</a>
+        <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
       </div>
     </div>
   </section>
@@ -1296,6 +1372,7 @@
           <ul class="result-picks" id="result-picks"></ul>
           <div class="result-cta">
             <a class="result-cta-primary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料で改善プランを受け取る</a>
+            <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
             <p class="result-cta-hint">あなたの会社に合った改善案を作るため、<br />3つだけ質問させてください</p>
             <a class="result-cta-sub" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">まず話だけ聞いてみる</a>
             <p class="result-cta-note">無理な営業は一切しません。<br />小さな相談でも大丈夫です。</p>
@@ -1433,6 +1510,7 @@
       <p class="flow-foot">どのステップからでも始められます。<br />無理に次のステップを勧めることはありません。</p>
       <div class="flow-cta">
         <a class="flow-cta__main" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">まずは単発相談を試してみる</a>
+        <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
         <p class="flow-cta__main-note">60分 / 5,000円〜・オンラインで完結</p>
         <a class="flow-cta__sub" href="#診断">無料診断を受けてみる</a>
         <p class="flow-cta__sub-note">3分で業務改善のポイントがわかります</p>
@@ -1527,6 +1605,7 @@
       <p class="section-sub" style="margin-bottom:1.5rem; color:#94a3b8;">相談は無料・全国オンライン対応<br />『うちでも使えるか？』だけでもOK</p>
       <div class="btn-row" style="justify-content:center;">
         <a class="btn btn--primary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料で改善プランを受け取る</a>
+        <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
         <a class="btn btn--secondary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">ヒアリングシートに答える（3分）</a>
       </div>
     </div>
@@ -1552,11 +1631,12 @@
       <ul class="res-yes-list" style="margin-bottom:1.25rem;">
         <li>あなたの業務のどこにムダがあるか</li>
         <li>AIでどこまで改善できるか</li>
-        <li>導入にいくらかかるか（ほとんど無料）</li>
+        <li>導入費用はいくらか（ほとんど無料）</li>
       </ul>
       <p class="consult-sub">売り込みはしません。まず現状を一緒に整理します。</p>
       <div class="cta-stack cta-stack--center" style="margin-top:1.5rem;">
         <a class="btn btn--primary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料相談を申し込む</a>
+        <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
       </div>
     </div>
   </section>
