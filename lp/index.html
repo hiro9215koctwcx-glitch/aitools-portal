@@ -411,7 +411,7 @@
     .case-after { color: var(--navy-800); font-weight: 500; }
 
     /* Companion, consult grid, service flow */
-    #companion, #consult-topics, #service-flow { scroll-margin-top: 80px; }
+    #companion, #service-flow { scroll-margin-top: 80px; }
     .companion__lead {
       text-align: center;
       color: var(--navy-800);
@@ -461,31 +461,6 @@
     }
     .companion__outro { font-size: 0.95rem; line-height: 1.8; color: var(--navy-800); text-align: center; max-width: 28em; margin: 0 auto 1.5rem; }
     .companion__legal { font-size: 0.78rem; line-height: 1.7; color: #94a3b8; text-align: left; max-width: 28em; margin: 0 auto; }
-    .consult-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem 1.25rem;
-      max-width: 960px;
-      margin: 0 auto 1.75rem;
-    }
-    @media (max-width: 900px) {
-      .consult-grid { grid-template-columns: 1fr; }
-    }
-    .consult-card {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 1.1rem 1.1rem 1.1rem 1rem;
-      box-shadow: var(--shadow);
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .consult-card:hover { background: var(--soft); border-color: #cbd5e1; }
-    .consult-card__ico { flex-shrink: 0; font-size: 1.25rem; line-height: 1.4; }
-    .consult-card p { font-size: 0.92rem; color: var(--navy-800); margin: 0; line-height: 1.6; }
-    .consult__foot { text-align: center; color: var(--navy-800); font-size: 0.95rem; line-height: 1.85; max-width: 32em; margin: 0 auto; }
     .flow-steps { max-width: 640px; margin: 0 auto; }
     .flow-step__card {
       position: relative;
@@ -562,6 +537,115 @@
     .flow-cta__sub:hover { border-color: var(--navy-800); text-decoration: none; color: var(--navy-800); }
     .flow-cta__sub-note { font-size: 0.8rem; color: var(--muted); text-align: center; margin: 0.4rem 0 0.85rem; }
     .flow-cta__common { font-size: 0.86rem; color: var(--muted); line-height: 1.75; text-align: center; }
+
+    /* Reservation LP blocks */
+    #empathy, #reservation-loss, #reservation-free, #owner-benefits, #mid-demo-cta, #ai-school { scroll-margin-top: 80px; }
+    .empathy-list { max-width: 560px; margin: 0 auto 1.5rem; }
+    .empathy-list ul { list-style: none; }
+    .empathy-list li {
+      position: relative;
+      padding: 0.85rem 0 0.85rem 2rem;
+      border-bottom: 1px solid var(--line);
+      color: var(--navy-800);
+      font-size: 0.95rem;
+    }
+    .empathy-list li::before {
+      content: "☑";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .empathy-closing {
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      letter-spacing: 0.04em;
+    }
+    .loss-list {
+      max-width: 640px;
+      margin: 0 auto;
+      padding-left: 1.25rem;
+      color: var(--navy-800);
+      font-size: 0.95rem;
+      line-height: 1.85;
+    }
+    .loss-list li { margin-bottom: 0.65rem; }
+    .res-yes-list {
+      list-style: none;
+      max-width: 520px;
+      margin: 0 auto 0.5rem;
+    }
+    .res-yes-list li {
+      position: relative;
+      padding-left: 1.85em;
+      margin-bottom: 0.55rem;
+      font-size: 0.95rem;
+      color: var(--navy-800);
+    }
+    .res-yes-list li::before {
+      content: "✅";
+      position: absolute;
+      left: 0;
+      line-height: 1.5;
+    }
+    .res-emphasis {
+      text-align: center;
+      font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+      font-weight: 800;
+      color: var(--navy-900);
+      margin: 1.25rem auto 1.25rem;
+      line-height: 1.55;
+      max-width: 28em;
+    }
+    .res-note { font-size: 0.82rem; color: var(--muted); text-align: center; margin-top: 1rem; line-height: 1.65; }
+    .benefit-voices { max-width: 640px; margin: 0 auto 1.75rem; }
+    .benefit-voice {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.15rem;
+      margin-bottom: 0.85rem;
+      box-shadow: var(--shadow);
+    }
+    .benefit-voice__ico { font-size: 1.35rem; line-height: 1.2; flex-shrink: 0; }
+    .benefit-voice p { margin: 0; font-size: 0.95rem; color: var(--navy-800); line-height: 1.55; }
+    .benefit-summary {
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--navy-800);
+      line-height: 1.85;
+      max-width: 34em;
+      margin: 0 auto;
+    }
+    .mid-cta {
+      background: var(--soft);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .ai-school-list {
+      list-style: none;
+      max-width: 520px;
+      margin: 0 auto 1.75rem;
+    }
+    .ai-school-list li {
+      position: relative;
+      padding-left: 1.85em;
+      margin-bottom: 0.55rem;
+      font-size: 0.95rem;
+      color: var(--navy-800);
+    }
+    .ai-school-list li::before {
+      content: "✅";
+      position: absolute;
+      left: 0;
+      line-height: 1.5;
+    }
 
     /* Table */
     .price-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -700,28 +784,81 @@
 
   <section class="hero">
     <div class="container">
-      <h1 class="hero__catch">ムダを減らしたい会社のための、AI業務改善。</h1>
-      <p class="hero__sub">毎月20時間のムダな作業を減らし、<br />本当に大切な仕事に集中できる環境へ。<br />難しいITの話は不要です。</p>
+      <h1 class="hero__catch">予約管理、まだ電話とノートでやっていますか？</h1>
+      <p class="hero__sub">AIが自動で受け付けるから、営業時間外でも予約が入る。<br />飲食店・美容院・整体院オーナーのためのAI予約システム、無料で試せます</p>
       <div class="btn-row">
-        <a class="btn btn--primary" href="#診断">3分でわかる AI業務改善 無料診断</a>
-        <a class="btn btn--secondary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">まず話だけ聞いてみる</a>
+        <a class="btn btn--primary" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">無料で予約ページを見る</a>
+        <a class="btn btn--secondary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料相談はこちら</a>
       </div>
       <p class="hero__note">無理な営業は一切しません。小さな相談でも大丈夫です。</p>
     </div>
   </section>
 
-  <section id="challenges" aria-labelledby="challenges-title">
+  <section id="empathy" aria-labelledby="empathy-title">
     <div class="container">
-      <h2 id="challenges-title" class="section-title">社長、今こんな状況ではないですか？</h2>
-      <p class="section-sub" style="margin-bottom:1.5rem;">次に当てはまる方は多いです</p>
-      <div class="checklist">
+      <h2 id="empathy-title" class="section-title">こんなお悩み、ありませんか？</h2>
+      <p class="section-sub" style="margin-bottom:1rem;">&nbsp;</p>
+      <div class="empathy-list">
         <ul>
-          <li>毎日の書類作成・返信に2〜3時間とられている</li>
-          <li>「IT化したい」と思いながら、何年も手がつけられない</li>
-          <li>業者に頼もうとしたら、金額が高すぎて諦めた</li>
-          <li>スタッフが少なく、自分が現場から離れられない</li>
-          <li>AIが使えるのは大企業だけだと思っていた</li>
+          <li>電話対応で作業が止まる</li>
+          <li>予約ノートの書き間違い・ダブルブッキング</li>
+          <li>営業時間外の問い合わせに対応できない</li>
+          <li>「今日何人来るっけ？」を毎朝確認している</li>
         </ul>
+      </div>
+      <p class="empathy-closing">── それ、全部AIが解決できます ──</p>
+    </div>
+  </section>
+
+  <section id="reservation-loss" aria-labelledby="reservation-loss-title">
+    <div class="container">
+      <h2 id="reservation-loss-title" class="section-title">手作業の予約管理、実はこんなに損しています</h2>
+      <p class="section-sub" style="margin-bottom:1.25rem;">&nbsp;</p>
+      <ul class="loss-list">
+        <li>1日30分の電話対応 → 月15時間のロス</li>
+        <li>ダブルブッキング1回 → 信頼と売上を同時に失う</li>
+        <li>営業時間外の問い合わせ → 他の店に流れている</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="reservation-free" aria-labelledby="reservation-free-title">
+    <div class="container">
+      <h2 id="reservation-free-title" class="section-title">AI予約システム、無料で導入できます</h2>
+      <p class="section-sub" style="margin-bottom:1.25rem;">&nbsp;</p>
+      <ul class="res-yes-list">
+        <li>24時間自動で予約受付</li>
+        <li>スマホだけで管理できる</li>
+        <li>ダブルブッキング・書き間違いゼロ</li>
+        <li>飲食店・美容院・整体院で使える</li>
+      </ul>
+      <p class="res-emphasis">1日1時間削減 → 月30時間を取り戻せる</p>
+      <div class="btn-row" style="justify-content:center;">
+        <a class="btn btn--primary" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">実際の予約ページを見る</a>
+      </div>
+      <p class="res-note">※デモ用サンプルです。導入費用0円でご相談できます。</p>
+    </div>
+  </section>
+
+  <section id="owner-benefits" aria-labelledby="owner-benefits-title">
+    <div class="container">
+      <h2 id="owner-benefits-title" class="section-title">導入後、オーナーさんに起きた変化</h2>
+      <p class="section-sub" style="margin-bottom:1.25rem;">&nbsp;</p>
+      <div class="benefit-voices">
+        <div class="benefit-voice"><span class="benefit-voice__ico" aria-hidden="true">📱</span><p>「電話が減って、料理に集中できるようになった」</p></div>
+        <div class="benefit-voice"><span class="benefit-voice__ico" aria-hidden="true">📅</span><p>「予約ミスがゼロになった」</p></div>
+        <div class="benefit-voice"><span class="benefit-voice__ico" aria-hidden="true">🌙</span><p>「寝ている間に予約が入っていた」</p></div>
+      </div>
+      <p class="benefit-summary">時間が増える → お客様対応の質が上がる → リピーターが増える → 売上が安定する</p>
+    </div>
+  </section>
+
+  <section id="mid-demo-cta" class="mid-cta" aria-labelledby="mid-demo-cta-title">
+    <div class="container">
+      <h2 id="mid-demo-cta-title" class="section-title">まず、無料で使ってみてください。</h2>
+      <p class="section-sub" style="margin-bottom:1.25rem;">&nbsp;</p>
+      <div class="btn-row" style="justify-content:center;">
+        <a class="btn btn--primary" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">予約ページのデモを見る</a>
       </div>
     </div>
   </section>
@@ -933,25 +1070,6 @@
     </div>
   </section>
 
-  <section id="consult-topics" aria-labelledby="consult-topics-title">
-    <div class="container">
-      <h2 id="consult-topics-title" class="section-title">こんな相談ができます</h2>
-      <p class="section-sub" style="margin-bottom:2rem;">&nbsp;</p>
-      <div class="consult-grid">
-        <div class="consult-card"><span class="consult-card__ico" aria-hidden="true">💬</span><p>自分の仕事にAIをどう使えるか知りたい</p></div>
-        <div class="consult-card"><span class="consult-card__ico" aria-hidden="true">💬</span><p>ChatGPTとClaudeの違いを知りたい</p></div>
-        <div class="consult-card"><span class="consult-card__ico" aria-hidden="true">💬</span><p>毎日の事務作業を少し減らしたい</p></div>
-        <div class="consult-card"><span class="consult-card__ico" aria-hidden="true">💬</span><p>どのAIツールを選べばいいかわからない</p></div>
-        <div class="consult-card"><span class="consult-card__ico" aria-hidden="true">💬</span><p>小さな自動化から始めてみたい</p></div>
-        <div class="consult-card"><span class="consult-card__ico" aria-hidden="true">💬</span><p>スタッフへのAI導入の進め方を知りたい</p></div>
-      </div>
-      <p class="consult__foot">
-        &ldquo;こんな相談していいのかな&rdquo;と思うことが<br />
-        実は一番大事な課題だったりします。
-      </p>
-    </div>
-  </section>
-
   <section id="service-flow" aria-labelledby="service-flow-title">
     <div class="container">
       <h2 id="service-flow-title" class="section-title">小さく始めて、必要なら深く支援します。</h2>
@@ -1081,11 +1199,26 @@
 
   <section class="final-cta" aria-labelledby="final-cta-title">
     <div class="container">
-      <h2 id="final-cta-title" class="section-title">まず、3分だけ試してみてください。</h2>
-      <p>診断するだけでも、<br />自分の会社のどこを改善できるかが見えてきます。</p>
+      <h2 id="final-cta-title" class="section-title">あなたのお店に合った形で、一緒に設計します。</h2>
+      <p class="section-sub" style="margin-bottom:1.5rem; color:#94a3b8;">相談は無料・全国オンライン対応<br />『うちでも使えるか？』だけでもOK</p>
       <div class="btn-row" style="justify-content:center;">
-        <a class="btn btn--primary" href="#診断">3分でわかる AI業務改善 無料診断</a>
-        <a class="btn btn--secondary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">メール・オンラインで直接相談する</a>
+        <a class="btn btn--primary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料で改善プランを受け取る</a>
+        <a class="btn btn--secondary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">ヒアリングシートに答える（3分）</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="ai-school" class="ai-school" aria-labelledby="ai-school-title">
+    <div class="container">
+      <h2 id="ai-school-title" class="section-title">AI業務改善 実践プログラム（全7回）</h2>
+      <p class="section-sub" style="margin-bottom:1.5rem;">自分でもAIツールを作れるようになりたい方へ</p>
+      <ul class="ai-school-list">
+        <li>1対1の伴走サポート</li>
+        <li>実務に直結した内容のみ</li>
+        <li>全7回で業務効率化を完成させる</li>
+      </ul>
+      <div class="btn-row" style="justify-content:center;">
+        <a class="btn btn--primary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">詳細を見る</a>
       </div>
     </div>
   </section>
