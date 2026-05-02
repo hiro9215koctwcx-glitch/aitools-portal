@@ -192,13 +192,22 @@
       text-align: center;
     }
     .hero__catch {
-      font-size: clamp(1.35rem, 4.5vw, 2rem);
+      font-size: clamp(1.28rem, 0.75rem + 1.8vw, 2.5rem);
       font-weight: 700;
       color: var(--navy-900);
-      line-height: 1.45;
+      line-height: 1.32;
       letter-spacing: 0.02em;
       margin-bottom: 1.1rem;
-      max-width: 22em;
+      max-width: 100%;
+      width: min(100%, 46rem);
+      padding-inline: clamp(4px, 1.5vw, 12px);
+      box-sizing: border-box;
+      text-wrap: balance;
+    }
+    @supports (text-wrap: pretty) {
+      .hero__catch {
+        text-wrap: pretty;
+      }
     }
     .hero__sub {
       font-size: clamp(0.92rem, 2.8vw, 1.08rem);
