@@ -255,24 +255,28 @@
       margin-top: auto;
     }
 
-    .composer input {
+    .composer textarea {
       flex: 1;
+      min-height: 2.75rem;
+      max-height: 12rem;
       padding: 0.75rem 1rem;
       font-family: var(--font);
       font-size: 0.9rem;
+      line-height: 1.45;
       color: var(--text);
       background: var(--bg-input);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       outline: none;
+      resize: vertical;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .composer input::placeholder {
+    .composer textarea::placeholder {
       color: var(--text-muted);
     }
 
-    .composer input:focus {
+    .composer textarea:focus {
       border-color: rgba(91, 140, 255, 0.45);
       box-shadow: 0 0 0 3px rgba(91, 140, 255, 0.12);
     }
@@ -482,7 +486,7 @@
           <div class="msg msg--assistant">どのようにお手伝いできますか？</div>
         </div>
         <div class="composer">
-          <input type="text" id="chatInput" placeholder="メッセージを入力…" autocomplete="off" />
+          <textarea id="chatInput" placeholder="メッセージを入力…" autocomplete="off" rows="2"></textarea>
           <button type="button" class="btn btn--primary js-send-chat" id="sendChatBtn">送信</button>
         </div>
       </div>
@@ -532,16 +536,11 @@
       var messagesEl = document.getElementById("messages");
       var chatInput = document.getElementById("chatInput");
       var sendBtn = document.getElementById("sendChatBtn");
+      var lastKeyWasEnter = false;
 
       var chatHistory = [
         { role: "assistant", content: "どのようにお手伝いできますか？" },
       ];
-
-      var systemMessage = {
-        role: "system",
-        content:
-          "You are a helpful assistant for the AI Business Command Center. Answer concisely and professionally. Use Japanese when the user writes in Japanese.",
-      };
 
       function showToast() {
         toast.textContent = "準備中です";
@@ -565,7 +564,31 @@
       }
 
       function buildApiMessages() {
+        const today = new Date().toLocaleDateString("ja-JP", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          weekday: "long",
+        });
+        var systemMessage = {
+          role: "system",
+          content:
+            "あなたはAIツール工房のAIアシスタントです。\n" +
+            "今日の日付は" +
+            today +
+            "です。\n" +
+            "飲食店・小企業・個人事業主の業務効率化をサポートします。\n" +
+            "質問には日本語で、わかりやすく丁寧に答えてください。",
+        };
         return [systemMessage].concat(chatHistory);
+      }
+
+      function insertNewlineAtCursor(el) {
+        var start = el.selectionStart;
+        var end = el.selectionEnd;
+        var val = el.value;
+        el.value = val.slice(0, start) + "\n" + val.slice(end);
+        el.selectionStart = el.selectionEnd = start + 1;
       }
 
       async function sendChat() {
@@ -573,6 +596,7 @@
         if (!text) return;
 
         chatInput.value = "";
+        lastKeyWasEnter = false;
         appendMessage("user", text);
         chatHistory.push({ role: "user", content: text });
 
@@ -607,9 +631,22 @@
 
       sendBtn.addEventListener("click", sendChat);
       chatInput.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") {
-          e.preventDefault();
+        if (e.isComposing) return;
+        if (e.key !== "Enter") {
+          lastKeyWasEnter = false;
+          return;
+        }
+        if (e.shiftKey) {
+          lastKeyWasEnter = false;
+          return;
+        }
+        e.preventDefault();
+        if (lastKeyWasEnter) {
+          lastKeyWasEnter = false;
           sendChat();
+        } else {
+          insertNewlineAtCursor(chatInput);
+          lastKeyWasEnter = true;
         }
       });
     })();
