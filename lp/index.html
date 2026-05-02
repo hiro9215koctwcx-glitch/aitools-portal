@@ -28,6 +28,9 @@
       --radius-lg: 20px;
       --shadow: 0 4px 24px rgba(15, 23, 42, 0.07);
       --shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.1);
+      --brand-teal: #028090;
+      --brand-mint: #02C39A;
+      --brand-navy: #1A3C5E;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -441,140 +444,155 @@
     .case-before { color: var(--muted); margin-bottom: 0.25rem; }
     .case-after { color: var(--navy-800); font-weight: 500; }
 
-    /* Companion, consult grid, service flow */
-    #companion, #service-flow { scroll-margin-top: 80px; }
-    .companion__lead {
-      text-align: center;
-      color: var(--navy-800);
-      font-size: 0.98rem;
-      line-height: 1.9;
-      max-width: 40em;
-      margin: 0 auto 2.5rem;
+    /* Pricing plans (3 tiers) */
+    #pricing { scroll-margin-top: 80px; }
+    .plan-section {
+      background: linear-gradient(180deg, rgba(2, 195, 154, 0.06) 0%, #fff 45%);
     }
-    .companion__card-wrap { max-width: 520px; margin: 0 auto 1.5rem; }
-    .companion__card {
-      background: var(--navy-900);
-      color: #fff;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow);
-      padding: clamp(1.75rem, 4vw, 2.25rem) clamp(1.5rem, 4vw, 2rem) 1.75rem;
-      text-align: center;
-    }
-    .companion__badge {
-      display: inline-block;
-      background: rgba(255, 255, 255, 0.15);
-      color: #fff;
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.35em 0.9em;
-      border-radius: 999px;
-      margin-bottom: 1rem;
-      letter-spacing: 0.04em;
-    }
-    .companion__card-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; line-height: 1.4; }
-    .companion__price { font-size: clamp(1.35rem, 3.5vw, 1.75rem); font-weight: 800; margin-bottom: 0.35rem; }
-    .companion__price-sub { font-size: 0.88rem; opacity: 0.9; margin-bottom: 1.35rem; }
-    .companion__list {
-      list-style: none;
-      text-align: left;
-      max-width: 20rem;
-      margin: 0 auto 1.25rem;
-      font-size: 0.92rem;
-      line-height: 1.6;
-    }
-    .companion__list li { position: relative; padding-left: 1.4em; margin-bottom: 0.55rem; }
-    .companion__list li::before {
-      content: "✔";
-      position: absolute;
-      left: 0;
-      color: #7dd3fc;
-      font-size: 0.85em;
-    }
-    .companion__outro { font-size: 0.95rem; line-height: 1.8; color: var(--navy-800); text-align: center; max-width: 28em; margin: 0 auto 1.5rem; }
-    .companion__legal { font-size: 0.78rem; line-height: 1.7; color: #94a3b8; text-align: left; max-width: 28em; margin: 0 auto; }
-    .flow-steps { max-width: 640px; margin: 0 auto; }
-    .flow-step__card {
-      position: relative;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 1.5rem 1.35rem 1.4rem;
-      box-shadow: var(--shadow);
-    }
-    .flow-step--featured .flow-step__card { border-color: #cbd5e1; padding-right: 5rem; }
-    .flow-step__badge {
-      position: absolute;
-      top: 0.85rem;
-      right: 1rem;
-      background: var(--navy-800);
-      color: #fff;
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 0.3em 0.65em;
-      border-radius: 6px;
-    }
-    .flow-step__num { font-size: 0.75rem; font-weight: 600; color: var(--accent); letter-spacing: 0.05em; margin-bottom: 0.35rem; }
-    .flow-step__name { font-size: 1.05rem; font-weight: 700; color: var(--navy-900); margin-bottom: 0.4rem; }
-    .flow-step__price { font-size: 0.95rem; font-weight: 600; color: var(--navy-800); margin-bottom: 0.5rem; }
-    .flow-step__desc, .flow-step__note { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
-    .flow-step__desc { color: var(--navy-800); margin-bottom: 0.35rem; }
-    .flow-step__arrow {
-      text-align: center;
-      font-size: 1.5rem;
-      line-height: 1;
-      color: var(--muted);
-      padding: 0.4rem 0 0.55rem;
-      font-weight: 500;
-    }
-    .flow-foot { text-align: center; color: var(--navy-800); font-size: 0.95rem; line-height: 1.8; max-width: 32em; margin: 0 auto 2rem; }
-    .flow-cta {
-      max-width: 420px;
+    .plan-section .section-title { color: var(--brand-navy); }
+    .plan-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      max-width: 1100px;
       margin: 0 auto;
+      align-items: stretch;
+    }
+    @media (max-width: 900px) {
+      .plan-grid { grid-template-columns: 1fr; }
+    }
+    .plan-card {
+      position: relative;
+      background: #fff;
+      border: 2px solid rgba(2, 128, 144, 0.22);
+      border-radius: var(--radius-lg);
+      padding: 2.65rem 1.35rem 1.5rem;
+      box-shadow: 0 10px 36px rgba(26, 60, 94, 0.09);
       display: flex;
       flex-direction: column;
-      align-items: stretch;
-      gap: 0;
+      min-height: 100%;
     }
-    .flow-cta__main {
+    .plan-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      border-radius: calc(var(--radius-lg) - 2px) calc(var(--radius-lg) - 2px) 0 0;
+      background: linear-gradient(90deg, var(--brand-navy), var(--brand-teal), var(--brand-mint));
+    }
+    .plan-card__badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: 0.4em 0.75em;
+      border-radius: 6px;
+      line-height: 1.3;
+    }
+    .plan-card__badge--limited {
+      background: #dc2626;
+      color: #fff;
+    }
+    .plan-card__badge--popular {
+      background: linear-gradient(135deg, #fde68a, #f59e0b);
+      color: var(--brand-navy);
+    }
+    .plan-card__badge--support {
+      background: var(--brand-teal);
+      color: #fff;
+    }
+    .plan-card__label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--brand-teal);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.35rem;
+    }
+    .plan-card__title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--brand-navy);
+      line-height: 1.45;
+      margin-bottom: 1rem;
+      padding-right: 4.75rem;
+    }
+    .plan-card__price {
+      font-size: clamp(1.35rem, 3vw, 1.65rem);
+      font-weight: 800;
+      color: var(--brand-teal);
+      line-height: 1.25;
+      margin-bottom: 0.35rem;
+    }
+    .plan-card__price-sub {
+      font-size: 0.86rem;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-bottom: 1rem;
+    }
+    .plan-card__meta {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--brand-navy);
+      margin-bottom: 0.75rem;
+    }
+    .plan-card__desc {
+      font-size: 0.9rem;
+      color: var(--navy-800);
+      line-height: 1.65;
+      margin-bottom: 1rem;
+    }
+    .plan-card__list {
+      list-style: none;
+      margin: 0 0 1.25rem;
+      padding: 0;
+      flex: 1;
+    }
+    .plan-card__list li {
+      position: relative;
+      padding-left: 1.15em;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--navy-800);
+      line-height: 1.55;
+    }
+    .plan-card__list li::before {
+      content: "・";
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+      color: var(--brand-mint);
+    }
+    .plan-card__cta {
       display: flex;
       align-items: center;
       justify-content: center;
       width: 100%;
-      padding: 16px 22px;
-      font-size: 1.02rem;
-      font-weight: 600;
+      margin-top: auto;
+      padding: 13px 18px;
+      font-size: 0.92rem;
+      font-weight: 700;
       text-align: center;
       text-decoration: none;
       color: #fff;
-      background: var(--navy-800);
-      border-radius: 999px;
-      box-shadow: var(--shadow);
       font-family: inherit;
-      border: 2px solid var(--navy-800);
-      transition: background 0.2s, transform 0.15s;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--brand-teal), var(--brand-mint));
+      border: none;
+      box-shadow: 0 6px 20px rgba(2, 128, 144, 0.35);
+      transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
     }
-    .flow-cta__main:hover { background: var(--navy-700); color: #fff; text-decoration: none; transform: translateY(-2px); }
-    .flow-cta__main-note { font-size: 0.8rem; color: var(--muted); text-align: center; margin: 0.4rem 0 1.1rem; }
-    .flow-cta__sub {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      padding: 12px 20px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      text-align: center;
+    .plan-card__cta:hover {
+      color: #fff;
       text-decoration: none;
-      color: var(--navy-800);
-      background: #fff;
-      border: 2px solid var(--line);
-      border-radius: 999px;
-      font-family: inherit;
-      transition: border-color 0.2s, color 0.2s;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 26px rgba(2, 128, 144, 0.45);
+      filter: brightness(1.03);
     }
-    .flow-cta__sub:hover { border-color: var(--navy-800); text-decoration: none; color: var(--navy-800); }
-    .flow-cta__sub-note { font-size: 0.8rem; color: var(--muted); text-align: center; margin: 0.4rem 0 0.85rem; }
-    .flow-cta__common { font-size: 0.86rem; color: var(--muted); line-height: 1.75; text-align: center; }
 
     /* Reservation LP blocks */
     #dual-experience, #trust-shops, #empathy, #reservation-loss, #reservation-free, #owner-benefits, #ai-school, #school-follow-cta { scroll-margin-top: 80px; }
@@ -910,7 +928,6 @@
       margin: 0 auto;
     }
 
-    .flow-cta .reassurance-text { margin-bottom: 0.35rem; }
     .result-cta .reassurance-text { margin-top: 0.1rem; }
 
     .hero-owner-note { font-size: 0.78rem; color: var(--muted); margin-top: 0.35rem; line-height: 1.5; }
@@ -972,30 +989,6 @@
       margin: 0 auto 1.5rem;
     }
     .school-follow-cta__note { display: block; margin-top: 0.65rem; font-size: 0.88rem; color: var(--muted); }
-
-    /* Table */
-    .price-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .price-table {
-      width: 100%;
-      max-width: 640px;
-      margin: 0 auto;
-      border-collapse: collapse;
-      font-size: 0.92rem;
-    }
-    .price-table th, .price-table td {
-      padding: 14px 16px;
-      text-align: left;
-      border-bottom: 1px solid var(--line);
-    }
-    .price-table th { background: var(--navy-800); color: #fff; font-weight: 600; }
-    .price-table tr:nth-child(even) td { background: var(--soft); }
-    .price-note {
-      max-width: 640px;
-      margin: 1.5rem auto 0;
-      font-size: 0.88rem;
-      color: var(--muted);
-      line-height: 1.85;
-    }
 
     .intro-block {
       max-width: 640px;
@@ -1438,110 +1431,46 @@
     </div>
   </section>
 
-  <section id="companion" aria-labelledby="companion-title">
+  <section id="pricing" class="plan-section" aria-labelledby="pricing-title">
     <div class="container">
-      <h2 id="companion-title" class="section-title">AI伴走サポート</h2>
-      <p class="companion__lead">
-        『詳しい人が社内にいたら&hellip;』<br />
-        そう思ったことはありませんか？<br />
-        難しいITコンサルではありません。<br />
-        あなたの会社の相談相手として、<br />
-        一緒に歩んでいきます。
-      </p>
-      <div class="companion__card-wrap">
-        <div class="companion__card" role="group" aria-label="AI伴走サポート人気プラン">
-          <span class="companion__badge">人気プラン</span>
-          <p class="companion__card-title">AI伴走サポート</p>
-          <p class="companion__price">月額 19,800円</p>
-          <p class="companion__price-sub">いつでも解約できます</p>
-          <ul class="companion__list">
-            <li>月2回（45分）オンライン相談</li>
-            <li>AIツール選定サポート</li>
-            <li>業務改善アドバイス</li>
-            <li>チャット相談（月5回まで）</li>
-            <li>月1回の改善提案レポート</li>
+      <h2 id="pricing-title" class="section-title">料金プラン</h2>
+      <p class="section-sub" style="margin-bottom:1.75rem;">ご予算と目的に合わせて、小さく始められます</p>
+      <div class="plan-grid">
+        <article class="plan-card">
+          <span class="plan-card__badge plan-card__badge--limited">期間限定</span>
+          <p class="plan-card__label">プラン①</p>
+          <h3 class="plan-card__title">まず話そう（無料モニター）</h3>
+          <p class="plan-card__price">無料</p>
+          <p class="plan-card__price-sub">先着3名／2026年5月限定</p>
+          <ul class="plan-card__list">
+            <li>60分Zoom相談</li>
+            <li>業務の棚卸しシート</li>
+            <li>AI活用1stステップ提案書</li>
           </ul>
-        </div>
+          <a class="plan-card__cta" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料モニターに応募する</a>
+        </article>
+        <article class="plan-card">
+          <span class="plan-card__badge plan-card__badge--popular">人気No.1</span>
+          <p class="plan-card__label">プラン②</p>
+          <h3 class="plan-card__title">1個だけ作る</h3>
+          <p class="plan-card__price">3万円〜</p>
+          <p class="plan-card__meta">納期：2週間以内</p>
+          <p class="plan-card__desc">HPまたは業務効率化ツールまたはAIチャットボットを1個制作</p>
+          <a class="plan-card__cta" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料相談する</a>
+        </article>
+        <article class="plan-card">
+          <span class="plan-card__badge plan-card__badge--support">継続サポート</span>
+          <p class="plan-card__label">プラン③</p>
+          <h3 class="plan-card__title">月イチ伴走</h3>
+          <p class="plan-card__price">月額 19,800円</p>
+          <ul class="plan-card__list">
+            <li>月2回Zoom相談</li>
+            <li>チャット相談（月5回まで）</li>
+            <li>月1回改善提案書</li>
+          </ul>
+          <a class="plan-card__cta" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">相談してみる</a>
+        </article>
       </div>
-      <p class="companion__outro">難しいITコンサルではありません。<br />あなたの会社の相談相手です。</p>
-      <p class="companion__legal">
-        ※最低契約期間なし。合わなければいつでも終了できます。<br />
-        ※まずは単発相談からお試しいただけます。
-      </p>
-    </div>
-  </section>
-
-  <section id="service-flow" aria-labelledby="service-flow-title">
-    <div class="container">
-      <h2 id="service-flow-title" class="section-title">小さく始めて、必要なら深く支援します。</h2>
-      <p class="section-sub" style="margin-bottom:2rem;">&nbsp;</p>
-      <div class="flow-steps">
-        <div class="flow-step">
-          <div class="flow-step__card">
-            <p class="flow-step__num">STEP 1</p>
-            <p class="flow-step__name">単発相談</p>
-            <p class="flow-step__price">60分 / 5,000円〜</p>
-            <p class="flow-step__desc">「まず話を聞いてほしい」という方へ</p>
-            <p class="flow-step__note">オンライン（Zoom等）またはメール対応</p>
-          </div>
-        </div>
-        <p class="flow-step__arrow" aria-hidden="true">↓</p>
-        <div class="flow-step flow-step--featured">
-          <div class="flow-step__card">
-            <span class="flow-step__badge" aria-label="おすすめ">おすすめ</span>
-            <p class="flow-step__num">STEP 2</p>
-            <p class="flow-step__name">AI伴走サポート（月額）</p>
-            <p class="flow-step__price">月額 19,800円〜</p>
-            <p class="flow-step__desc">「継続的に相談できる人が欲しい」という方へ</p>
-            <p class="flow-step__note">月2回の相談＋チャットサポート付き</p>
-          </div>
-        </div>
-        <p class="flow-step__arrow" aria-hidden="true">↓</p>
-        <div class="flow-step">
-          <div class="flow-step__card">
-            <p class="flow-step__num">STEP 3</p>
-            <p class="flow-step__name">実装支援</p>
-            <p class="flow-step__price">5万円〜</p>
-            <p class="flow-step__desc">「実際にツールやシステムを作りたい」という方へ</p>
-            <p class="flow-step__note">要件定義から納品まで一貫サポート</p>
-          </div>
-        </div>
-      </div>
-      <p class="flow-foot">どのステップからでも始められます。<br />無理に次のステップを勧めることはありません。</p>
-      <div class="flow-cta">
-        <a class="flow-cta__main" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">まずは単発相談を試してみる</a>
-        <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
-        <p class="flow-cta__main-note">60分 / 5,000円〜・オンラインで完結</p>
-        <a class="flow-cta__sub" href="#診断">無料診断を受けてみる</a>
-        <p class="flow-cta__sub-note">3分で業務改善のポイントがわかります</p>
-        <p class="flow-cta__common">無理な営業は一切しません。<br />&ldquo;話を聞くだけ&rdquo;でも大歓迎です。</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="pricing" aria-labelledby="pricing-title">
-    <div class="container">
-      <h2 id="pricing-title" class="section-title">料金の目安</h2>
-      <p class="section-sub">まず金額を知りたい方へ</p>
-      <div class="price-table-wrap">
-        <table class="price-table">
-          <thead>
-            <tr><th>内容</th><th>目安</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>初回相談</td><td>無料</td></tr>
-            <tr><td>業務改善アプリ制作</td><td>3万円〜</td></tr>
-            <tr><td>ホームページ制作</td><td>5万円〜</td></tr>
-            <tr><td>AI導入サポート</td><td>月額1万円〜</td></tr>
-            <tr><td>フルサポートプラン</td><td>月額3万円〜</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="price-note">
-        すべてご相談・お見積もり後に決定します。<br />
-        相談だけで費用は発生しません。<br />
-        &ldquo;予算が少ない&rdquo;という相談も大歓迎です。
-      </p>
     </div>
   </section>
 
