@@ -483,7 +483,7 @@
         </div>
         <div class="composer">
           <input type="text" id="chatInput" placeholder="メッセージを入力…" autocomplete="off" />
-          <button type="button" class="btn btn--primary js-prep">送信</button>
+          <button type="button" class="btn btn--primary js-send-chat" id="sendChatBtn">送信</button>
         </div>
       </div>
     </main>
@@ -529,6 +529,19 @@
     (function () {
       var toast = document.getElementById("toast");
       var hideTimer;
+      var messagesEl = document.getElementById("messages");
+      var chatInput = document.getElementById("chatInput");
+      var sendBtn = document.getElementById("sendChatBtn");
+
+      var chatHistory = [
+        { role: "assistant", content: "どのようにお手伝いできますか？" },
+      ];
+
+      var systemMessage = {
+        role: "system",
+        content:
+          "You are a helpful assistant for the AI Business Command Center. Answer concisely and professionally. Use Japanese when the user writes in Japanese.",
+      };
 
       function showToast() {
         toast.textContent = "準備中です";
@@ -541,6 +554,63 @@
 
       document.querySelectorAll(".js-prep").forEach(function (btn) {
         btn.addEventListener("click", showToast);
+      });
+
+      function appendMessage(role, text) {
+        var div = document.createElement("div");
+        div.className = "msg msg--" + role;
+        div.textContent = text;
+        messagesEl.appendChild(div);
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+
+      function buildApiMessages() {
+        return [systemMessage].concat(chatHistory);
+      }
+
+      async function sendChat() {
+        var text = (chatInput.value || "").trim();
+        if (!text) return;
+
+        chatInput.value = "";
+        appendMessage("user", text);
+        chatHistory.push({ role: "user", content: text });
+
+        sendBtn.disabled = true;
+        try {
+          var res = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ messages: buildApiMessages() }),
+          });
+          var data = await res.json().catch(function () {
+            return {};
+          });
+          if (!res.ok) {
+            appendMessage(
+              "assistant",
+              "エラー: " + (data.error || res.statusText || "不明なエラー")
+            );
+            chatHistory.pop();
+            return;
+          }
+          var reply = typeof data.message === "string" ? data.message : "";
+          appendMessage("assistant", reply);
+          chatHistory.push({ role: "assistant", content: reply });
+        } catch (e) {
+          appendMessage("assistant", "通信に失敗しました。ネットワークをご確認ください。");
+          chatHistory.pop();
+        } finally {
+          sendBtn.disabled = false;
+        }
+      }
+
+      sendBtn.addEventListener("click", sendChat);
+      chatInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          sendChat();
+        }
       });
     })();
   </script>
