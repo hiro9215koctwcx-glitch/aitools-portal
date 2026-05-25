@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="飲食店オーナー向けSNS投稿文作成ツール。X・Instagram用の投稿文を簡単に作れます。">
+  <title>投稿くん｜飲食店のSNS投稿、もう迷わない</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --orange: #FF8C42;
+      --orange-dark: #E86A1A;
+      --yellow: #FFD166;
+      --yellow-light: #FFF8E7;
+      --coral: #FF6B6B;
+      --green: #2ECC71;
+      --green-dark: #27AE60;
+      --green-light: #EAFAF1;
+      --white: #FFFFFF;
+      --bg: #FFFBF5;
+      --text: #2D2A26;
+      --text-muted: #6B6560;
+      --border: #F0E6D8;
+      --error: #E53935;
+      --success: #2E7D32;
+      --radius: 16px;
+      --radius-sm: 12px;
+      --shadow: 0 4px 20px rgba(255, 140, 66, 0.12);
+      --shadow-lg: 0 8px 32px rgba(255, 140, 66, 0.18);
+      --min-touch: 44px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: "Noto Sans JP", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 16px;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--yellow) 100%);
+      color: var(--white);
+      padding: 1.5rem 1.25rem 1.75rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: "";
+      position: absolute;
+      top: -30%; right: -10%;
+      width: 180px; height: 180px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+    }
+
+    .header::after {
+      content: "";
+      position: absolute;
+      bottom: -20%; left: -5%;
+      width: 120px; height: 120px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+    }
+
+    .header-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .header-text { text-align: left; }
+
+    .logo {
+      font-size: clamp(1.75rem, 7vw, 2.5rem);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .logo-icon { font-size: 1.1em; }
+
+    .subtitle {
+      margin-top: 0.35rem;
+      font-size: clamp(0.8rem, 3vw, 0.95rem);
+      font-weight: 500;
+      opacity: 0.95;
+    }
+
+    .btn-header-save {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-height: var(--min-touch);
+      padding: 0.55rem 1rem;
+      background: rgba(255,255,255,0.22);
+      color: var(--white);
+      border: 2px solid rgba(255,255,255,0.6);
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 0.83rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-header-save:hover { background: rgba(255,255,255,0.35); }
+
+    .save-badge {
+      background: var(--white);
+      color: var(--orange-dark);
+      border-radius: 50px;
+      font-size: 0.72rem;
+      font-weight: 900;
+      padding: 0.1rem 0.45rem;
+      min-width: 1.4rem;
+      text-align: center;
+    }
+
+    @media (max-width: 420px) {
+      .header-top { flex-direction: column; align-items: flex-start; }
+      .header-text { text-align: left; }
+    }
+
+    /* ── Main layout ── */
+    .main {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    @media (min-width: 768px) {
+      .main { padding: 2rem 1.5rem 3rem; }
+      .header { padding: 2rem 2rem 2.5rem; }
+    }
+
+    .step { margin-bottom: 2rem; }
+
+    .step-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(90deg, var(--orange), var(--yellow));
+      color: var(--white);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.35rem 0.85rem;
+      border-radius: 50px;
+      margin-bottom: 0.75rem;
+    }
+
+    .step-title {
+      font-size: clamp(1.1rem, 4vw, 1.25rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    /* ── Template section ── */
+    .template-section {
+      margin-bottom: 1.75rem;
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.25rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--orange);
+    }
+
+    .template-section-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.85rem;
+    }
+
+    .template-list { display: flex; flex-direction: column; gap: 0.65rem; }
+
+    .template-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .template-card-info { flex: 1; min-width: 0; }
+
+    .template-name {
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: var(--text);
+      margin-bottom: 0.15rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .template-type { font-size: 0.76rem; color: var(--text-muted); }
+
+    .template-actions { display: flex; gap: 0.45rem; flex-shrink: 0; }
+
+    .btn-use-template {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--min-touch);
+      padding: 0.45rem 0.9rem;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      color: var(--white);
+      border: none;
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-use-template:hover { opacity: 0.88; }
+
+    .btn-delete-template {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--min-touch);
+      padding: 0.45rem 0.8rem;
+      background: var(--white);
+      color: var(--error);
+      border: 1.5px solid var(--error);
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-delete-template:hover { background: #FFF5F5; }
+
+    /* ── Type cards ── */
+    .type-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    @media (min-width: 480px) {
+      .type-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .type-card {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: var(--min-touch);
+      padding: 1rem 0.85rem;
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s, box-shadow 0.2s;
+      line-height: 1.4;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .type-card:hover { border-color: var(--orange); background: var(--yellow-light); }
+    .type-card:active { transform: scale(0.98); }
+
+    .type-card.selected {
+      border-color: var(--orange);
+      background: linear-gradient(135deg, #FFF5EB 0%, var(--yellow-light) 100%);
+      box-shadow: var(--shadow);
+      font-weight: 700;
+      color: var(--orange-dark);
+    }
+
+    /* ── Form ── */
+    .form-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      color: var(--text);
+    }
+
+    .form-input,
+    .form-textarea {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      min-height: var(--min-touch);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--text);
+      background: var(--white);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-textarea { min-height: 88px; resize: vertical; }
+
+    .form-input:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.2);
+    }
+
+    .form-placeholder-hint {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Template save button ── */
+    .template-save-wrap {
+      margin-bottom: 1.25rem;
+      text-align: center;
+    }
+
+    .btn-sub-action {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--min-touch);
+      padding: 0.6rem 1.25rem;
+      background: var(--white);
+      color: var(--text-muted);
+      border: 1.5px dashed var(--border);
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+
+    .btn-sub-action:hover {
+      border-color: var(--orange);
+      color: var(--orange-dark);
+      background: var(--yellow-light);
+    }
+
+    /* ── Generate button ── */
+    .btn-generate {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 56px;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%);
+      color: var(--white);
+      border: none;
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow-lg);
+      transition: transform 0.15s, box-shadow 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-generate:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(232, 106, 26, 0.35);
+    }
+
+    .btn-generate:active { transform: translateY(0); }
+
+    .generate-error {
+      text-align: center;
+      color: var(--error);
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-top: 0.75rem;
+      display: none;
+    }
+
+    .generate-error.visible { display: block; }
+
+    /* ── Results area ── */
+    .results { display: none; margin-top: 2rem; }
+    .results.visible { display: block; }
+
+    .result-block {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .result-block.x-block { border-top: 4px solid #1DA1F2; }
+    .result-block.ig-block { border-top: 4px solid #E1306C; }
+
+    .result-heading {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .result-heading .icon { font-size: 1.25rem; }
+
+    .result-textarea {
+      width: 100%;
+      min-height: 140px;
+      padding: 1rem;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.95rem;
+      line-height: 1.65;
+      resize: vertical;
+      margin-bottom: 0.5rem;
+    }
+
+    .result-textarea:focus { outline: none; border-color: var(--orange); }
+
+    .char-counter {
+      text-align: right;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .char-counter.over { color: var(--error); font-weight: 700; }
+
+    .hashtag-box {
+      background: var(--yellow-light);
+      border: 1px dashed var(--orange);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 1rem;
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+      word-break: break-all;
+    }
+
+    .btn-copy {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: var(--min-touch);
+      min-width: 140px;
+      padding: 0.65rem 1.25rem;
+      background: var(--white);
+      color: var(--orange-dark);
+      border: 2px solid var(--orange);
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-copy:hover { background: var(--yellow-light); }
+
+    .btn-copy.copied,
+    .btn-copy-saved.copied {
+      background: var(--success);
+      border-color: var(--success);
+      color: var(--white);
+    }
+
+    .copy-row { margin-bottom: 0.75rem; }
+    .copy-row:last-child { margin-bottom: 0; }
+
+    .copy-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    /* ── Save post button (green) ── */
+    .btn-save-post {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 52px;
+      padding: 0.9rem 1.5rem;
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: var(--white);
+      border: none;
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(46, 204, 113, 0.3);
+      transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-save-post:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(46, 204, 113, 0.4);
+    }
+
+    .btn-save-post:active { transform: translateY(0); }
+
+    .btn-save-post.saved-flash {
+      background: linear-gradient(135deg, var(--green-dark), #1E8449);
+    }
+
+    /* ── Saved section ── */
+    .saved-section {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 2px dashed var(--border);
+    }
+
+    .saved-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .saved-section-title {
+      font-size: clamp(1.1rem, 4vw, 1.25rem);
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .btn-export {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--min-touch);
+      padding: 0.55rem 1.1rem;
+      background: var(--white);
+      color: var(--text);
+      border: 2px solid var(--border);
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 0.83rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .btn-export:hover { border-color: var(--orange); background: var(--yellow-light); }
+
+    .saved-empty {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 2rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .saved-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: opacity 0.25s;
+    }
+
+    .saved-card.is-posted { opacity: 0.6; }
+    .saved-card.card-pending-delete { display: none; }
+
+    .saved-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .saved-card-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; }
+
+    .saved-type-tag {
+      background: var(--yellow-light);
+      color: var(--orange-dark);
+      font-size: 0.73rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 50px;
+      border: 1px solid var(--orange);
+    }
+
+    .posted-badge {
+      background: var(--green-light);
+      color: var(--green-dark);
+      font-size: 0.73rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 50px;
+      border: 1px solid var(--green);
+    }
+
+    .saved-date { font-size: 0.76rem; color: var(--text-muted); white-space: nowrap; }
+
+    .saved-accordions { margin-bottom: 0.85rem; }
+
+    .btn-accordion {
+      background: none;
+      border: none;
+      color: var(--orange-dark);
+      font-family: inherit;
+      font-size: 0.83rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0.4rem 0;
+      display: block;
+      text-align: left;
+    }
+
+    .btn-accordion:hover { text-decoration: underline; }
+
+    .accordion-content {
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem;
+      margin-bottom: 0.35rem;
+      font-size: 0.83rem;
+    }
+
+    .accordion-content[hidden] { display: none; }
+
+    .acc-text {
+      white-space: pre-wrap;
+      line-height: 1.65;
+      margin-bottom: 0.5rem;
+    }
+
+    .accordion-content .hashtag-box { margin-bottom: 0; font-size: 0.78rem; }
+
+    .saved-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+
+    .btn-copy-saved {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--min-touch);
+      padding: 0.45rem 0.85rem;
+      background: var(--white);
+      color: var(--orange-dark);
+      border: 2px solid var(--orange);
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .btn-copy-saved:hover { background: var(--yellow-light); }
+
+    .btn-toggle-posted {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--min-touch);
+      padding: 0.45rem 0.85rem;
+      background: var(--white);
+      color: var(--green-dark);
+      border: 2px solid var(--green);
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-toggle-posted:hover { background: var(--green-light); }
+
+    .btn-delete-saved {
+      display: inline-flex;
+      align-items: center;
+      min-height: var(--min-touch);
+      padding: 0.45rem 0.85rem;
+      background: var(--white);
+      color: var(--error);
+      border: 2px solid var(--error);
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-delete-saved:hover { background: #FFF5F5; }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 2rem 1rem 2.5rem;
+      border-top: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+
+    .footer-credit { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .footer-credit strong { color: var(--orange-dark); font-weight: 700; }
+
+    .btn-reset {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: var(--min-touch);
+      padding: 0.75rem 1.75rem;
+      background: var(--white);
+      color: var(--text);
+      border: 2px solid var(--border);
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-reset:hover { border-color: var(--orange); background: var(--yellow-light); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 900;
+      padding: 1rem;
+    }
+
+    .modal-overlay.is-hidden { display: none; }
+
+    .modal-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 1.75rem 1.5rem 1.5rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .modal-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1.1rem;
+      color: var(--text);
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 1rem;
+      color: var(--text);
+      margin-bottom: 1.1rem;
+    }
+
+    .modal-input:focus {
+      outline: none;
+      border-color: var(--orange);
+      box-shadow: 0 0 0 3px rgba(255,140,66,0.2);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.65rem;
+      justify-content: flex-end;
+    }
+
+    .btn-modal-cancel {
+      min-height: var(--min-touch);
+      padding: 0.6rem 1.25rem;
+      background: var(--white);
+      color: var(--text-muted);
+      border: 2px solid var(--border);
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-modal-cancel:hover { background: var(--bg); }
+
+    .btn-modal-save {
+      min-height: var(--min-touch);
+      padding: 0.6rem 1.5rem;
+      background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+      color: var(--white);
+      border: none;
+      border-radius: 50px;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-modal-save:hover { opacity: 0.9; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      background: #2D2A26;
+      color: #fff;
+      border-radius: 12px;
+      padding: 0.85rem 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      z-index: 1000;
+      transform: translateY(calc(100% + 2.5rem));
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      max-width: calc(100vw - 3rem);
+      pointer-events: none;
+    }
+
+    .toast.toast-show {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .toast-msg { font-size: 0.88rem; font-weight: 500; }
+
+    .btn-toast-undo {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.55);
+      color: #fff;
+      border-radius: 6px;
+      padding: 0.3rem 0.7rem;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-toast-undo:hover { background: rgba(255,255,255,0.15); }
+
+    @media (max-width: 479px) {
+      .toast { left: 0.75rem; right: 0.75rem; max-width: none; bottom: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header" id="top">
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="header-text">
+          <h1 class="logo"><span class="logo-icon">📝</span>投稿くん</h1>
+          <p class="subtitle">飲食店のSNS投稿、もう迷わない</p>
+        </div>
+        <button type="button" class="btn-header-save" id="btnViewSaved">
+          保存一覧 <span class="save-badge" id="saveBadge">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- テンプレートセクション（テンプレあるときのみ表示） -->
+    <section id="templateSection" hidden>
+      <div class="template-section">
+        <p class="template-section-title">📋 テンプレートから始める</p>
+        <div class="template-list" id="templateList"></div>
+      </div>
+    </section>
+
+    <!-- STEP1 -->
+    <section class="step" id="step1">
+      <span class="step-label">STEP 1</span>
+      <h2 class="step-title">投稿タイプを選ぶ</h2>
+      <div class="type-grid" id="typeGrid" role="group" aria-label="投稿タイプ">
+        <button type="button" class="type-card" data-type="today-menu">今日のおすすめメニュー</button>
+        <button type="button" class="type-card" data-type="new-menu">新メニュー・期間限定メニュー</button>
+        <button type="button" class="type-card" data-type="campaign">キャンペーン・割引告知</button>
+        <button type="button" class="type-card" data-type="business-hours">営業時間・お休みのお知らせ</button>
+        <button type="button" class="type-card" data-type="atmosphere">お店の雰囲気・スタッフ紹介</button>
+        <button type="button" class="type-card" data-type="thanks">お客様への感謝・季節のご挨拶</button>
+      </div>
+    </section>
+
+    <!-- STEP2 -->
+    <section class="step" id="step2">
+      <span class="step-label">STEP 2</span>
+      <h2 class="step-title">情報を入力する</h2>
+      <div class="form-card" id="formCard">
+        <p class="form-placeholder-hint" id="formHint">上で投稿タイプを選んでください</p>
+        <div id="formFields" hidden></div>
+      </div>
+    </section>
+
+    <!-- テンプレート保存ボタン（STEP2下 / STEP3上） -->
+    <div class="template-save-wrap" id="templateSaveWrap" hidden>
+      <button type="button" id="btnSaveTemplate" class="btn-sub-action">💾 この入力内容をテンプレとして保存</button>
+    </div>
+
+    <!-- STEP3 -->
+    <section class="step" id="step3">
+      <span class="step-label">STEP 3</span>
+      <h2 class="step-title">投稿文を生成する</h2>
+      <button type="button" class="btn-generate" id="btnGenerate">✨ 投稿文を作る</button>
+      <p class="generate-error" id="generateError" role="alert"></p>
+      <!-- TODO: フェーズ2 - Claude APIを使ったAI自動生成機能をここに追加予定 -->
+      <!-- TODO: フェーズ2 - APIキーの入力欄と有料プランへの案内バナーをここに追加予定 -->
+    </section>
+
+    <!-- 生成結果 -->
+    <section class="results" id="results" aria-live="polite">
+      <div class="result-block x-block" id="xBlock">
+        <h3 class="result-heading"><span class="icon">𝕏</span> X（Twitter）用</h3>
+        <textarea class="result-textarea" id="xText" rows="6" aria-label="X用投稿文"></textarea>
+        <p class="char-counter" id="xCounter">0/140文字</p>
+        <div class="copy-row">
+          <p class="copy-label">投稿文</p>
+          <button type="button" class="btn-copy" id="copyXText" data-copy-target="xText">文章をコピー</button>
+        </div>
+        <div class="copy-row">
+          <p class="copy-label">ハッシュタグ</p>
+          <div class="hashtag-box" id="xHashtags"></div>
+          <button type="button" class="btn-copy" id="copyXHashtags" data-copy-target="xHashtags">ハッシュタグをコピー</button>
+        </div>
+      </div>
+
+      <div class="result-block ig-block" id="igBlock">
+        <h3 class="result-heading"><span class="icon">📷</span> Instagram用</h3>
+        <textarea class="result-textarea" id="igText" rows="10" aria-label="Instagram用投稿文"></textarea>
+        <div class="copy-row">
+          <p class="copy-label">投稿文</p>
+          <button type="button" class="btn-copy" id="copyIgText" data-copy-target="igText">文章をコピー</button>
+        </div>
+        <div class="copy-row">
+          <p class="copy-label">ハッシュタグ</p>
+          <div class="hashtag-box" id="igHashtags"></div>
+          <button type="button" class="btn-copy" id="copyIgHashtags" data-copy-target="igHashtags">ハッシュタグをコピー</button>
+        </div>
+      </div>
+
+      <!-- この投稿を保存する -->
+      <button type="button" class="btn-save-post" id="btnSavePost">💾 この投稿を保存する</button>
+    </section>
+
+    <!-- 保存一覧 -->
+    <section class="saved-section" id="savedSection">
+      <div class="saved-section-header">
+        <h2 class="saved-section-title">保存した投稿</h2>
+        <button type="button" class="btn-export" id="btnExport" hidden>📥 全投稿をテキスト保存</button>
+      </div>
+      <div id="savedList"></div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p class="footer-credit">Powered by <strong>AIツール工房</strong></p>
+    <button type="button" class="btn-reset" id="btnReset">もう一度作る</button>
+  </footer>
+
+  <!-- モーダル -->
+  <div id="modalOverlay" class="modal-overlay is-hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <h3 class="modal-title" id="modalTitle">テンプレートの名前をつけてください</h3>
+      <input type="text" id="modalInput" class="modal-input" placeholder="例）ランチメニュー用" maxlength="40">
+      <div class="modal-actions">
+        <button type="button" class="btn-modal-cancel" id="modalCancel">キャンセル</button>
+        <button type="button" class="btn-modal-save" id="modalSave">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- トースト -->
+  <div id="toast" class="toast" role="status" aria-live="polite">
+    <span class="toast-msg" id="toastMsg"></span>
+    <button type="button" class="btn-toast-undo" id="btnToastUndo" hidden>元に戻す</button>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* ─────────────────────────────────────────
+         Config
+      ───────────────────────────────────────── */
+      const POST_CONFIG = {
+        "today-menu": {
+          fields: [
+            { key: "menuName", label: "メニュー名", placeholder: "例）本日の日替わり定食" },
+            { key: "price", label: "値段", placeholder: "例）800円" },
+            { key: "appeal", label: "一言アピール", placeholder: "例）国産牛をたっぷり使ったボリューム満点の一品です" },
+            { key: "hours", label: "営業時間", placeholder: "例）11:00〜14:00／17:00〜22:00" }
+          ]
+        },
+        "new-menu": {
+          fields: [
+            { key: "menuName", label: "メニュー名", placeholder: "例）夏限定！冷製パスタ" },
+            { key: "price", label: "値段", placeholder: "例）1,200円" },
+            { key: "period", label: "期間", placeholder: "例）7月1日〜8月31日" },
+            { key: "point", label: "こだわりポイント", placeholder: "例）地元野菜をふんだんに使いました" }
+          ]
+        },
+        campaign: {
+          fields: [
+            { key: "content", label: "キャンペーン内容", placeholder: "例）ランチタイム全品10%OFF" },
+            { key: "period", label: "期間", placeholder: "例）6月中の毎週金曜日" },
+            { key: "target", label: "対象", placeholder: "例）ドリンクセット注文の方" },
+            { key: "message", label: "一言メッセージ", placeholder: "例）ぜひこの機会にご来店ください" }
+          ]
+        },
+        "business-hours": {
+          fields: [
+            { key: "noticeType", label: "お知らせの種類", placeholder: "例）臨時休業・営業時間変更・祝日営業" },
+            { key: "date", label: "日付", placeholder: "例）6月15日（土）" },
+            { key: "content", label: "内容", placeholder: "例）誠に勝手ながら終日お休みをいただきます" },
+            { key: "message", label: "一言", placeholder: "例）ご不便をおかけして申し訳ございません" }
+          ]
+        },
+        atmosphere: {
+          fields: [
+            { key: "intro", label: "紹介内容", placeholder: "例）新スタッフの田中が加わりました！" },
+            { key: "appeal", label: "アピールポイント", placeholder: "例）笑顔が自慢の元気なスタッフです" },
+            { key: "kodawari", label: "お店のこだわり", placeholder: "例）アットホームな雰囲気で皆様をお待ちしています" }
+          ]
+        },
+        thanks: {
+          fields: [
+            { key: "season", label: "季節・イベント", placeholder: "例）梅雨の季節 / おかげさまで3周年" },
+            { key: "thanks", label: "感謝の言葉", placeholder: "例）いつもご来店いただきありがとうございます" },
+            { key: "message", label: "一言メッセージ", placeholder: "例）これからもよろしくお願いします" }
+          ]
+        }
+      };
+
+      const POST_TYPE_NAMES = {
+        "today-menu": "今日のおすすめメニュー",
+        "new-menu": "新メニュー・期間限定メニュー",
+        "campaign": "キャンペーン・割引告知",
+        "business-hours": "営業時間・お休みのお知らせ",
+        "atmosphere": "お店の雰囲気・スタッフ紹介",
+        "thanks": "お客様への感謝・季節のご挨拶"
+      };
+
+      const HASHTAGS = {
+        x: {
+          common: ["#飲食店", "#グルメ", "#ランチ"],
+          "today-menu": ["#今日のランチ", "#おすすめメニュー"],
+          "new-menu": ["#今日のランチ", "#おすすめメニュー"],
+          campaign: ["#キャンペーン", "#お得情報"],
+          "business-hours": ["#営業のお知らせ"],
+          atmosphere: ["#スタッフ紹介", "#お店の雰囲気"],
+          thanks: ["#いつもありがとうございます"]
+        },
+        ig: {
+          common: [
+            "#飲食店", "#グルメ", "#ランチ", "#ディナー", "#ご飯", "#おいしい",
+            "#食べスタグラム", "#グルメスタグラム", "#飲食店経営", "#個人店", "#地域グルメ"
+          ],
+          "today-menu": ["#今日のランチ", "#ランチタイム", "#おすすめメニュー", "#メニュー紹介", "#本日のおすすめ", "#旬の味", "#料理好きな人と繋がりたい"],
+          "new-menu": ["#今日のランチ", "#ランチタイム", "#おすすめメニュー", "#メニュー紹介", "#本日のおすすめ", "#旬の味", "#料理好きな人と繋がりたい"],
+          campaign: ["#キャンペーン", "#お得情報", "#割引", "#お得なランチ", "#おトク情報"],
+          "business-hours": ["#営業のお知らせ", "#お知らせ"],
+          atmosphere: ["#スタッフ紹介", "#お店の雰囲気", "#アットホーム", "#居心地のいいお店"],
+          thanks: ["#いつもありがとうございます", "#感謝", "#お客様に感謝"]
+        }
+      };
+
+      const LS_POSTS = "tokoKun_saved_posts";
+      const LS_TEMPLATES = "tokoKun_templates";
+
+      /* ─────────────────────────────────────────
+         State
+      ───────────────────────────────────────── */
+      let selectedType = null;
+      let savedPosts = [];
+      let templates = [];
+      let pendingDelete = null;
+      let toastTimer = null;
+      let modalCallback = null;
+
+      /* ─────────────────────────────────────────
+         DOM refs
+      ───────────────────────────────────────── */
+      const typeGrid = document.getElementById("typeGrid");
+      const formHint = document.getElementById("formHint");
+      const formFields = document.getElementById("formFields");
+      const btnGenerate = document.getElementById("btnGenerate");
+      const generateError = document.getElementById("generateError");
+      const results = document.getElementById("results");
+      const xText = document.getElementById("xText");
+      const igText = document.getElementById("igText");
+      const xCounter = document.getElementById("xCounter");
+      const xHashtags = document.getElementById("xHashtags");
+      const igHashtags = document.getElementById("igHashtags");
+      const btnReset = document.getElementById("btnReset");
+      const btnSavePost = document.getElementById("btnSavePost");
+      const btnSaveTemplate = document.getElementById("btnSaveTemplate");
+      const templateSaveWrap = document.getElementById("templateSaveWrap");
+      const templateSection = document.getElementById("templateSection");
+      const templateList = document.getElementById("templateList");
+      const savedSection = document.getElementById("savedSection");
+      const savedList = document.getElementById("savedList");
+      const btnExport = document.getElementById("btnExport");
+      const saveBadge = document.getElementById("saveBadge");
+      const btnViewSaved = document.getElementById("btnViewSaved");
+      const modalOverlay = document.getElementById("modalOverlay");
+      const modalInput = document.getElementById("modalInput");
+      const modalSave = document.getElementById("modalSave");
+      const modalCancel = document.getElementById("modalCancel");
+      const toast = document.getElementById("toast");
+      const toastMsg = document.getElementById("toastMsg");
+      const btnToastUndo = document.getElementById("btnToastUndo");
+
+      /* ─────────────────────────────────────────
+         localStorage utils
+      ───────────────────────────────────────── */
+      function lsGet(key) {
+        try {
+          return JSON.parse(localStorage.getItem(key)) || [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function lsSet(key, value) {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch (e) {}
+      }
+
+      /* ─────────────────────────────────────────
+         Date utils
+      ───────────────────────────────────────── */
+      function getNowJST() {
+        try {
+          var d = new Date();
+          var parts = new Intl.DateTimeFormat("en-US", {
+            timeZone: "Asia/Tokyo",
+            year: "numeric", month: "2-digit", day: "2-digit",
+            hour: "2-digit", minute: "2-digit", hour12: false
+          }).formatToParts(d);
+          var get = function (type) {
+            var found = parts.filter(function (p) { return p.type === type; });
+            return found.length ? found[0].value : "";
+          };
+          return get("year") + "-" + get("month") + "-" + get("day") + " " + get("hour") + ":" + get("minute");
+        } catch (e) {
+          return new Date().toLocaleString("ja-JP");
+        }
+      }
+
+      function getDateForFilename() {
+        try {
+          var d = new Date();
+          var parts = new Intl.DateTimeFormat("en-US", {
+            timeZone: "Asia/Tokyo",
+            year: "numeric", month: "2-digit", day: "2-digit"
+          }).formatToParts(d);
+          var get = function (type) {
+            var found = parts.filter(function (p) { return p.type === type; });
+            return found.length ? found[0].value : "";
+          };
+          return get("year") + get("month") + get("day");
+        } catch (e) {
+          var now = new Date();
+          return now.getFullYear() + String(now.getMonth() + 1).padStart(2, "0") + String(now.getDate()).padStart(2, "0");
+        }
+      }
+
+      /* ─────────────────────────────────────────
+         Toast
+      ───────────────────────────────────────── */
+      function showToast(message, undoCallback, duration) {
+        if (toastTimer) clearTimeout(toastTimer);
+        toastMsg.textContent = message;
+
+        if (undoCallback) {
+          btnToastUndo.hidden = false;
+          btnToastUndo.onclick = function () {
+            hideToast();
+            undoCallback();
+          };
+        } else {
+          btnToastUndo.hidden = true;
+          btnToastUndo.onclick = null;
+        }
+
+        toast.classList.add("toast-show");
+
+        var ms = duration || 3000;
+        toastTimer = setTimeout(function () {
+          hideToast();
+        }, ms);
+      }
+
+      function hideToast() {
+        if (toastTimer) { clearTimeout(toastTimer); toastTimer = null; }
+        toast.classList.remove("toast-show");
+      }
+
+      /* ─────────────────────────────────────────
+         Modal
+      ───────────────────────────────────────── */
+      function showModal(options) {
+        modalInput.value = "";
+        modalInput.placeholder = options.placeholder || "";
+        document.getElementById("modalTitle").textContent = options.title || "";
+        modalCallback = options.onSave;
+        modalOverlay.classList.remove("is-hidden");
+        setTimeout(function () { modalInput.focus(); }, 50);
+      }
+
+      function closeModal() {
+        modalOverlay.classList.add("is-hidden");
+        modalCallback = null;
+        modalInput.value = "";
+      }
+
+      modalSave.addEventListener("click", function () {
+        var name = modalInput.value.trim();
+        if (!name) { modalInput.focus(); return; }
+        if (modalCallback) modalCallback(name);
+        closeModal();
+      });
+
+      modalCancel.addEventListener("click", closeModal);
+
+      modalOverlay.addEventListener("click", function (e) {
+        if (e.target === modalOverlay) closeModal();
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && !modalOverlay.classList.contains("is-hidden")) closeModal();
+      });
+
+      modalInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") modalSave.click();
+      });
+
+      /* ─────────────────────────────────────────
+         Helper: escape HTML
+      ───────────────────────────────────────── */
+      function escHtml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      /* ─────────────────────────────────────────
+         Form
+      ───────────────────────────────────────── */
+      function getValues() {
+        var config = POST_CONFIG[selectedType];
+        if (!config) return {};
+        var values = {};
+        config.fields.forEach(function (field) {
+          var el = document.getElementById("field-" + field.key);
+          values[field.key] = el ? el.value.trim() : "";
+        });
+        return values;
+      }
+
+      function renderForm(type, prefill) {
+        var config = POST_CONFIG[type];
+        if (!config) return;
+
+        formHint.hidden = true;
+        formFields.hidden = false;
+        formFields.innerHTML = "";
+
+        config.fields.forEach(function (field) {
+          var group = document.createElement("div");
+          group.className = "form-group";
+
+          var label = document.createElement("label");
+          label.className = "form-label";
+          label.htmlFor = "field-" + field.key;
+          label.textContent = field.label;
+
+          var isTextarea = (
+            field.key === "appeal" || field.key === "content" ||
+            field.key === "point" || field.key === "kodawari"
+          );
+          var input = document.createElement(isTextarea ? "textarea" : "input");
+          input.id = "field-" + field.key;
+          input.className = isTextarea ? "form-textarea" : "form-input";
+          input.placeholder = field.placeholder;
+          if (!isTextarea) input.type = "text";
+          else input.rows = 3;
+
+          if (prefill && prefill[field.key] !== undefined) {
+            input.value = prefill[field.key];
+          }
+
+          group.appendChild(label);
+          group.appendChild(input);
+          formFields.appendChild(group);
+
+          input.addEventListener("input", function () {
+            generateError.classList.remove("visible");
+          });
+        });
+
+        templateSaveWrap.hidden = false;
+      }
+
+      /* ─────────────────────────────────────────
+         Generate
+      ───────────────────────────────────────── */
+      function validate() {
+        if (!selectedType) {
+          generateError.textContent = "投稿タイプを選んでください";
+          generateError.classList.add("visible");
+          document.getElementById("step1").scrollIntoView({ behavior: "smooth", block: "start" });
+          return false;
+        }
+        generateError.classList.remove("visible");
+        return true;
+      }
+
+      function buildHashtags(platform, type) {
+        var tags = HASHTAGS[platform];
+        return tags.common.concat(tags[type] || []).join(" ");
+      }
+
+      function generateXText(type, v) {
+        switch (type) {
+          case "today-menu":
+            return "🍽️ 本日のおすすめ！\n" + v.menuName + "（" + v.price + "）\n" + v.appeal + "\n営業時間：" + v.hours + "\nぜひお立ち寄りください😊";
+          case "new-menu":
+            return "🆕 新登場！" + v.menuName + "（" + v.price + "）\n" + v.point + "\n期間：" + v.period + "までの限定です✨\nお早めにどうぞ！";
+          case "campaign":
+            return "🎉 お得なお知らせ！\n" + v.content + "\n期間：" + v.period + "\n対象：" + v.target + "\n" + v.message;
+          case "business-hours":
+            return "📢 営業のご案内\n" + v.noticeType + "のお知らせです。\n" + v.date + "：" + v.content + "\n" + v.message;
+          case "atmosphere":
+            return "✨ " + v.intro + "\n" + v.appeal + "\n" + v.kodawari + "\nまたのご来店をお待ちしております！";
+          case "thanks":
+            return "🌸 " + v.season + "\n" + v.thanks + "\n" + v.message + "\nこれからもよろしくお願いします😊";
+          default:
+            return "";
+        }
+      }
+
+      function generateIgText(type, v) {
+        switch (type) {
+          case "today-menu":
+            return "🍽️✨ 本日のおすすめメニューのご紹介 ✨🍽️\n\n" + v.menuName + "\n💴 " + v.price + "\n\n" + v.appeal + "\n\nぜひ今日のランチ・ディナーにいかがですか？\nスタッフ一同、心よりお待ちしております🙏\n\n🕐 営業時間：" + v.hours;
+          case "new-menu":
+            return "🆕🎊 新メニュー登場！ 🎊🆕\n\n【" + v.menuName + "】\n💴 " + v.price + "\n\n✅ " + v.point + "\n\n📅 期間：" + v.period + "の限定メニューです！\nこの機会をお見逃しなく😊";
+          case "campaign":
+            return "🎉🎉 お得なキャンペーンのお知らせ 🎉🎉\n\n【" + v.content + "】\n\n📅 期間：" + v.period + "\n👥 対象：" + v.target + "\n\n" + v.message + "\n皆様のご来店をお待ちしております🙏";
+          case "business-hours":
+            return "📢 大切なお知らせ 📢\n\n" + v.noticeType + "のご案内です。\n\n📅 " + v.date + "\n" + v.content + "\n\n" + v.message + "\nご迷惑をおかけして申し訳ございません。\n何卒よろしくお願いいたします🙏";
+          case "atmosphere":
+            return "✨ " + v.intro + " ✨\n\n" + v.appeal + "\n\n" + v.kodawari + "\n\nいつもご来店いただきありがとうございます😊\nまたのお越しをお待ちしております🙏";
+          case "thanks":
+            return "🌸 " + v.season + " 🌸\n\n" + v.thanks + "\n\n" + v.message + "\n\nこれからも皆様に喜んでいただけるよう\nスタッフ一同努めてまいります😊\n今後ともよろしくお願いいたします🙏";
+          default:
+            return "";
+        }
+      }
+
+      function updateCharCounter() {
+        var len = xText.value.length;
+        xCounter.textContent = len + "/140文字";
+        xCounter.classList.toggle("over", len > 140);
+      }
+
+      function generatePosts() {
+        if (!validate()) return;
+
+        var v = getValues();
+        xText.value = generateXText(selectedType, v);
+        igText.value = generateIgText(selectedType, v);
+        xHashtags.textContent = buildHashtags("x", selectedType);
+        igHashtags.textContent = buildHashtags("ig", selectedType);
+
+        updateCharCounter();
+        results.classList.add("visible");
+
+        requestAnimationFrame(function () {
+          document.getElementById("xBlock").scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+
+      /* ─────────────────────────────────────────
+         Copy
+      ───────────────────────────────────────── */
+      function copyText(text, button) {
+        var original = button.dataset.originalLabel || button.textContent;
+        button.dataset.originalLabel = original;
+
+        function showCopied() {
+          button.textContent = "コピーしました！✓";
+          button.classList.add("copied");
+          setTimeout(function () {
+            button.textContent = original;
+            button.classList.remove("copied");
+          }, 2000);
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(showCopied).catch(function () {
+            fallbackCopy(text, showCopied);
+          });
+        } else {
+          fallbackCopy(text, showCopied);
+        }
+      }
+
+      function fallbackCopy(text, onSuccess) {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); onSuccess(); }
+        catch (e) { alert("コピーに失敗しました。手動でコピーしてください。"); }
+        document.body.removeChild(ta);
+      }
+
+      function copyContent(targetId, button) {
+        var target = document.getElementById(targetId);
+        if (!target) return;
+        copyText(target.tagName === "TEXTAREA" ? target.value : target.textContent, button);
+      }
+
+      /* ─────────────────────────────────────────
+         Save Posts
+      ───────────────────────────────────────── */
+      function savePost() {
+        if (!results.classList.contains("visible")) return;
+
+        var post = {
+          id: Date.now(),
+          savedAt: getNowJST(),
+          postType: POST_TYPE_NAMES[selectedType] || selectedType,
+          xText: xText.value,
+          xHashtags: xHashtags.textContent,
+          igText: igText.value,
+          igHashtags: igHashtags.textContent,
+          isPosted: false
+        };
+
+        savedPosts.push(post);
+        lsSet(LS_POSTS, savedPosts);
+        renderSavedPosts();
+
+        var btn = btnSavePost;
+        var original = btn.dataset.originalLabel || btn.textContent;
+        btn.dataset.originalLabel = original;
+        btn.textContent = "保存しました！✓";
+        btn.classList.add("saved-flash");
+        setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove("saved-flash");
+        }, 2000);
+
+        showToast("投稿を保存しました", null, 2000);
+        savedSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function renderSavedPosts() {
+        if (savedPosts.length === 0) {
+          savedList.innerHTML = "<p class=\"saved-empty\">まだ保存された投稿はありません</p>";
+          btnExport.hidden = true;
+        } else {
+          savedList.innerHTML = "";
+          var reversed = savedPosts.slice().reverse();
+          reversed.forEach(function (post) {
+            savedList.appendChild(createSavedCard(post));
+          });
+          btnExport.hidden = false;
+        }
+        updateSaveBadge();
+      }
+
+      function createSavedCard(post) {
+        var card = document.createElement("div");
+        card.className = "saved-card" + (post.isPosted ? " is-posted" : "");
+        card.dataset.id = post.id;
+
+        var postedBadgeHtml = post.isPosted ? "<span class=\"posted-badge\">✓ 投稿済み</span>" : "";
+        var toggleLabel = post.isPosted ? "投稿済みを解除" : "投稿済みにする";
+
+        card.innerHTML =
+          "<div class=\"saved-card-top\">" +
+            "<div class=\"saved-card-meta\">" +
+              "<span class=\"saved-type-tag\">" + escHtml(post.postType) + "</span>" +
+              postedBadgeHtml +
+            "</div>" +
+            "<span class=\"saved-date\">" + escHtml(post.savedAt) + "</span>" +
+          "</div>" +
+          "<div class=\"saved-accordions\">" +
+            "<button type=\"button\" class=\"btn-accordion\" data-acc=\"acc-x-" + post.id + "\" data-label-closed=\"X用を見る▼\" data-label-open=\"X用を閉じる▲\">X用を見る▼</button>" +
+            "<div id=\"acc-x-" + post.id + "\" class=\"accordion-content\" hidden>" +
+              "<div class=\"acc-text\">" + escHtml(post.xText) + "</div>" +
+              "<div class=\"hashtag-box\">" + escHtml(post.xHashtags) + "</div>" +
+            "</div>" +
+            "<button type=\"button\" class=\"btn-accordion\" data-acc=\"acc-ig-" + post.id + "\" data-label-closed=\"IG用を見る▼\" data-label-open=\"IG用を閉じる▲\">IG用を見る▼</button>" +
+            "<div id=\"acc-ig-" + post.id + "\" class=\"accordion-content\" hidden>" +
+              "<div class=\"acc-text\">" + escHtml(post.igText) + "</div>" +
+              "<div class=\"hashtag-box\">" + escHtml(post.igHashtags) + "</div>" +
+            "</div>" +
+          "</div>" +
+          "<div class=\"saved-actions\">" +
+            "<button type=\"button\" class=\"btn-copy-saved btn-copy-x-saved\" data-id=\"" + post.id + "\">コピー（X文章）</button>" +
+            "<button type=\"button\" class=\"btn-copy-saved btn-copy-ig-saved\" data-id=\"" + post.id + "\">コピー（IG文章）</button>" +
+            "<button type=\"button\" class=\"btn-toggle-posted\" data-id=\"" + post.id + "\">" + toggleLabel + "</button>" +
+            "<button type=\"button\" class=\"btn-delete-saved\" data-id=\"" + post.id + "\">削除</button>" +
+          "</div>";
+
+        return card;
+      }
+
+      function deletePostWithUndo(id, cardEl) {
+        if (pendingDelete) {
+          clearTimeout(pendingDelete.timer);
+          confirmDeletePost(pendingDelete.id, pendingDelete.cardEl);
+        }
+
+        cardEl.classList.add("card-pending-delete");
+
+        var timer = setTimeout(function () {
+          confirmDeletePost(id, cardEl);
+        }, 5000);
+
+        pendingDelete = { id: id, cardEl: cardEl, timer: timer };
+
+        showToast("投稿を削除しました", undoDelete, 5000);
+      }
+
+      function undoDelete() {
+        if (!pendingDelete) return;
+        clearTimeout(pendingDelete.timer);
+        pendingDelete.cardEl.classList.remove("card-pending-delete");
+        pendingDelete = null;
+      }
+
+      function confirmDeletePost(id, cardEl) {
+        savedPosts = savedPosts.filter(function (p) { return p.id !== id; });
+        lsSet(LS_POSTS, savedPosts);
+        if (cardEl && cardEl.parentNode) cardEl.parentNode.removeChild(cardEl);
+        if (pendingDelete && pendingDelete.id === id) pendingDelete = null;
+
+        if (savedPosts.length === 0) {
+          savedList.innerHTML = "<p class=\"saved-empty\">まだ保存された投稿はありません</p>";
+          btnExport.hidden = true;
+        }
+        updateSaveBadge();
+      }
+
+      function togglePosted(id) {
+        var idx = savedPosts.findIndex(function (p) { return p.id === id; });
+        if (idx === -1) return;
+        savedPosts[idx].isPosted = !savedPosts[idx].isPosted;
+        lsSet(LS_POSTS, savedPosts);
+
+        var card = document.querySelector(".saved-card[data-id=\"" + id + "\"]");
+        if (!card) return;
+
+        var isPosted = savedPosts[idx].isPosted;
+        card.classList.toggle("is-posted", isPosted);
+
+        var meta = card.querySelector(".saved-card-meta");
+        var badge = card.querySelector(".posted-badge");
+        if (isPosted) {
+          if (!badge) {
+            badge = document.createElement("span");
+            badge.className = "posted-badge";
+            badge.textContent = "✓ 投稿済み";
+            meta.appendChild(badge);
+          }
+        } else {
+          if (badge) badge.remove();
+        }
+
+        var toggleBtn = card.querySelector(".btn-toggle-posted");
+        if (toggleBtn) toggleBtn.textContent = isPosted ? "投稿済みを解除" : "投稿済みにする";
+
+        showToast(isPosted ? "投稿済みにしました" : "投稿済みを解除しました", null, 2000);
+      }
+
+      function updateSaveBadge() {
+        saveBadge.textContent = savedPosts.length;
+      }
+
+      function exportPosts() {
+        if (savedPosts.length === 0) {
+          showToast("保存された投稿がありません", null, 2000);
+          return;
+        }
+
+        var lines = savedPosts.map(function (post) {
+          return [
+            "========================",
+            "【" + post.postType + "】" + post.savedAt,
+            "＜X用＞",
+            post.xText,
+            post.xHashtags,
+            "＜Instagram用＞",
+            post.igText,
+            post.igHashtags,
+            "========================"
+          ].join("\n");
+        });
+
+        var content = lines.join("\n\n");
+        var blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "tokokun_posts_" + getDateForFilename() + ".txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast("テキストファイルを保存しました", null, 2000);
+      }
+
+      /* ─────────────────────────────────────────
+         Templates
+      ───────────────────────────────────────── */
+      function promptSaveTemplate() {
+        if (!selectedType) {
+          showToast("投稿タイプを選んでから保存してください", null, 2500);
+          return;
+        }
+        showModal({
+          title: "テンプレートの名前をつけてください",
+          placeholder: "例）ランチメニュー用",
+          onSave: function (name) { doSaveTemplate(name); }
+        });
+      }
+
+      function doSaveTemplate(name) {
+        var values = getValues();
+        var tpl = {
+          id: Date.now(),
+          name: name,
+          postType: selectedType,
+          postTypeName: POST_TYPE_NAMES[selectedType] || selectedType,
+          inputs: values
+        };
+        templates.push(tpl);
+        lsSet(LS_TEMPLATES, templates);
+        renderTemplates();
+        showToast("テンプレートを保存しました！", null, 2000);
+      }
+
+      function renderTemplates() {
+        if (templates.length === 0) {
+          templateSection.hidden = true;
+          return;
+        }
+        templateList.innerHTML = "";
+        templates.forEach(function (tpl) {
+          templateList.appendChild(createTemplateCard(tpl));
+        });
+        templateSection.hidden = false;
+      }
+
+      function createTemplateCard(tpl) {
+        var card = document.createElement("div");
+        card.className = "template-card";
+        card.innerHTML =
+          "<div class=\"template-card-info\">" +
+            "<div class=\"template-name\">" + escHtml(tpl.name) + "</div>" +
+            "<div class=\"template-type\">" + escHtml(tpl.postTypeName || tpl.postType) + "</div>" +
+          "</div>" +
+          "<div class=\"template-actions\">" +
+            "<button type=\"button\" class=\"btn-use-template\" data-tpl-id=\"" + tpl.id + "\">このテンプレを使う</button>" +
+            "<button type=\"button\" class=\"btn-delete-template\" data-tpl-id=\"" + tpl.id + "\">削除</button>" +
+          "</div>";
+        return card;
+      }
+
+      function useTemplate(tpl) {
+        selectedType = tpl.postType;
+
+        typeGrid.querySelectorAll(".type-card").forEach(function (c) {
+          c.classList.toggle("selected", c.dataset.type === tpl.postType);
+        });
+
+        renderForm(tpl.postType, tpl.inputs);
+        generateError.classList.remove("visible");
+
+        document.getElementById("step2").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      function deleteTemplate(id) {
+        templates = templates.filter(function (t) { return t.id !== id; });
+        lsSet(LS_TEMPLATES, templates);
+        renderTemplates();
+        showToast("テンプレートを削除しました", null, 2000);
+      }
+
+      /* ─────────────────────────────────────────
+         Reset
+      ───────────────────────────────────────── */
+      function resetAll() {
+        if (pendingDelete) {
+          clearTimeout(pendingDelete.timer);
+          confirmDeletePost(pendingDelete.id, pendingDelete.cardEl);
+        }
+        hideToast();
+        closeModal();
+
+        selectedType = null;
+        typeGrid.querySelectorAll(".type-card").forEach(function (c) { c.classList.remove("selected"); });
+        formHint.hidden = false;
+        formFields.hidden = true;
+        formFields.innerHTML = "";
+        generateError.classList.remove("visible");
+        generateError.textContent = "";
+        templateSaveWrap.hidden = true;
+        results.classList.remove("visible");
+        xText.value = "";
+        igText.value = "";
+        xHashtags.textContent = "";
+        igHashtags.textContent = "";
+        updateCharCounter();
+
+        document.querySelectorAll(".btn-copy.copied").forEach(function (btn) {
+          btn.classList.remove("copied");
+          if (btn.dataset.originalLabel) btn.textContent = btn.dataset.originalLabel;
+        });
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      /* ─────────────────────────────────────────
+         Event listeners
+      ───────────────────────────────────────── */
+      typeGrid.addEventListener("click", function (e) {
+        var card = e.target.closest(".type-card");
+        if (!card || !card.dataset.type) return;
+
+        selectedType = card.dataset.type;
+        typeGrid.querySelectorAll(".type-card").forEach(function (c) { c.classList.remove("selected"); });
+        card.classList.add("selected");
+        generateError.classList.remove("visible");
+        renderForm(selectedType);
+      });
+
+      btnGenerate.addEventListener("click", generatePosts);
+      xText.addEventListener("input", updateCharCounter);
+      btnSavePost.addEventListener("click", savePost);
+      btnSaveTemplate.addEventListener("click", promptSaveTemplate);
+      btnExport.addEventListener("click", exportPosts);
+      btnReset.addEventListener("click", resetAll);
+
+      btnViewSaved.addEventListener("click", function () {
+        savedSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+
+      document.querySelectorAll(".btn-copy").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          copyContent(btn.dataset.copyTarget, btn);
+        });
+      });
+
+      /* saved list delegation */
+      savedList.addEventListener("click", function (e) {
+        if (e.target.classList.contains("btn-accordion")) {
+          var btn = e.target;
+          var accEl = document.getElementById(btn.dataset.acc);
+          if (!accEl) return;
+          var wasHidden = accEl.hidden;
+          accEl.hidden = !wasHidden;
+          btn.textContent = wasHidden ? btn.dataset.labelOpen : btn.dataset.labelClosed;
+          return;
+        }
+
+        if (e.target.classList.contains("btn-copy-x-saved")) {
+          var id = Number(e.target.dataset.id);
+          var post = savedPosts.find(function (p) { return p.id === id; });
+          if (post) copyText(post.xText, e.target);
+          return;
+        }
+
+        if (e.target.classList.contains("btn-copy-ig-saved")) {
+          var id = Number(e.target.dataset.id);
+          var post = savedPosts.find(function (p) { return p.id === id; });
+          if (post) copyText(post.igText, e.target);
+          return;
+        }
+
+        if (e.target.classList.contains("btn-toggle-posted")) {
+          togglePosted(Number(e.target.dataset.id));
+          return;
+        }
+
+        if (e.target.classList.contains("btn-delete-saved")) {
+          var id = Number(e.target.dataset.id);
+          var card = e.target.closest(".saved-card");
+          if (card) deletePostWithUndo(id, card);
+          return;
+        }
+      });
+
+      /* template list delegation */
+      templateList.addEventListener("click", function (e) {
+        if (e.target.classList.contains("btn-use-template")) {
+          var tplId = Number(e.target.dataset.tplId);
+          var tpl = templates.find(function (t) { return t.id === tplId; });
+          if (tpl) useTemplate(tpl);
+          return;
+        }
+
+        if (e.target.classList.contains("btn-delete-template")) {
+          deleteTemplate(Number(e.target.dataset.tplId));
+          return;
+        }
+      });
+
+      /* ─────────────────────────────────────────
+         Init
+      ───────────────────────────────────────── */
+      savedPosts = lsGet(LS_POSTS);
+      templates = lsGet(LS_TEMPLATES);
+      renderSavedPosts();
+      renderTemplates();
+      updateCharCounter();
+
+    })();
+  </script>
+</body>
+</html>
