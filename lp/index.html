@@ -181,15 +181,34 @@
 
     /* Hero */
     .hero {
+      position: relative;
       padding: clamp(2.75rem, 7vw, 5rem) 0;
       background: linear-gradient(180deg, #ffffff 0%, var(--soft) 100%);
       border-bottom: 1px solid var(--line);
     }
     .hero .container {
+      position: relative;
+      z-index: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
+    }
+    .hero__kokun {
+      position: absolute;
+      right: clamp(8px, 4vw, 40px);
+      bottom: 0;
+      width: 300px;
+      height: auto;
+      pointer-events: none;
+      user-select: none;
+    }
+    @media (max-width: 480px) {
+      .hero__kokun {
+        width: 180px;
+        right: -6px;
+        bottom: -4px;
+      }
     }
     .hero__catch {
       font-size: clamp(1.28rem, 0.75rem + 1.8vw, 2.5rem);
@@ -1442,6 +1461,7 @@
   </header>
 
   <section class="hero">
+    <img class="hero__kokun" src="./kokun.png" alt="こくんが机でPC作業をしているイラスト" width="300" height="169" />
     <div class="container">
       <h1 class="hero__catch">あなたの「あと1時間」を、AIで取り戻しませんか。</h1>
       <p class="hero__sub">予約電話の取り逃し、SNS投稿のネタ切れ、請求書の手作業——<br />小さなお店・個人事業主の毎日の「もったいない時間」を、AI×アプリで軽くします。</p>
