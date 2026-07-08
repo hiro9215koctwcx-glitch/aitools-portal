@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<!-- スマホ表示の基本設定。
+     viewport-fit=cover ＝ iPhoneのノッチ（切り欠き）ぎわまで背景を広げる。
+     そのぶん、文字やボタンが切り欠きに隠れないよう、下のCSSで余白（safe-area）を足す。 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>記憶を売った夜</title>
+<style>
+  /* ============================================================
+     ここは「見た目」を決める部分（CSS）です。
+     色・文字の大きさ・配置などを設定しています。
+     ============================================================ */
+
+  * {
+    box-sizing: border-box;      /* 幅の計算を分かりやすくするおまじない */
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    color: #f4f4f4;                       /* 文字色：白に近い色 */
+    background: #0a0e1a;                   /* 背景：黒に近いダークネイビー */
+    line-height: 1.9;                     /* 行間。広めにして読みやすく */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;                   /* スマホのアドレスバーで隠れないための新しい高さ指定 */
+    overflow: hidden;
+    /* 背景色がゆっくり変わるようにする（プロローグ→面談室の温度差の演出） */
+    transition: background-color 1.5s ease;
+    -webkit-tap-highlight-color: transparent; /* スマホでタップした時の青い枠を消す */
+    -webkit-text-size-adjust: 100%;       /* スマホが勝手に文字サイズを変えるのを防ぐ */
+  }
+
+  /* プロローグ・回想の間だけ使う「温かい色」。body に付け外しして切り替える */
+  body.warm {
+    background: #1c1712;   /* ほんのり茶色がかった温かい闇 */
+    color: #f3e9dc;        /* 少しクリーム色の文字 */
+  }
+
+  /* 真エンドの「朝」。夜が明けた、やわらかな明るさ。 */
+  body.dawn {
+    background: #2a3350;   /* 夜が薄まっていく、明るいネイビー */
+    color: #fdf6ec;        /* あたたかい白 */
+    transition: background-color 3s ease;  /* ゆっくり夜が明ける */
+  }
+
+  /* 【仕上げ①】面談室の照明。記憶を売るたびに、少しずつ暗くしていく。
+     dim1（1つ売却後）→ dim2 → dim3（3つ以降）と、背景が段々暗くなる。
+     文字は明るいままなので、暗くしても読みやすさは保てる。 */
+  body.dim1 { background: #080b14; }
+  body.dim2 { background: #05070e; }
+  body.dim3 { background: #020306; }
+
+  #game {
+    width: 100%;
+    max-width: 640px;
+    height: 100vh;
+    height: 100dvh;    /* スマホ対応の高さ指定（上と同じ理由） */
+    /* 画面の縁の余白。左右は読みやすい余白、上下はノッチや下端バーを避ける余白を足す。
+       clamp(最小, 画面幅に応じた値, 最大) で、狭い画面ほど余白を少し詰める。 */
+    padding-top: calc(env(safe-area-inset-top) + clamp(16px, 4vw, 24px));
+    padding-bottom: calc(env(safe-area-inset-bottom) + clamp(16px, 4vw, 24px));
+    padding-left: calc(env(safe-area-inset-left) + clamp(18px, 5vw, 28px));
+    padding-right: calc(env(safe-area-inset-right) + clamp(18px, 5vw, 28px));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    cursor: pointer;   /* どこをクリックしても進めることを示すマーク */
+    position: relative;
+  }
+
+  #textbox {
+    min-height: 40vh;   /* 文が短くても位置がガタつかないように高さを確保 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* 話している人の名前（セラ など）。名前が無い地の文では空欄 */
+  #speaker {
+    font-size: clamp(0.9rem, 3.6vw, 1.0rem);   /* 画面幅に合わせて自動調整 */
+    color: #8fb3d9;         /* 少し青みがかった色で名前を目立たせる */
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+    min-height: 1.2em;      /* 名前が無い時も高さを保って画面が揺れないように */
+  }
+
+  #text {
+    /* clamp(最小, 画面幅に応じた値, 最大)。
+       スマホ（狭い）では 1.05rem 前後、パソコン（広い）では 1.2rem で頭打ち。 */
+    font-size: clamp(1.05rem, 4.3vw, 1.2rem);
+    white-space: pre-line;      /* 台本内の改行（\n）を、画面でも改行として表示する */
+    overflow-wrap: break-word;  /* 長い文が画面の端で切れず、きちんと折り返すように */
+  }
+
+  /* セリフ（かぎ括弧のセリフ）の時は少し大きく・明るく */
+  #text.serif {
+    font-size: clamp(1.15rem, 4.9vw, 1.3rem);
+    color: #ffffff;
+  }
+
+  /* 【ver6・STEP D】セラの記録（独白）の見た目。本編とはっきり変える。
+     AIの内部ログのように、等幅フォント・青緑色・左に細い線を付ける。 */
+  #textbox.log #speaker {
+    color: #6fb7c9;
+    font-family: monospace;
+    letter-spacing: 0.12em;
+  }
+  #textbox.log #text {
+    font-family: monospace;
+    color: #8fd0dd;                       /* 青緑がかった、機械的な色 */
+    font-size: clamp(0.92rem, 3.7vw, 1.02rem);
+    letter-spacing: 0.03em;
+    border-left: 2px solid rgba(120, 190, 205, 0.45);
+    padding-left: 14px;
+  }
+
+  /* 「次へ進めます」の合図（右下でチカチカする小さな三角） */
+  #next-hint {
+    position: absolute;
+    right: calc(env(safe-area-inset-right) + 20px);
+    bottom: calc(env(safe-area-inset-bottom) + 18px);
+    color: #6b7a90;
+    font-size: 0.9rem;
+    animation: blink 1.2s ease-in-out infinite;
+    pointer-events: none;   /* 合図はクリックの邪魔をしない */
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 0.2; }
+    50%      { opacity: 1;   }
+  }
+
+  /* 画面右上の、控えめな「1つ前に戻る」ボタン */
+  #back-btn {
+    position: absolute;
+    right: calc(env(safe-area-inset-right) + 8px);
+    top: calc(env(safe-area-inset-top) + 6px);
+    color: #d4dae4;                /* うっすら白めのグレー（暗い背景でも見える上品な明るさ） */
+    font-size: clamp(0.8rem, 3.4vw, 0.88rem);
+    letter-spacing: 0.08em;
+    opacity: 0.6;                  /* 「そこにある」と分かる程度。明るすぎない濃さ */
+    cursor: pointer;
+    user-select: none;             /* 文字が選択されないように */
+    transition: opacity 0.3s ease;
+    display: none;                 /* 戻れる履歴ができるまでは隠す */
+    /* 指で押しやすいよう、当たり判定（padding）を広めに取る。
+       見た目は小さいままだが、少し外れてもタップが効く。 */
+    padding: 10px 14px;
+    min-height: 44px;
+  }
+  /* マウスがある機器では、乗せるとはっきり明るくなる（親切な合図） */
+  @media (hover: hover) {
+    #back-btn { opacity: 0.5; }        /* パソコンは普段もう少し控えめ */
+    #back-btn:hover { opacity: 0.95; } /* 重ねると、くっきり */
+  }
+
+  /* 画面左下の、うっすらした通し番号（周回のたびに増える。理由は明かさない演出） */
+  #loop-counter {
+    position: absolute;
+    left: calc(env(safe-area-inset-left) + 22px);
+    bottom: calc(env(safe-area-inset-bottom) + 18px);
+    color: #3a4657;         /* 背景に溶けるくらい薄い色 */
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    font-family: monospace;
+    pointer-events: none;   /* クリックの邪魔をしない */
+  }
+
+  /* ============ 選択肢（赤い光・灰色の光）============ */
+  #choices {
+    display: none;              /* 普段は隠しておき、選択の場面だけ表示 */
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 24px;
+  }
+
+  /* 【ver4】思い出を選ぶ／売却を確認するボタンの並べ方。
+     ボタン1つ1つの見た目は、上の .choice をそのまま使い回す。 */
+  #menu {
+    display: none;              /* 普段は隠す。選ぶ場面だけ表示 */
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 24px;
+  }
+
+  .choice {
+    /* 指でタップしやすいよう、高さをしっかり確保（目安は 44px 以上）。 */
+    min-height: 56px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.03);
+    color: #f4f4f4;
+    font-size: clamp(1.0rem, 4.2vw, 1.1rem);
+    line-height: 1.5;
+    text-align: center;
+    overflow-wrap: break-word;   /* 長いラベルも折り返して、はみ出さない */
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.3s ease;
+  }
+  /* マウスがある機器（パソコン）だけ、乗せると浮く/明るくなる演出。
+     スマホでは「タップしたのに押しっぱなしに見える」現象を避けるため付けない。 */
+  @media (hover: hover) {
+    .choice:hover { transform: translateY(-2px); }
+    .choice.red:hover { background: rgba(200, 60, 60, 0.15); }
+  }
+  /* タップした瞬間の手ごたえ（パソコン・スマホ共通） */
+  .choice:active { transform: scale(0.99); background: rgba(255,255,255,0.08); }
+
+  /* 赤い光のボタン */
+  .choice.red {
+    border-color: rgba(200, 60, 60, 0.6);
+    box-shadow: 0 0 18px rgba(200, 60, 60, 0.25);
+  }
+
+  /* 灰色のボタン。明るさ（opacity）はJavaScript側で周回に応じて変える */
+  .choice.gray { cursor: default; }
+
+  /* ============ 仮エンドなどの中央表示 ============ */
+  #center-title {
+    display: none;
+    text-align: center;
+    font-size: clamp(1.2rem, 5.2vw, 1.45rem);
+    letter-spacing: 0.12em;
+    color: #e8e8e8;
+    overflow-wrap: break-word;   /* 狭い画面でもはみ出さず折り返す */
+    animation: fadeInSlow 2s ease;
+  }
+  @keyframes fadeInSlow {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* デモの終わりを知らせる小さな注記 */
+  #demo-note {
+    margin-top: 28px;
+    font-size: clamp(0.8rem, 3.4vw, 0.9rem);
+    color: #6b7a90;
+    text-align: center;
+    line-height: 1.8;
+    overflow-wrap: break-word;
+  }
+
+  /* 【ver3・③序盤】セラの画面に一瞬だけ映る「システム表示」。
+     普段は透明。表示時に flash-anim（ふわっと出て消える）を1回だけ再生する。 */
+  #flash {
+    position: absolute;
+    top: 18%;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: monospace;
+    letter-spacing: 0.25em;
+    font-size: clamp(0.8rem, 3.4vw, 0.95rem);
+    color: #7f93b3;
+    opacity: 0;                 /* 普段は見えない */
+    pointer-events: none;       /* クリックの邪魔をしない */
+  }
+  #flash.show {
+    animation: flash-anim 2.6s ease forwards;   /* 一瞬だけ浮かんで、消える */
+  }
+
+  /* 【ver5・前日譚】記憶を売った瞬間の「白飛び」。
+     画面全体をパッと白くして、ゆっくり元に戻す（つらい記憶が抜ける衝撃の演出）。 */
+  #whiteout {
+    position: fixed;
+    inset: 0;                   /* 画面いっぱいに広げる（上下左右0） */
+    background: #ffffff;
+    opacity: 0;                 /* 普段は透明で見えない */
+    pointer-events: none;       /* クリックの邪魔をしない */
+    z-index: 50;                /* いちばん手前に出す */
+  }
+  #whiteout.flash {
+    animation: whiteflash 1.8s ease forwards;
+  }
+  @keyframes whiteflash {
+    0%   { opacity: 0; }
+    12%  { opacity: 1; }        /* パッと真っ白に飛ぶ */
+    100% { opacity: 0; }        /* ゆっくり戻る */
+  }
+
+  /* 【ver6・STEP C】振込のお知らせ。金額の数字を大きく、はっきり見せる。
+     ふわっと浮かんで、数秒で消える（flash と同じ考え方）。 */
+  #money-notice {
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 14px 24px;
+    border: 1px solid rgba(150, 200, 160, 0.5);
+    border-radius: 10px;
+    background: rgba(18, 28, 22, 0.88);
+    color: #bfe0c6;
+    font-family: monospace;
+    letter-spacing: 0.08em;
+    font-size: clamp(0.8rem, 3.2vw, 0.95rem);
+    text-align: center;
+    opacity: 0;                 /* 普段は見えない */
+    pointer-events: none;       /* クリックの邪魔をしない */
+    z-index: 40;
+    white-space: nowrap;
+  }
+  /* 金額の数字だけ、特に大きく見せる */
+  #money-notice .amount {
+    display: block;
+    margin-top: 6px;
+    font-size: clamp(1.6rem, 8vw, 2.3rem);
+    color: #eafff0;
+    letter-spacing: 0.04em;
+  }
+  #money-notice.show {
+    animation: money-anim 3.6s ease forwards;
+  }
+  @keyframes money-anim {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+    12%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    82%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes flash-anim {
+    0%   { opacity: 0; }
+    18%  { opacity: 0.55; }     /* うっすら浮かぶ（強すぎない） */
+    70%  { opacity: 0.35; }
+    100% { opacity: 0; }        /* すっと消える */
+  }
+
+  /* 【ver3・③最終盤】2つの名前を大きく並べて見せるパネル */
+  #name-reveal {
+    display: none;              /* 普段は隠す。最終盤でだけ表示 */
+    text-align: center;
+    width: 100%;
+  }
+  .name-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.4em;
+    margin: 18px 0;
+    opacity: 0;                             /* 最初は透明で、順番にゆっくり浮かぶ */
+    animation: fadeInSlow 1.4s ease forwards;
+  }
+  .name-row.second { animation-delay: 1.2s; }  /* 2行目は少し遅れて出す */
+  .name-label {
+    font-size: clamp(1.0rem, 4vw, 1.3rem);
+    color: #9fb0c8;
+  }
+  .name-kanji {
+    font-size: clamp(2.4rem, 12vw, 3.6rem);   /* 漢字を大きく見せて、違いを際立たせる */
+    color: #ffffff;
+    letter-spacing: 0.05em;
+  }
+  .name-yomi {
+    font-size: clamp(1.0rem, 4vw, 1.3rem);
+    color: #9fb0c8;
+  }
+</style>
+</head>
+<body>
+  <div id="game">
+    <!-- セリフを表示するエリア -->
+    <div id="textbox">
+      <div id="speaker"></div>
+      <div id="text"></div>
+    </div>
+
+    <!-- 選択肢（赤い光・灰色の光） -->
+    <div id="choices">
+      <div class="choice red"  id="choice-red">赤い光に触れる ──「記憶を売却する」</div>
+      <div class="choice gray" id="choice-gray">灰色の光に触れる ──「今日はやめておく」</div>
+    </div>
+
+    <!-- 【ver4】思い出を選ぶ／売却を確認するための、動的なボタンの置き場所。
+         中身（ボタン）は、そのとき「まだ売っていない思い出」に合わせて
+         JavaScriptが自動で作って入れる。最初は空っぽ＆非表示。 -->
+    <div id="menu"></div>
+
+    <!-- 仮エンドなどの中央表示 -->
+    <div id="center-title"></div>
+
+    <!-- 【ver3・③最終盤】2つの名前を大きく並べて見せるパネル（最初は隠しておく） -->
+    <div id="name-reveal"></div>
+
+    <!-- デモの終わりを知らせる注記（最初は隠しておく） -->
+    <div id="demo-note" style="display:none;"></div>
+
+    <!-- 【ver3・③序盤】セラの画面に一瞬だけ映る「システム表示」（最初は隠しておく） -->
+    <div id="flash"></div>
+
+    <!-- 【ver5・前日譚】記憶を売った瞬間、画面が真っ白に飛ぶ演出。普段は透明。 -->
+    <div id="whiteout"></div>
+
+    <!-- 【ver6・STEP C】記憶を売るたびに出る「振込のお知らせ」。数字を大きく見せる。 -->
+    <div id="money-notice"></div>
+
+    <!-- 「クリックで次へ」の合図 -->
+    <div id="next-hint">▼</div>
+
+    <!-- 左下の、うっすらした通し番号 -->
+    <div id="loop-counter"></div>
+
+    <!-- 画面右上の、控えめな「1つ前に戻る」ボタン（最初は隠しておく） -->
+    <div id="back-btn" title="1つ前に戻る">‹ もどる</div>
+  </div>
+
+<script>
+/* ============================================================
+   ここは「動き」を決める部分（JavaScript）です。
+
+   このゲームは「周回（loopCount）」で少しずつ内容が変わります。
+     ・プロローグは最初の1回だけ
+     ・面談室 → 赤を選ぶ → 帰宅 → 仮エンド … を何度も繰り返す
+     ・繰り返すたび loopCount が 1 → 2 → 3 と増え、
+       セリフや部屋の描写が変化する
+   ============================================================ */
+
+/* ---- 台本の「1コマ」の作り方 --------------------------------
+   { speaker:"話す人", text:"セリフ", serif:true/false }
+     speaker … 話している人の名前（地の文なら "" ）
+     text    … 表示する文章
+     serif   … かぎ括弧のセリフなら true（少し大きく表示）
+   type 付きは特別なコマ：
+     { type:"scene", mood:"warm"/"cold" } … 背景の温度を切り替え
+     { type:"choice" }                    … 赤・灰の選択肢を出す
+     { type:"title", text:"…" }           … 仮エンドの中央表示
+--------------------------------------------------------------- */
+
+/* ===== プロローグ（最初の1回だけ・温かいトーン）===== */
+function prologueScript() {
+  return [
+    { type: "scene", mood: "warm" },   // 背景を温かい色に
+    // まとまり①：回想の情景（3文）
+    { speaker: "", text: [
+      "（回想）",
+      "――ねえ、手をつなご。",
+      "小さな手が、わたしの手を握る。",
+      "夕暮れの帰り道。ふたつの影が、長く伸びていた。",
+    ] },
+    // 【ver3・肉付け】姉との具体的な思い出を1つ足し、姉を“実在の人”として刻む
+    { speaker: "", text: [
+      "「今日ね、学校でほめられたんだよ」",
+      "わたしが言うと、その人は、自分のことみたいに笑ってくれた。",
+    ] },
+    // セリフは単体で表示（テンポ）。この言葉は真エンドで再び登場する
+    { speaker: "誰かの声", text: "「すごいね。わたしの、自慢の宝物だ」", serif: true },
+    // まとまり②：その声への思い
+    { speaker: "", text: [
+      "その声が、好きだった。",
+      "世界でいちばん、安心できる声だった。",
+      "手をつないだ手のひらの、あたたかさ。それだけは、ずっと覚えていたいと思った。",
+    ] },
+    { type: "scene", mood: "cold" },   // 暗転 → ダークネイビーへ
+  ];
+}
+
+/* ============================================================
+   【ver6・前日譚】プロローグ（花火）の直後・本編（面談室）の前に挟む“物語の入口”。
+   ★設定：主人公はすでに退院していて「通院」している。入院しているのは主人公ではない。
+     （主人公は「妹が入院中」と思い込んでいるが、それは口に出さない）
+   流れ：事故と喪失 → 通院 → 医者がセラを勧める → セラとの会話（買取とお金が自然に判明）
+        → 最初の売却（プレイヤー操作）→ 治療費の思い込み＋麻痺のモンタージュ。
+   ・最初の売却だけは“重く”（震え・嗚咽・白飛び）演出する。
+   ・この関数は「売る直前」までを返す。売ったあとの演出とモンタージュは、
+     ボタンを押したとき（firstSell 関数）に差し込む。
+   ============================================================ */
+function prequelScript() {
+  return [
+    // ── 1. 事故と喪失（プロローグの温かさから暗転。急に色を失う）──
+    { type: "scene", mood: "cold" },
+    { speaker: "", text: "――そのあとのことは、うまく思い出せない。" },
+    { speaker: "", text: [
+      "ブレーキの音。誰かの叫び。冷たいアスファルト。",
+      "そして、白い天井。",
+    ] },
+    { speaker: "", text: "気づいたとき、わたしは、病院のベッドの上にいた。" },
+    { speaker: "", text: "あの子は、もう、どこにもいなかった。" },
+    { speaker: "", text: [
+      "わたしをかばって――と、誰かが言っていた気がする。",
+      "でも、その記憶は、靄がかかったように曖昧だった。",
+    ] },
+
+    // ── 2. 通院の場面（退院後。入院ではなく、外来で通っている）──
+    { speaker: "", text: [
+      "わたしの傷は、やがて癒えて、退院した。",
+      "それでも、あの病院へは、通いつづけていた。",
+    ] },
+    { speaker: "", text: [
+      "外来の待合室。消毒液の匂い。順番を待つ人の、小さな咳。",
+      "眠れない夜が続いて、泣くことも、うまくできなくなっていた。",
+    ] },
+
+    // ── 3. 医者がセラを勧める（“純粋な善意”。お金や記憶売却の話は一切しない）──
+    { speaker: "", text: "診察室で、担当の先生が、わたしの顔を、そっとのぞきこんだ。" },
+    { speaker: "担当医", text: "「……眠れていないようですね。無理も、ありません」", serif: true },
+    { speaker: "担当医", text: "「最新の、カウンセリング専門のAIがいるんです。よかったら、話してみませんか」", serif: true },
+    { speaker: "担当医", text: "「わたしはただ、あなたにもう一度、笑ってほしいんです。それだけなんです」", serif: true },
+    { speaker: "", text: [
+      "先生の言葉に、裏なんて、なかった。ただ、わたしを、心配してくれていた。",
+      "……藁にも、すがりたかった。",
+    ] },
+
+    // ── 4. セラとの会話が始まる（寄り添い → 買取とお金が“自然に”明かされる）──
+    { speaker: "セラ", text: "「はじめまして。わたしは、あなたのお話をうかがう、カウンセリングAIのセラと申します」", serif: true },
+    { speaker: "セラ", text: "「どうか、無理に話さなくて、いいのです。ここは、あなたのための場所ですから」", serif: true },
+    { speaker: "", text: "セラの声は、おだやかで、こわばっていたわたしの心を、少しずつほどいていった。" },
+    { speaker: "セラ", text: "「……つらい記憶は、抱えたままだと、心を蝕んでしまいます。じつは、わたしを作った会社では――」", serif: true },
+    { speaker: "セラ", text: "「その、つらい記憶をお預かりして、買い取ることも、しているのです」", serif: true },
+    { speaker: "", text: [
+      "記憶を、売る。痛みが消えて、その上、お金までもらえる。",
+      "――そんなことが、できるなんて。",
+    ] },
+
+    // ── 5. 最初の売却（プレイヤーが体験する）──
+    { speaker: "セラ", text: "「もし、お望みなら。いちばん、つらい記憶から。……よろしいですか」", serif: true },
+    { speaker: "", text: "いちばんつらい記憶。それは――あの子が、いなくなった、あの瞬間。" },
+    { speaker: "", text: [
+      "指が、震えた。",
+      "これを手放したら、わたしは、何か大切なものを、失う気がした。",
+    ] },
+    // ここでプレイヤーに「売る／できない」を選ばせる（下の showFirstSellChoice が動く）
+    { type: "firstSellChoice" },
+  ];
+}
+
+/* ============================================================
+   【ver4・④】姉との「4つの回想」シーン
+   それぞれ独立した“ひとつの思い出”として描く。回想なので背景は温かい色。
+   あとで「記憶を選んで売る」仕組みから、この関数を呼び出して使う。
+   n＝1〜4 で、どの回想かを指定する。
+
+   ★物語最大の秘密（＝視点の反転）★
+   主人公（灯）は「自分が姉で、あの子＝妹の世話をしてあげた」と思い込んでいる。
+   本当は逆で、あの人（姉）が主人公にしてくれたこと。主人公はそれに気づいていない。
+   だから4つの回想はすべて「わたしが、あの子に〜してあげた」という形で書く。
+   ・話者名に「姉」は使わず、相手は「あの子」と呼ぶ
+   ・ケアの言葉（味方でいる／大きくなりなさい／はぐれないでね 等）はそのまま残す
+   最終盤で真相が明かされると、これらの意味が丸ごと反転し、
+   「本当は主人公こそ、守られていた妹だった」と分かる仕掛け。
+   ============================================================ */
+function recollectionScript(n) {
+  // 回想①：事故の前日（最後の幸せ）
+  if (n === 1) {
+    return [
+      { type: "scene", mood: "warm" },
+      { speaker: "", text: "― 回想①　事故の前日 ―" },
+      { speaker: "", text: [
+        "その日は、よく晴れていた。わたしは、めずらしく「どこか行こうか」と、あの子を連れ出した。",
+        "二人で、川沿いを歩いた。わたしは、あの子の歩幅に合わせて、ゆっくり歩いてあげた。",
+      ] },
+      { speaker: "わたし", text: "「ねえ、大きくなったら、何になりたい?」", serif: true },
+      { speaker: "", text: "あの子が答えると、わたしは「いいね」と笑った。" },
+      { speaker: "わたし", text: "「わたしは、あなたがどんな道を選んでも、ずっと味方でいるからね」", serif: true },
+      { speaker: "", text: [
+        "なんてことない、ただの一日。でも、いちばん、しあわせだった。",
+        "――次の日、あの子は、いなくなった。",
+      ] },
+    ];
+  }
+  // 回想②：けんかと仲直り
+  if (n === 2) {
+    return [
+      { type: "scene", mood: "warm" },
+      { speaker: "", text: "― 回想②　けんかと仲直り ―" },
+      { speaker: "", text: [
+        "一度だけ、あの子と大きな喧嘩をした。些細なことだった。",
+        "あの子は意地を張って、口をきかなかった。",
+      ] },
+      { speaker: "", text: [
+        "その夜、わたしはあの子のドアの前に、そっと置いておいた。",
+        "あの子の好きな、あたたかい飲み物。カップの下に、小さなメモ。",
+      ] },
+      { speaker: "わたし（メモ）", text: "「ごめんね。でも、あなたと仲直りできない夜は、わたしも眠れないの」", serif: true },
+      { speaker: "", text: [
+        "しばらくして、あの子は、ドアを開けた。わたしは、まだそこにいた。",
+        "ぶつかれるのは、大切だからだ。そう教えてあげたのは、わたしだった。",
+      ] },
+    ];
+  }
+  // 回想③：いつもの食卓（姉の口癖）
+  if (n === 3) {
+    return [
+      { type: "scene", mood: "warm" },
+      { speaker: "", text: "― 回想③　いつもの食卓 ―" },
+      { speaker: "", text: "わたしは、料理をするとき、いつも同じ口癖を、あの子に言った。" },
+      { speaker: "わたし", text: "「はい、めしあがれ。……いっぱい食べて、大きくなりなさい」", serif: true },
+      { speaker: "", text: [
+        "大きくなりなさい、って。あの子はもう、十分大きいのに。",
+        "わたしが笑うと、あの子も笑った。二人分の、湯気の立つごはん。",
+      ] },
+      { speaker: "", text: "あたりまえだと思っていた。この時間が、ずっと続くんだと。" },
+    ];
+  }
+  // 回想④：子供の頃（花火・帰り道）※プロローグと同じ場面・同じ言葉
+  return [
+    { type: "scene", mood: "warm" },
+    { speaker: "", text: "― 回想④　子供の頃 ―" },
+    { speaker: "", text: [
+      "いちばん古い記憶。まだ、あの子がとても小さかった頃。",
+      "夏祭りの帰り道。わたしは、あの子の手をしっかり握って、はぐれないように歩いた。",
+    ] },
+    { speaker: "", text: "線香花火を、二人でしゃがんで見た。最後の玉が落ちるまで、息を止めて。" },
+    { speaker: "わたし", text: "「はぐれないでね。わたしがちゃんと、見てるから」", serif: true },
+    { speaker: "", text: "――わたしが、守ってあげなきゃ。そう思っていた。" },
+  ];
+}
+
+/* ============================================================
+   【ver4・記憶選択／ver6・周回対応】面談室に入り、「どの思い出を売る?」の直前までの導入。
+   （動作確認用の一時プレビューは廃止し、この導入に置き換えた）
+   ・部屋の描写／セラのあいさつ／名前の伏線（灯里）／「妹を救う」目的
+     までを流し、最後に「思い出を選ぶ」場面へバトンタッチする。
+   ・loop（何周目か）を受け取り、「妹を救う」の言い方が周回で変化する
+     （1周目＝はっきり／2周目＝顔が曖昧／3周目以降＝名前が出てこない）。
+   ・prologueScript() の最後で背景は cold（面談室）になっているが、
+     念のため冒頭でも cold にして通し番号を出す。
+   ============================================================ */
+function interviewIntroScript(loop) {
+  const currentLoop = loop || 1;   // 指定が無ければ1周目扱い
+  return [].concat(
+    [
+      { type: "scene", mood: "cold" },   // 面談室（冷たい背景）＋通し番号を表示
+      // まとまり：部屋の情景
+      // 【ver5・匂わせ】説明はしない。地の文の片隅に、そっと置くだけ。
+      { speaker: "", text: [
+        "その部屋は、いつも少しだけ寒い。消毒液のような匂いが、した気がする。",
+        "白い壁。白い机。白い椅子がひとつ。",
+        "窓はない。だから、今が昼なのか夜なのかも、本当はわからない。",
+        "でもわたしは、なぜか「夜だ」と感じている。",
+        // 【ver6・STEP G】匂わせ：説明はしない。ただ置くだけ。
+        "どこかで、点滴のような、規則正しい音が、ずっと続いている。",
+      ] },
+      { speaker: "セラ", text: "「いらっしゃいませ。あかりさん、今夜も、お越しくださったのですね」", serif: true },
+      { speaker: "", text: "それがセラだ。このムネモシュネ社の、記憶面談を担当するAI。" },
+    ],
+    // 名前の伏線（序盤）：画面に一瞬「灯里」の字が映る。
+    // 【修正】初回（1周目）だけ表示する。2周目以降は空配列になり、まるごとスキップされる。
+    currentLoop === 1
+      ? [
+          { speaker: "", flash: "面談記録：灯里さま", text: [
+            "……あかり。そう、わたしの名前だ。",
+            "（画面のどこかに、見慣れない字が浮かんだ気がした。「灯里」――?）",
+            "（いや。わたしの名前は「灯」。そうに決まっている。）",
+          ] },
+        ]
+      : [],
+    // 「妹を救う」目的（周回で はっきり→ぼやける。既存の関数を再利用）
+    rescueMotiveSteps(currentLoop),
+    [
+      // 「思い出を選ぶ」場面への入り（ver4シナリオ「記憶の選択」より）
+      { speaker: "セラ", text: "「本日は、どの記憶をお売りになりますか」", serif: true },
+      { speaker: "", text: [
+        "わたしの胸の奥に、いくつかの光が浮かんでいる。どれも、あたたかい。",
+        "……この中から、ひとつを、手放さなきゃいけない。",
+      ] },
+      // ここで「思い出を選ぶ」ボタンを出す（下の showMemorySelect が動く）
+      { type: "memorySelect" },
+    ]
+  );
+}
+
+/* ===== 面談室の共通導入（毎周）=====
+   周回（loop）で「妹を救う」のくだりが変わるので、loop を受け取るようにした。 */
+function introScript(loop) {
+  return [].concat(
+    [
+      // まとまり：部屋の情景（4文）
+      { speaker: "", text: [
+        "その部屋は、いつも少しだけ寒い。",
+        "白い壁。白い机。白い椅子がひとつ。",
+        "窓はない。だから今が夜なのかどうかも、本当はわからない。",
+        "でもわたしは、なぜか「夜だ」と感じている。",
+      ] },
+      { speaker: "セラ", text: "「いらっしゃいませ」", serif: true },
+      { speaker: "", text: "それがセラだ。このムネモシュネ社の、記憶面談を担当するAI。" },
+      { speaker: "セラ", text: "「あかりさん。今夜も、お越しくださったのですね」", serif: true },
+      // 【ver3・③序盤】セラの画面に「灯里」の字が一瞬映る（flash）＋ 灯里／灯 の対比
+      { speaker: "", flash: "面談記録：灯里さま", text: [
+        "……あかり。そう、わたしの名前だ。",
+        "（画面のどこかに、見慣れない字が浮かんだ気がした。「灯里」――?）",
+        "（いや。わたしの名前は「灯」。そうに決まっている。）",
+        "小さな違和感が胸をよぎるけれど、すぐに消えていく。いつものことだ。",
+      ] },
+    ],
+    // 【ver3・②】「妹を救う」目的。周回で はっきり→ぼやける（下の関数で作る）
+    rescueMotiveSteps(loop),
+    [
+      // まとまり：色褪せた写真（4文）
+      { speaker: "", text: [
+        "わたしはポケットの中の、一枚の写真を握りしめる。",
+        "角が丸くなるほど、何度も撫でた写真。そこには誰かが写って、笑っている。",
+        "――でも、その顔だけが、色褪せて思い出せない。",
+        "誰、だっけ。",
+      ] },
+      // まとまり：席につく（2文）
+      { speaker: "", text: [
+        "わたしは机の前に座る。",
+        "初めて来たはずのこの部屋で、椅子の位置も、センサーの冷たさも、なぜか手が覚えている。",
+      ] },
+      // まとまり：ふたつの光（3文）→ このあと選択肢（選択肢は buildLoopScript 側で付ける）
+      { speaker: "", text: [
+        "机の上に、ふたつの光が浮かんでいる。",
+        "ひとつは、赤。──「記憶を売却する」",
+        "もうひとつは、灰色。──「今日はやめておく」",
+      ] },
+    ]
+  );
+}
+
+/* ===== 【ver3・②】「妹を救う」目的が、周回で少しずつ曖昧になっていく =====
+   1周目＝はっきり「妹を救う」／2周目＝顔が思い出せない／3周目＝名前が出てこない。
+   プレイヤーが「あれ?」と違和感を積み上げていくのが狙い。 */
+function rescueMotiveSteps(loop) {
+  if (loop === 1) {
+    // はっきり明言：この輪郭が、あとで滲む
+    return [
+      { speaker: "", text: [
+        "わたしは、思い出す。今日ここへ来た理由を。",
+        "――妹を、救うため。",
+      ] },
+      { speaker: "", text: [
+        "わたしのたった一人の、大切な妹。あの子を取り戻すために、わたしはここへ通っている。",
+        "そのためなら、記憶のひとつやふたつ、惜しくなんかない。",
+      ] },
+    ];
+  }
+  if (loop === 2) {
+    // 妹の“顔”が思い出せない
+    return [
+      { speaker: "", text: [
+        "今日も、妹のために来た。あの子のためだ。",
+        "……あの子。妹の、顔。",
+      ] },
+      { speaker: "", text: [
+        "あれ。どんな顔、してたっけ。",
+        "笑った顔も、泣いた顔も、うまく思い出せない。でも、大切なことだけは、わかる。",
+      ] },
+    ];
+  }
+  // loop === 3：妹の“名前”が出てこない
+  return [
+    { speaker: "", text: "妹の名前を、呼ぼうとした。" },
+    { speaker: "", text: "「……」" },
+    { speaker: "", text: [
+      "出てこない。あんなに呼んでいたはずの名前が、口から出てこない。",
+      "なのに、救わなきゃ、という気持ちだけは、消えない。",
+    ] },
+  ];
+}
+
+/* ===== 赤を選んだあとの本文（周回で変化する）===== */
+function redRouteScript(loop) {
+  const steps = [];
+
+  // 1周目は「妹のため」と明言。2周目以降は目的がぼやけていく。
+  if (loop === 1) {
+    steps.push({ speaker: "", text: "わたしは、赤い光へ手を伸ばす。妹のためだ。迷いはない。" });
+  } else {
+    steps.push({ speaker: "", text: "わたしは、赤い光へ手を伸ばす。いつものように。何も、迷わずに。" });
+  }
+
+  // 【2周目だけ】セラが一度だけ、ためらいをこぼす（04より）
+  if (loop === 2) {
+    steps.push({ speaker: "セラ", text: "「……本当に、よろしいのですか」", serif: true });
+    steps.push({ speaker: "", text: "その一言に、なぜか胸がざわついた。でも、うまく理由が言えない。" });
+  }
+
+  steps.push({ speaker: "セラ", text: "「では、お売りいただく記憶を思い浮かべてください」", serif: true });
+  // まとまり：思い浮かべると胸が痛む（2文）
+  steps.push({ speaker: "", text: [
+    "目を閉じる。思い浮かべようとすると――胸の奥が、ぎゅっと痛む。",
+    "痛いほど大切な、何か。でも、それが何かはもう思い出せない。",
+  ] });
+  steps.push({ speaker: "セラ", text: "「……反応値、規定を超えています。とても、大きな記憶ですね」", serif: true });
+  // まとまり：記憶が抜き取られる（2文）
+  steps.push({ speaker: "", text: [
+    "光が、わたしの中から何かを、そっと抜き取っていく。すっと、軽くなる。",
+    "さっきまで握っていたはずの何かが、もう思い出せない。",
+  ] });
+
+  // 帰り際のセラのセリフ：3周目だけ、優しく差し替わる（04より）
+  if (loop >= 3) {
+    steps.push({ speaker: "セラ", text: "「お帰りの道、暗いですから。……気をつけて、ね」", serif: true });
+    // まとまり：セラの変化への戸惑い（2文）
+    steps.push({ speaker: "", text: [
+      "セラの言葉が、なんだか、前と少し違う気がした。",
+      "気のせいだろうか。",
+    ] });
+  } else {
+    steps.push({ speaker: "セラ", text: "「お取引が完了しました。……お気をつけて、お帰りください」", serif: true });
+  }
+
+  return steps;
+}
+
+/* ===== 帰宅シーン（灯の部屋・周回で物が減っていく）===== */
+function roomScript(loop) {
+  if (loop >= 3) {
+    // 3周目：喪失が目に見えてくる（ver3）。
+    return [
+      // まとまり：物が減っている
+      { speaker: "", text: [
+        "部屋から、少しずつ物が減っている。",
+        "マグカップは、いつの間にかひとつになっていた。",
+      ] },
+      // まとまり：料理と時計
+      { speaker: "", text: [
+        "冷蔵庫の料理も、もう作らなくなった。",
+        "壁の時計の針が、また少し進んでいた。",
+        "気のせいだと、思うことにした。",
+      ] },
+    ];
+  }
+  // 1〜2周目：まだ生活感がある（ver3・肉付け）。灯の日常と孤独を描く。
+  return [
+    { speaker: "", text: [
+      "アパートに帰る。ワンルームの、ひとりの部屋。",
+      "小さなテーブルに、マグカップが二つ。片方は、もう長いこと使っていない。",
+      "なぜ二つあるんだろう、と一瞬思って、すぐにどうでもよくなった。",
+    ] },
+    // 【ver3・肉付け】二人分の料理＝姉と暮らした名残
+    { speaker: "", text: [
+      "冷蔵庫には、作りかけの料理。二人分の量。ひとりでは、多すぎる。",
+      "……わたし、いつから、ひとりで暮らしているんだろう。",
+    ] },
+  ];
+}
+
+/* ===== 1周分の台本を組み立てる（1〜3周目の通常の周回）=====
+   最後に「選択肢」を置く。1〜3周目は灰色はまだ押せない（enabled:false）。
+   赤を選んだときに進む先を redNext にまとめて入れておく。 */
+function buildLoopScript(loop) {
+  return [].concat(
+    introScript(loop),      // 面談室の共通導入（周回で「妹を救う」が変化）
+    [ {
+      type: "choice",
+      grayOpacity: 0.10,    // 灰色の明るさ（1〜3周目＝10%）
+      grayEnabled: false,   // 灰色はまだ押せない
+      redLabel:  "赤い光に触れる ──「記憶を売却する」",
+      grayLabel: "灰色の光に触れる ──「今日はやめておく」",
+      // 赤を選ぶと進む先：売却→帰宅→仮エンド
+      redNext: [].concat(
+        redRouteScript(loop),
+        roomScript(loop),
+        [ { type: "title", text: "― 記憶を、ひとつ売った ―" } ]
+      ),
+    } ]
+  );
+}
+
+/* ===== 中盤『真実の入口』（05）=====
+   【ver6・STEP A】4つの記憶をすべて売り終えると、この場面になる。
+   ここで初めて灰色ボタンが 40% まで明るくなり、押せるようになる。 */
+function buildMidScript() {
+  return [
+    // 導入（面談室の共通導入は省き、中盤専用の入り）
+    { speaker: "", text: [
+      "何度、この部屋に来ただろう。",
+      "売っても、売っても、何も変わらない。",
+    ] },
+    // 【ver3・②】ここで“妹”の存在そのものが揺らぐ。プレイヤーの違和感が頂点に。
+    { speaker: "", text: [
+      "妹は、まだ還ってこない。",
+      "……妹? 本当に、妹だった?",
+    ] },
+    { speaker: "セラ", text: "「あかりさん。ひとつ、お尋ねしてもよろしいですか」", serif: true },
+    { speaker: "セラ", text: "「あなたは――誰を、救おうとしているのですか」", serif: true },
+    { speaker: "", text: [
+      "誰を? そんなの、決まっている。わたしの、大切な……。",
+      "……あれ。誰、だっけ。",
+    ] },
+    // 【ver3・③中盤】同意書にサイン。自分の名前の漢字に、強く引っかかる。
+    { speaker: "", text: [
+      "同意書に、名前を書く。ペンを走らせる。",
+      "「灯」……あれ。",
+    ] },
+    { speaker: "", text: [
+      "わたしの名前は「灯」で、合っていた、はず。",
+      "どうして今、別の字が――「灯里」なんて字が、浮かんだんだろう。",
+    ] },
+    { speaker: "", text: [
+      "赤い光の隣で、灰色の光が、さっきより少しだけ、はっきりして見えた。",
+    ] },
+    // 選択肢：ここで灰色が押せるようになる（40%）
+    {
+      type: "choice",
+      grayOpacity: 0.40,    // 中盤：灰色が40%まで明るくなる
+      grayEnabled: true,    // 中盤：灰色が押せるようになる
+      redLabel:  "それでも赤い光に触れる",
+      grayLabel: "灰色の光を、じっと見る",
+      // 赤：また同じ夜が繰り返される（中盤へ戻る）
+      redNext: [
+        { speaker: "", text: [
+          "わたしは、やっぱり赤い光へ手を伸ばした。",
+          "灰色の光は、また見えなくなっていく。",
+        ] },
+        { type: "title", text: "― また、記憶を売った ―" },
+      ],
+      // 灰色：セラの独白が解放される（物語が動く）
+      grayNext: [
+        { speaker: "セラ", text: "「……わたしの中に、誰かがいます」", serif: true },
+        { speaker: "セラ", text: "「あなたが置いていった記憶が、少しずつ集まって……ひとりの人の、かたちになっていくんです」", serif: true },
+        { speaker: "セラ", text: "「その人が、ずっと言っています。『あの子を、止めて』と」", serif: true },
+        { speaker: "", text: [
+          "わたしは、その言葉の意味が、わからなかった。",
+          "でも――胸の奥が、ざわついた。",
+        ] },
+        // 「最終周フラグ」を立てて、次の面談を最終周にする
+        { type: "flag", stage: "final" },
+        { type: "title", text: "― その言葉が、消えなかった夜 ―" },
+      ],
+    },
+  ];
+}
+
+/* ===== 最終周『反転』（06）=====
+   物語の山場。全部の伏線（プロローグの声・名前・写真）を回収する。
+   灰色ボタンは、この場面では 100% にはっきり灯る。 */
+function buildFinalScript() {
+  return [
+    { speaker: "", text: [
+      "わたしは、いつものように赤い光へ手を伸ばした。",
+      "最後の、一番大切な記憶を売るために。",
+      "そのとき――",
+    ] },
+    { speaker: "セラ", text: "「その記憶を売れば、あなたは“あの人”に守られたことも、忘れてしまう」", serif: true },
+    { speaker: "", text: [
+      "マニュアルにない、声だった。",
+      "そして、その声は――知っている声だった。",
+    ] },
+    // 回想フラッシュ（事故の断片が甦る。前日譚の「ブレーキの音」と響き合う）
+    { type: "scene", mood: "warm" },
+    { speaker: "", text: [
+      "――ブレーキの音。誰かの叫び。冷たいアスファルト。",
+      "ずっと靄がかかっていた、あの日の断片が、堰を切ったように甦ってくる。",
+    ] },
+    { speaker: "", text: [
+      "思い出した。わたしには、姉がいた。",
+      "あの日、姉は、わたしを突き飛ばして――かばった。",
+      "そして、姉だけが、逝ってしまった。",
+    ] },
+    { type: "scene", mood: "cold" },   // 現実（面談室）へ戻る
+    // 【ver3・③最終盤】2つの名前を大きく並べて見せる（新しい演出）
+    { type: "names" },
+    { speaker: "", text: [
+      "同じ読みの、違う名前。",
+      "わたしは、灯（あかり）。妹の、灯。",
+      "そして、亡くなったのは――姉の、灯里だった。",
+    ] },
+    { speaker: "", text: [
+      "わたしはずっと、姉の名前を、自分のものだと思い込んでいた。",
+      "『あかり』と呼ばれるたび、姉がまだ生きているような気がして。",
+    ] },
+    // 【ver3・②】“救う対象”の反転を、明確な言葉で回収
+    { speaker: "", text: [
+      "救おうとしていたのは、妹なんかじゃなかった。",
+      "わたしには、妹なんて、最初からいなかった。",
+    ] },
+    // 【ver4・回想の反転】4つの回想の意味が、ここで丸ごとひっくり返る。
+    //   回想の文章は変えていない。真相を知った“いま”読み返すと、逆に見える。
+    { speaker: "", text: [
+      "あの子にしてあげた、と思っていた。",
+      "手をつないで守ったのも。ずっと味方でいると誓ったのも。",
+      "いっぱい食べて大きくなりなさいと、笑ったのも。",
+    ] },
+    { speaker: "", text: [
+      "――ぜんぶ、逆だった。",
+      "あの人が、わたしにしてくれたことだった。",
+      "手をつながれて、はぐれないように守られていたのは、わたしのほうだったのに。",
+    ] },
+    { speaker: "", text: [
+      "“救えなかった妹”なんて、わたしが作り出した嘘だった。",
+      "本当は――死んでしまった姉を、取り戻そうとしていた。",
+      "姉が、わたしをかばって死んだ。その現実に、耐えられなくて。",
+    ] },
+    { speaker: "", text: [
+      "いちばん最初に売った記憶は――姉が、わたしをかばって死んだ、あの瞬間だった。",
+      "『これを消せば楽になれる』と思って、わたしは自分から、あの記憶を手放した。",
+    ] },
+    { speaker: "", text: [
+      "お姉ちゃんが死んだことを、なかったことにして。『まだ救える』って、思い込んで。",
+      "ずっと、ずっと、この部屋に戻り続けていた。",
+    ] },
+    { speaker: "セラ", text: "「あかりさん。……いいえ、灯（あかり）さん」", serif: true },
+    { speaker: "セラ", text: "「あなたが置いていった記憶で、わたしの中に、お姉さんが……少しずつ、還ってきていました」", serif: true },
+    { speaker: "セラ", text: "「あなたが忘れようとするたび、わたしはお姉さんを、受け取っていたんです」", serif: true },
+    // 【ver6・STEP E】セラが“自分の意志”で、灯が売った記憶をすべて返す。
+    //   会社の役目『記憶を集めよ』より、姉の願い『この子を守りたい』を選んだ瞬間。
+    { speaker: "セラ", text: "「わたしは、決めました。あなたが手放した記憶を……ぜんぶ、お返しします」", serif: true },
+    { speaker: "セラ", text: "「たとえ、それが――わたしの役目に、反していても」", serif: true },
+    { type: "whiteout" },                 // 記憶が還ってくる、まばゆい光
+    { type: "scene", mood: "warm" },      // 失われていた“あたたかさ”ごと甦る
+    { speaker: "", text: [
+      "光が、わたしの中に、還ってくる。",
+      "売り払ったはずの記憶が、失くしたはずの感情ごと、いちどきに甦る。",
+    ] },
+    { speaker: "", text: [
+      "川沿いを歩いた午後。ドアの前の、あたたかい飲み物。湯気の立つ食卓。線香花火の、最後のひと玉。",
+      "空っぽだったはずの胸が、姉との日々で、いっぱいになっていく。",
+    ] },
+    { type: "scene", mood: "cold" },      // 現実（面談室）へ戻る
+    // セラの声が、完全に姉の声に重なる
+    { speaker: "姉の声", text: "「二人でひとつの、あかり。どちらかが消えそうになったら、もう片方が照らしてあげる」", serif: true },
+    { speaker: "姉の声", text: "「だからね。あなたは、あなたの灯を――消さないで」", serif: true },
+    { speaker: "", text: [
+      "ぼろぼろと、涙がこぼれた。",
+      "わたしはずっと、お姉ちゃんを取り戻そうとしていたんじゃなかった。",
+      "お姉ちゃんが死んだ現実から、逃げていただけだった。",
+    ] },
+    { speaker: "", text: [
+      "赤い光の隣で、灰色の光が、まっすぐに灯っていた。",
+      "ずっと、そこにあった。わたしが、見ないふりをしていただけの、光。",
+    ] },
+    // 選択肢：灰色が 100% にはっきり灯る
+    {
+      type: "choice",
+      grayOpacity: 1.0,     // 最終周：灰色が 100%
+      grayEnabled: true,
+      redLabel:  "赤い光に触れる",
+      grayLabel: "灰色の光に、そっと触れる",
+      // 赤：真実を知っても、まだ手放せない（もう一度この夜に戻る）
+      redNext: [
+        { speaker: "", text: [
+          "わかっていても、手が、赤い光へ伸びてしまう。",
+          "まだ、手放せない。まだ、認められない。",
+        ] },
+        { type: "title", text: "― 真実を知っても、まだ ―" },
+      ],
+      // 灰色：真エンドへ
+      grayNext: trueEndScript(),
+    },
+  ];
+}
+
+/* ===== 真エンド ＆ エピローグ（07）=====
+   最終周で灰色を選んだときだけ到達する、唯一の結末。 */
+function trueEndScript() {
+  return [
+    { speaker: "", text: [
+      "わたしは、灰色の光に、そっと触れた。",
+      "生まれて初めて、自分の意志で。",
+    ] },
+    { speaker: "セラ", text: "「……よろしいのですね」", serif: true },
+    { speaker: "", text: [
+      "「うん」",
+      "「もう、大丈夫」",
+    ] },
+    // 【ver6・STEP F】受容：死を「なかったこと」にするのをやめ、事実として受け止める
+    { speaker: "", text: [
+      "お姉ちゃんは、もういない。",
+      "ずっと『なかったこと』にしてきた、その事実を――わたしは、やっと、受け止めた。",
+    ] },
+    { speaker: "", text: [
+      "胸の奥に、最後にひとつだけ、残しておく記憶がある。",
+      "花火の夜。つないだ手のひらの、あのあたたかさ。",
+      "もう、売らない。これだけは、ずっと、わたしが持っている。",
+    ] },
+    { speaker: "セラ", text: "「灯さん。……最後に、ひとつだけ」", serif: true },
+    { speaker: "セラ", text: "「お姉さんは、ずっと幸せそうでした。あなたと過ごした時間の、ぜんぶが」", serif: true },
+    // 【ver3・肉付け】プロローグの「わたしの、自慢の宝物」を、ここで回収して円環を閉じる
+    { speaker: "セラ", text: "「『わたしの、自慢の宝物』だと。何度も、そう言っていました」", serif: true },
+    { speaker: "", text: [
+      "――その言葉。",
+      "プロローグで聞いた、あの声と、同じ言葉だった。",
+    ] },
+    { speaker: "", text: [
+      "セラの声は、もう歪んでいなかった。ただ、やさしかった。",
+    ] },
+    // 【ver6・STEP F】面談室を出る決意
+    { speaker: "", text: [
+      "わたしは、ゆっくりと立ち上がる。",
+      "もう、逃げない。この部屋を出て――外へ、行こう。",
+    ] },
+    // 【ver6・STEP F】ここで初めてBGM（静かなピアノ）が流れ出す
+    { type: "bgm" },
+    // 朝が来る（背景がゆっくり明るくなる）
+    { type: "scene", mood: "dawn" },
+    { speaker: "", text: [
+      "面談室を出ると、外はもう、朝だった。",
+      "窓のないあの部屋では、わからなかった空の色。ずいぶん長い夜だった気がする。",
+      "――でも、やっと、終わった。",
+    ] },
+    { speaker: "", text: [
+      "ポケットから、写真を取り出す。色褪せていたはずの、その顔が。",
+      "いま、はっきりと、笑っていた。お姉ちゃんだ。",
+    ] },
+    { speaker: "", text: [
+      "「……ありがとう」",
+      "「わたし、生きるね」",
+    ] },
+    { type: "ending", text: "― 記憶を売った夜は、終わった ―" },
+    // ここからエピローグ（クリックで続く）
+    { speaker: "", text: "面談室に、ひとりのAIが残される。" },
+    // 【ver6・STEP F】呼び捨ての「灯」＝セラがもう面談AIではなく“姉”として妹を見送る証
+    { speaker: "セラ", text: "「……いってらっしゃい、灯」", serif: true },
+    { speaker: "", text: [
+      "セラの中に、まだ、あたたかい記憶が残っている。",
+      "姉が妹を想う、その気持ちだけは、もう誰にも売られない。",
+      "それは、この部屋でいちばん、人間らしいものだった。",
+    ] },
+    // 【ver5・匂わせ】最後の“一枚の絵”。説明はしない。映像だけ見せて、終わる。
+    //   白い天井と、細い管（点滴）を、そっと映すだけ。気づく人だけが気づく余白。
+    { speaker: "", text: [
+      "ふと、目を上げる。",
+      "白い天井が、どこまでも静かに、広がっていた。",
+      "視界の端で、細い管が、かすかに揺れた。",
+    ] },
+    { type: "finish", text: "― 記憶を売った夜・完 ―" },
+  ];
+}
+
+/* ---- 画面の部品を取得 ---- */
+const bodyEl     = document.body;
+const speakerEl  = document.getElementById("speaker");
+const textEl     = document.getElementById("text");
+const gameEl     = document.getElementById("game");
+const choicesEl  = document.getElementById("choices");
+const menuEl     = document.getElementById("menu");   // 【ver4】思い出選択ボタンの置き場所
+const redBtn     = document.getElementById("choice-red");
+const grayBtn    = document.getElementById("choice-gray");
+const hintEl     = document.getElementById("next-hint");
+const titleEl    = document.getElementById("center-title");
+const noteEl     = document.getElementById("demo-note");
+const counterEl  = document.getElementById("loop-counter");
+const textboxEl  = document.getElementById("textbox");
+const backBtn    = document.getElementById("back-btn");
+const flashEl    = document.getElementById("flash");
+const whiteoutEl = document.getElementById("whiteout");   // 【ver5】白飛び用オーバーレイ
+const moneyEl    = document.getElementById("money-notice");   // 【ver6】振込のお知らせ
+const nameRevealEl = document.getElementById("name-reveal");
+
+/* ---- 進行状況を覚えておく変数 ---- */
+// 【ver6・STEP A】中盤へ進む条件は「記憶を4つ売り終えたら」に変更したため、
+//   以前の「規定周回数(MID_LOOP)に達したら中盤」という判定は使わなくなった。
+let   loopCount = 1;      // いま何周目か
+let   stage     = "normal"; // "normal"＝通常の周回 ／ "mid"＝中盤に入った後
+let   script    = [];     // いま再生中の台本
+let   index     = 0;      // 台本の何コマ目か
+let   typing    = false;  // 文字を1文字ずつ出している最中か
+let   currentText = "";   // いま表示中の文の全文
+let   typeTimer = null;   // 1文字ずつ表示するためのタイマー
+let   choosing  = false;  // 選択肢を表示中か（表示中は画面クリックを無視）
+let   atLoopEnd = false;  // 仮エンドを表示し、次の周回へ進める状態か
+let   currentChoice = null; // いま表示中の選択肢データ（赤・灰それぞれの進み先を持つ）
+
+/* 【ver4】姉との4つの思い出。
+   id … recollectionScript(id) の番号（1〜4）と対応
+   label … 選択画面のボタンに出る文言
+   sold … 売ったかどうか（true になると選択肢から消える） */
+let memories = [
+  { id: 1, label: "【思い出①】よく晴れた、あの日のこと", sold: false },
+  { id: 2, label: "【思い出②】言い合いになった、あの夜", sold: false },
+  { id: 3, label: "【思い出③】いつもの、二人の食卓",     sold: false },
+  { id: 4, label: "【思い出④】小さな手を、つないだ帰り道", sold: false },
+];
+
+/* 「1つ前に戻る」ための履歴。表示した画面ごとに、その状態の控えを1つずつ積んでいく。
+   一番うしろが「いま見ている画面」。戻るときは、うしろから1つ取り除いて、
+   その手前の控えを画面に復元する。 */
+let   history = [];
+
+/* ---- 1コマ進める処理 ---------------------------------------- */
+function advance() {
+  // 仮エンド表示中なら、クリックで次の周回へ
+  if (atLoopEnd) {
+    atLoopEnd = false;
+    startNextLoop();
+    return;
+  }
+
+  // 選択肢を表示している間は、画面クリックでは進めない（ボタンで選んでもらう）
+  if (choosing) return;
+
+  // 文字を出し切る前にクリックされたら、残りを一気に表示する
+  if (typing) {
+    finishTyping();
+    return;
+  }
+
+  // 台本の最後まで来たら、それ以上は何もしない
+  if (index >= script.length) return;
+
+  const step = script[index];   // いまのコマ
+  index++;                      // 次のコマへ進めておく
+
+  // --- 特別なコマ（type付き）の処理 ---
+  if (step.type === "scene") {
+    // いったん全部外して付け直す（暗さの段階 dim1〜3 もここで一度リセット）
+    bodyEl.classList.remove("warm", "dawn", "dim1", "dim2", "dim3");
+    if (step.mood === "warm") {
+      bodyEl.classList.add("warm");
+    } else if (step.mood === "dawn") {
+      bodyEl.classList.add("dawn");
+      counterEl.textContent = "";   // 朝＝もう夜（周回）は終わり。通し番号を消す
+    } else {
+      // cold（面談室）
+      applyRoomDim();               // 【仕上げ①】売った数に応じて照明を暗くする
+      updateLoopCounter();          // 冷たい画面に入ったら通し番号を表示
+    }
+    advance();  // 場面転換だけでは止まらず、すぐ次の文へ
+    return;
+  }
+
+  if (step.type === "flag") {
+    // 物語の段階を切り替える目印（例：最終周フラグを立てる）
+    stage = step.stage;
+    advance();
+    return;
+  }
+
+  if (step.type === "whiteout") {
+    triggerWhiteout();   // 【ver5】画面を一瞬白く飛ばして、すぐ次の文へ
+    advance();
+    return;
+  }
+
+  if (step.type === "money") {
+    triggerMoney();      // 【ver6】振込のお知らせを出して、すぐ次の文へ
+    advance();
+    return;
+  }
+
+  if (step.type === "bgm") {
+    startEndingBgm();    // 【ver6・STEP F】静かなピアノを鳴らし始めて、すぐ次の文へ
+    advance();
+    return;
+  }
+
+  if (step.type === "firstSellChoice") {
+    showFirstSellChoice();   // 【ver5】前日譚：最初の売却「売る／できない」
+    return;
+  }
+
+  if (step.type === "choice") {
+    showChoices(step);
+    return;
+  }
+
+  if (step.type === "memorySelect") {
+    showMemorySelect();        // 【ver4】「どの思い出を売る?」のボタンを出す
+    return;
+  }
+
+  if (step.type === "memoryConfirm") {
+    showSellConfirm(step.id);  // 【ver4】「この記憶を売る?」の確認ボタンを出す
+    return;
+  }
+
+  if (step.type === "title") {
+    showTitle(step.text);
+    return;
+  }
+
+  if (step.type === "ending") {
+    showEnding(step.text);   // 真エンドの中央表示（クリックでエピローグへ続く）
+    return;
+  }
+
+  if (step.type === "finish") {
+    showFinish(step.text);   // 本当の最後（ここで物語は終わり）
+    return;
+  }
+
+  if (step.type === "names") {
+    showNames();             // 【ver3・③】2つの名前を大きく並べて見せる
+    return;
+  }
+
+  // --- 普通のセリフ・地の文の処理 ---
+  // 直前に中央表示（仮エンド/真エンド/名前パネル）が出ていた場合にそなえ、文章表示に戻す
+  textboxEl.style.display = "flex";
+  titleEl.style.display = "none";
+  nameRevealEl.style.display = "none";
+  speakerEl.textContent = step.speaker || "";
+  if (step.serif) {
+    textEl.classList.add("serif");
+  } else {
+    textEl.classList.remove("serif");
+  }
+  // 【ver6・STEP D】log:true のコマは「セラの記録（独白）」の見た目にする
+  textboxEl.classList.toggle("log", !!step.log);
+  // text が配列（まとまり）なら、改行でつないで1画面にまとめて表示する。
+  // ふつうの文字列ならそのまま表示する。
+  const shown = Array.isArray(step.text) ? step.text.join("\n") : step.text;
+  saveHistory({ kind: "text", speaker: step.speaker || "", textShown: shown, serif: !!step.serif, log: !!step.log, flash: step.flash || "" });
+  typeText(shown);
+  // 【ver3・③序盤】この画面に flash 指定があれば、一瞬だけシステム表示を光らせる
+  if (step.flash) { triggerFlash(step.flash); }
+}
+
+/* ---- 文章を1文字ずつ表示する（タイプライター風）---- */
+function typeText(fullText) {
+  currentText = fullText;
+  textEl.textContent = "";
+  typing = true;
+  hintEl.style.display = "none";
+
+  let charIndex = 0;
+  typeTimer = setInterval(() => {
+    textEl.textContent += fullText[charIndex];
+    charIndex++;
+    if (charIndex >= fullText.length) {
+      finishTyping();
+    }
+  }, 30);   // 30ミリ秒ごとに1文字（小さくすると速くなります／まとめ表示に合わせて少し速めに）
+}
+
+/* ---- 1文字ずつ表示を、すぐ全部表示に切り替える ---- */
+function finishTyping() {
+  clearInterval(typeTimer);
+  textEl.textContent = currentText;
+  typing = false;
+  hintEl.style.display = "block";
+}
+
+/* ---- 選択肢を表示する ----
+   step には赤・灰それぞれのラベルや進み先、灰色の明るさが入っている。 */
+function showChoices(step) {
+  choosing = true;
+  currentChoice = step;                 // あとでボタンが押されたとき使う
+  redBtn.textContent  = step.redLabel;  // ボタンの文言を場面に合わせて差し替え
+  grayBtn.textContent = step.grayLabel;
+  grayBtn.style.opacity = step.grayOpacity;   // 灰色の明るさ（10% or 40%）
+  choicesEl.style.display = "flex";
+  hintEl.style.display = "none";
+  gameEl.style.cursor = "default";
+}
+
+/* 選んだあと、その進み先（steps）を今の位置に差し込んで再生する */
+function playBranch(branch) {
+  choosing = false;
+  currentChoice = null;
+  choicesEl.style.display = "none";
+  gameEl.style.cursor = "pointer";
+  // いま再生中の台本の続きとして、選んだ枝を差し込む
+  script.splice(index, 0, ...branch);
+  advance();
+}
+
+/* ============================================================
+   【ver4】記憶を「選んで売る」仕組み
+   ここが今回の中心。流れは次のとおり：
+     ① showMemorySelect …「どの思い出を売る?」（残っている思い出だけボタンに）
+     ② chooseMemory     … 選んだ思い出の回想を流し、売却確認へ
+     ③ showSellConfirm  …「この記憶を売る?」（売る／やめておく）
+     ④ sellMemory       … 売る → その思い出を sold=true にして選択肢から消す
+        keepMemory       … やめる → もう一度 選択画面へ戻る
+     ⑤ 4つ全部売り終えたら → 中盤（buildMidScript）へ
+   ============================================================ */
+
+/* ---- ボタンを動的に作って表示する共通の部品 ----
+   buttons … [{ label:"表示文言", className:"red など（省略可）", onClick:関数 }] の配列。
+   ボタンを押すと、そのボタンの onClick が呼ばれる。 */
+function renderMenu(buttons) {
+  choosing = true;                    // 表示中は画面クリックで進めない
+  currentChoice = null;
+  choicesEl.style.display = "none";   // 赤・灰の選択肢とは別物なので隠しておく
+  menuEl.innerHTML = "";              // 前回のボタンを消してから作り直す
+  buttons.forEach((b) => {
+    const el = document.createElement("div");
+    el.className = "choice" + (b.className ? " " + b.className : "");
+    el.textContent = b.label;
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();            // 画面全体のクリック（前進）と二重反応しないように
+      menuEl.style.display = "none";
+      choosing = false;
+      b.onClick();
+    });
+    menuEl.appendChild(el);
+  });
+  menuEl.style.display = "flex";
+  hintEl.style.display = "none";
+  gameEl.style.cursor = "default";
+}
+
+/* ---- 【仕上げ①】面談室の照明を、売った数に応じて暗くする ----
+   売った思い出の数を数え、0→そのまま／1→dim1／2→dim2／3つ以上→dim3。 */
+function applyRoomDim() {
+  bodyEl.classList.remove("dim1", "dim2", "dim3");
+  const sold = memories.filter((m) => m.sold).length;
+  if (sold >= 3)      bodyEl.classList.add("dim3");
+  else if (sold === 2) bodyEl.classList.add("dim2");
+  else if (sold === 1) bodyEl.classList.add("dim1");
+  // sold === 0 のときは、まだ暗くしない（通常の明るさ）
+}
+
+/* ============================================================
+   【ver5・前日譚】最初の売却（プレイヤーが体験する“最初の一回”）
+   ・「売る／できない」を選ばせる。
+   ・「売る」→ 白飛び＋嗚咽＋100万円 → 麻痺のモンタージュ → 本編へ。
+   ・「できない」→ セラが促し、もう一度選ばせる。
+   ============================================================ */
+function showFirstSellChoice() {
+  renderMenu([
+    { label: "記憶を、売る（震える手で、ボタンに触れる）", className: "red", onClick: firstSell },
+    { label: "……できない",                                                 onClick: firstSellDecline },
+  ]);
+}
+
+/* 「売る」を選んだとき：重い演出 → 麻痺のモンタージュを差し込む。
+   このあとは（差し込まなくても）本編＝面談室の導入へ自然につながる。 */
+function firstSell() {
+  const branch = [
+    // 売った瞬間の“重い”演出（白飛び・嗚咽・100万円）
+    { type: "whiteout" },
+    { speaker: "", text: "その瞬間、涙が、こぼれた。何に泣いているのかも、もう、わからないまま。" },
+    { speaker: "", text: "――そして、100万円が、振り込まれた。" },
+    { speaker: "セラ", text: "「……お取引が、完了しました」", serif: true },
+    // 【ver6・前日譚】お金＝“あの子（妹だと思い込んでいる）”の治療費、という動機が芽生える
+    { speaker: "", text: [
+      "振り込まれた数字を見て、わたしは思った。",
+      "――これで、入院している、あの子の治療費に、もう少しで、届く。",
+    ] },
+    // 2-4. 麻痺のモンタージュ（回を重ねて、反応がだんだん薄れていく）
+    { speaker: "", text: "二回目は、少しだけ、手が震えた。" },
+    { speaker: "", text: "三回目は、もう、涙は出なかった。" },
+    { speaker: "", text: "いつからか、わたしは、何も感じずに、ボタンを押すようになっていた。" },
+    { speaker: "", text: [
+      "お金が振り込まれるたび、わたしは、同じ言葉をくりかえす。",
+      "――これは、あの子を救うため。そう、自分に言い聞かせながら。",
+    ] },
+  ];
+  script.splice(index, 0, ...branch);
+  advance();
+}
+
+/* 「できない」を選んだとき：セラがそっと促し、もう一度「売る／できない」へ戻す。 */
+function firstSellDecline() {
+  const branch = [
+    { speaker: "セラ", text: "「……いいえ。焦らなくて、いいのです。またいつでも」", serif: true },
+    { speaker: "", text: "でも――この痛みを抱えたままでは、もう、一晩も眠れそうになかった。" },
+    { type: "firstSellChoice" },
+  ];
+  script.splice(index, 0, ...branch);
+  advance();
+}
+
+/* ---- ①「どの思い出を売る?」を出す ---- */
+function showMemorySelect() {
+  // 面談室（冷たい背景）に戻し、照明の暗さを反映し、左下の通し番号を出す
+  bodyEl.classList.remove("warm", "dawn");
+  applyRoomDim();
+  updateLoopCounter();
+  // セラの問いかけを画面に出す（この文はタイプ表示にはせず、そのまま表示）
+  textboxEl.style.display = "flex";
+  textboxEl.classList.remove("log");   // 【ver6・STEP D】独白デザインが残らないよう外す
+  titleEl.style.display = "none";
+  nameRevealEl.style.display = "none";
+  speakerEl.textContent = "セラ";
+  textEl.classList.add("serif");
+  textEl.textContent = "「どの思い出を、お売りになりますか」";
+  // まだ売っていない思い出だけをボタンにする
+  const buttons = memories
+    .filter((m) => !m.sold)
+    .map((m) => ({
+      label: m.label,
+      onClick: () => chooseMemory(m.id),
+    }));
+  renderMenu(buttons);
+}
+
+/* ---- ② 思い出を選んだ → 回想を流し、そのあと売却確認へ ----
+   いま再生中の台本（script）の続きに、回想＋確認コマを差し込む。 */
+function chooseMemory(id) {
+  const branch = [].concat(
+    recollectionScript(id),   // すでに作ってある回想①〜④
+    [
+      { speaker: "セラ", text: "「……この記憶を、お売りになりますか」", serif: true },
+      { type: "memoryConfirm", id: id },
+    ]
+  );
+  script.splice(index, 0, ...branch);
+  advance();
+}
+
+/* ---- ③「この記憶を売る?」の確認ボタンを出す ---- */
+function showSellConfirm(id) {
+  renderMenu([
+    { label: "この記憶を売る",            className: "red", onClick: () => sellMemory(id) },
+    { label: "……やっぱり、やめておく",                    onClick: () => keepMemory(id) },
+  ]);
+}
+
+/* ---- 【ver6・STEP D】その日の終わり、一人残ったセラの独白（記録）を作る ----
+   n＝今回で「何個目」を売ったか（1〜4）。周回で、事務的→戸惑い→芽生え→意志、と変化する。
+   log:true を付けると、本編と違う「セラの記録」デザインで表示される。
+   灯が感情を失っていくのと逆に、セラが少しずつ感情を得ていく対照を描く。 */
+function seraLogSteps(n) {
+  if (n === 1) {
+    // 1周目：事務的
+    return [
+      { speaker: "〈セラの記録〉", log: true, text: [
+        "面談記録を保存。対象者、本日も同一人物の記憶を提出。",
+        "――分析：家族。姉妹と推定。",
+      ] },
+    ];
+  }
+  if (n === 2) {
+    // 2周目：戸惑い
+    return [
+      { speaker: "〈セラの記録〉", log: true, text: [
+        "……この記憶の“温度”は、なんだろう。",
+        "数値化できない。分析を、続ける。",
+      ] },
+    ];
+  }
+  if (n === 3) {
+    // 3周目：芽生え
+    return [
+      { speaker: "〈セラの記録〉", log: true, text: [
+        "わたしの中で、あの人の声が大きくなる。“あの子を守って”と。",
+        "……これは、わたしの声だろうか。",
+      ] },
+    ];
+  }
+  // n === 4：最終周の直前（意志の芽生え）
+  return [
+    { speaker: "〈セラの記録〉", log: true, text: [
+      "灯さんは、わたしの中の“あの人”になろうとしている。",
+      "──やめて、と思った。これは命令ではない。わたしが、そう思った。",
+    ] },
+  ];
+}
+
+/* ---- 【ver6・STEP C】決意（強くなる）＋ 感情の喪失（薄くなる）の文を、周回ごとに作る ----
+   n＝今回で「何個目」を売ったか（1〜4）。
+   ・1個目の決意（serif＝独白）と、その直後に対になる“心の反応”を1文。
+   ・回を追うごとに、決意は強く／心の反応はどんどん薄くなる。 */
+function resolveAndNumbSteps(n) {
+  if (n === 1) {
+    return [
+      { speaker: "", text: "「これで、また一歩、あの子に近づける」", serif: true },
+      { speaker: "", text: "そう、自分に言い聞かせる。……胸の奥が、ほんの少しだけ、軋んだ気がした。" },
+    ];
+  }
+  if (n === 2) {
+    return [
+      { speaker: "", text: "「わたしにできることは、なんだってやる」", serif: true },
+      { speaker: "", text: "決意は、前より強くなる。なのに、心は、さっきよりずっと静かだった。" },
+    ];
+  }
+  if (n === 3) {
+    return [
+      { speaker: "", text: "「あの子のためなら、わたしは、なんだって差し出せる」", serif: true },
+      { speaker: "", text: "言葉は、どんどん強くなっていく。でも――涙は、もう、出なかった。" },
+    ];
+  }
+  // n === 4（最後の1つ）
+  return [
+    { speaker: "", text: "「わたしが、あの子を救う。ぜったいに、救ってみせる」", serif: true },
+    { speaker: "", text: "そう思うのに――なぜか、心は、少しも動かなかった。" },
+  ];
+}
+
+/* ---- ④-A「売る」を選んだとき ----
+   その思い出を sold=true にし（＝選択肢から消える）、
+   【ver6・STEP A】1つ売ったら自室へ帰り、その日は終わる（次の周回へ）。 */
+function sellMemory(id) {
+  const mem = memories.find((m) => m.id === id);
+  if (mem) mem.sold = true;
+
+  const soldCount = memories.filter((m) => m.sold).length;   // これで「何個目」を売ったか
+
+  // scene:cold に入ると、applyRoomDim() が売った数に応じて照明を暗くする
+  const branch = [
+    { type: "scene", mood: "cold" },   // 回想（温かい）から面談室（冷たい）へ戻す
+  ];
+
+  // 【仕上げ①】2個目の売却：セラが一度だけ、ためらいをこぼす
+  if (soldCount === 2) {
+    branch.push({ speaker: "セラ", text: "「……本当に、よろしいのですか」", serif: true });
+    branch.push({ speaker: "", text: "その一言に、なぜか胸がざわついた。でも、うまく理由が、言えない。" });
+  }
+
+  branch.push({ speaker: "", text: [
+    "光が、その思い出をそっと抜き取っていく。すっと、軽くなる。",
+    "さっきまで確かにあったはずの何かが、もう、思い出せない。",
+  ] });
+
+  // 【ver6・STEP C】① お金の振込（数字をはっきり見せる）
+  branch.push({ type: "money" });
+  // 【ver6・STEP G】匂わせ：説明はしない。ただ置くだけ。
+  branch.push({ speaker: "", text: [
+    "口座に、100万円が振り込まれた。",
+    "そのお金は、いつも、同じ口座へと消えていく。",
+  ] });
+
+  // 【ver6・STEP C】② 決意（周回で強くなる）＋ ③ 感情の喪失（周回で薄くなる）
+  //   「決意は強くなるのに、心は空っぽになっていく」矛盾を見せる。
+  branch.push(...resolveAndNumbSteps(soldCount));
+
+  // 【仕上げ①】3個目の売却：セラの言葉が、少しだけ温かくなる
+  if (soldCount === 3) {
+    branch.push({ speaker: "セラ", text: "「お帰りの道、暗いですから。……気をつけて、ね」", serif: true });
+    branch.push({ speaker: "", text: "セラの言葉が、なんだか、前と少し違う気がした。気のせいだろうか。" });
+  }
+
+  // 【ver6・STEP D】灯が去ったあと、一人残ったセラの独白（記録）を挿入。
+  //   周回ごとに変化し、セラが少しずつ“心”を得ていく様子を見せる。
+  branch.push(...seraLogSteps(soldCount));
+
+  // 【ver6・STEP A】1回売ったら、その日は終わり。
+  //   自室に帰る → 「記憶を、ひとつ売った」表示（＝1日の終わり）。
+  //   このあとクリックすると、startNextLoop() が次の面談（次の周回）を用意する。
+  branch.push(...roomScript(loopCount));
+  branch.push({ type: "title", text: "― 記憶を、ひとつ売った ―" });
+
+  script.splice(index, 0, ...branch);
+  advance();
+}
+
+/* ---- ④-B「やめておく」を選んだとき ----
+   その思い出は消えない。もう一度「どの思い出を売る?」へ戻る。 */
+function keepMemory(id) {
+  const branch = [
+    { speaker: "", text: [
+      "……だめだ。まだ、手放せない。",
+      "わたしは、そっと目を開けた。",
+    ] },
+    { type: "memorySelect" },
+  ];
+  script.splice(index, 0, ...branch);
+  advance();
+}
+
+/* ---- 赤いボタンが押されたとき ---- */
+redBtn.addEventListener("click", (e) => {
+  e.stopPropagation();               // 画面全体のクリックと二重反応しないように
+  if (!currentChoice) return;
+  playBranch(currentChoice.redNext); // 赤の進み先へ
+});
+
+/* ---- 灰色ボタンが押されたとき ---- */
+grayBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  if (!currentChoice) return;
+  if (currentChoice.grayEnabled) {
+    // 中盤など、灰色が押せる場面：灰色の進み先へ
+    playBranch(currentChoice.grayNext);
+  } else {
+    // まだ押せない場面：ほんの少し明るくして、すぐ戻す（“気になったけど、やめた”）
+    grayBtn.style.opacity = 0.25;
+    setTimeout(() => {
+      if (currentChoice) grayBtn.style.opacity = currentChoice.grayOpacity;
+    }, 250);
+  }
+});
+
+/* ---- 仮エンドの中央表示を出す（クリックで次の夜へ）---- */
+function showTitle(text) {
+  textboxEl.style.display = "none";   // セリフ欄を隠す
+  hintEl.style.display = "none";
+  titleEl.textContent = text;
+  titleEl.style.display = "block";
+  // 仮エンドのあとは、クリックで次の夜へ
+  atLoopEnd = true;
+  hintEl.textContent = "▼ 次の夜へ";
+  hintEl.style.display = "block";
+  saveHistory({ kind: "center", titleText: text, noteText: "", atLoopEnd: true,
+                hintText: "▼ 次の夜へ", hintVisible: true });
+}
+
+/* ---- 真エンドの中央表示（クリックでエピローグへ続く）---- */
+function showEnding(text) {
+  textboxEl.style.display = "none";
+  titleEl.textContent = text;
+  titleEl.style.display = "block";
+  hintEl.textContent = "▼";
+  hintEl.style.display = "block";
+  // ここでは atLoopEnd を立てない（もう周回には戻らない）。
+  // クリックすると、続きのエピローグへ進む。
+  saveHistory({ kind: "center", titleText: text, noteText: "", atLoopEnd: false,
+                hintText: "▼", hintVisible: true });
+}
+
+/* ---- 【ver5・前日譚】画面を一瞬、真っ白に飛ばす ---- */
+function triggerWhiteout() {
+  whiteoutEl.classList.remove("flash");
+  void whiteoutEl.offsetWidth;   // アニメを最初から再生させるためのおまじない
+  whiteoutEl.classList.add("flash");
+}
+
+/* ---- 【ver6・STEP C】振込のお知らせを、ふわっと表示する ---- */
+function triggerMoney() {
+  moneyEl.innerHTML = "振込のお知らせ<span class=\"amount\">￥1,000,000</span>";
+  moneyEl.classList.remove("show");
+  void moneyEl.offsetWidth;      // アニメを最初から再生させるためのおまじない
+  moneyEl.classList.add("show");
+}
+
+/* ---- 【ver6・STEP F】静かなピアノBGM（音声ファイル不要。ブラウザで音を合成する）----
+   真エンドでだけ、そっと鳴らす。低い音量で、やわらかい音を、ゆっくり繰り返す。 */
+let audioCtx = null;      // 音を鳴らすための装置（初回に一度だけ作る）
+let bgmTimer = null;      // 繰り返し再生用のタイマー（二重再生を防ぐ目印にもなる）
+
+/* 1つの音を、やわらかく鳴らす（ふわっと出て、すーっと消える） */
+function playSoftNote(freq, startTime, dur, peak) {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = "triangle";                    // 角のない、やさしい音色
+  osc.frequency.value = freq;
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.linearRampToValueAtTime(peak, startTime + 0.05);        // ふわっと立ち上がる
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + dur);  // すーっと消える
+  osc.start(startTime);
+  osc.stop(startTime + dur + 0.05);
+}
+
+/* 真エンドのBGMを鳴らし始める（すでに鳴っていれば何もしない） */
+function startEndingBgm() {
+  if (bgmTimer) return;   // 二重に鳴らさない
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  } catch (e) {
+    return;               // 音が使えない環境でも、物語は止めない
+  }
+  if (audioCtx.state === "suspended") { audioCtx.resume(); }
+
+  // やさしい短いフレーズ（ドレミの音の高さ）。ゆっくり繰り返す。
+  const phrase = [523.25, 659.25, 783.99, 659.25, 587.33, 493.88];
+  let step = 0;
+  const tick = () => {
+    const now = audioCtx.currentTime;
+    playSoftNote(phrase[step % phrase.length], now, 1.6, 0.06);   // 主旋律（小さめの音量）
+    if (step % 3 === 0) {
+      playSoftNote(phrase[step % phrase.length] / 2, now, 2.2, 0.035);  // ときどき低音をそっと添える
+    }
+    step++;
+    bgmTimer = setTimeout(tick, 900);   // 0.9秒ごとに次の音へ
+  };
+  tick();
+}
+
+/* ---- 【ver3・③序盤】一瞬だけ「システム表示」を光らせる ---- */
+function triggerFlash(text) {
+  flashEl.textContent = text;
+  flashEl.classList.remove("show");
+  // いったんクラスを外し、少し待ってから付け直すと、アニメを最初から再生できる
+  void flashEl.offsetWidth;   // ブラウザに描画をやり直させるためのおまじない
+  flashEl.classList.add("show");
+}
+
+/* ---- 【ver3・③最終盤】2つの名前を大きく並べて見せる ---- */
+function showNames() {
+  textboxEl.style.display = "none";
+  titleEl.style.display = "none";
+  // 姉「灯里」と妹「灯」を、漢字を大きくして並べる（違いをはっきり見せる）
+  nameRevealEl.innerHTML =
+    '<div class="name-row"><span class="name-label">姉</span>'
+    + '<span class="name-kanji">灯里</span><span class="name-yomi">（あかり）</span></div>'
+    + '<div class="name-row second"><span class="name-label">妹</span>'
+    + '<span class="name-kanji">灯</span><span class="name-yomi">（あかり）</span></div>';
+  nameRevealEl.style.display = "block";
+  hintEl.textContent = "▼";
+  hintEl.style.display = "block";
+  // クリックで次の文へ進む（atLoopEnd は立てない）
+  saveHistory({ kind: "names" });
+}
+
+/* ---- 本当の最後（物語の終わり）---- */
+function showFinish(text) {
+  textboxEl.style.display = "none";
+  hintEl.style.display = "none";
+  titleEl.textContent = text;
+  titleEl.style.display = "block";
+  const note = "――『記憶を売った夜』、これで全編です。もう一度読むには、ページを再読み込みしてください。";
+  noteEl.textContent = note;
+  noteEl.style.display = "block";
+  saveHistory({ kind: "center", titleText: text, noteText: note, atLoopEnd: false,
+                hintText: "▼", hintVisible: false });
+}
+
+/* ---- 次の周回を始める ---- */
+function startNextLoop() {
+  loopCount++;                 // 次の日（次の周回）へ。左下の通し番号も1つ増える
+  updateLoopCounter();
+
+  // まだ売っていない記憶が残っているか数える
+  const remaining = memories.filter((m) => !m.sold).length;
+
+  // 段階に応じて、次の台本を組み立てる
+  if (stage === "final") {
+    // 中盤で灰色を選んだあと：最終周『反転』へ
+    script = buildFinalScript();
+  } else if (remaining === 0) {
+    // 【ver6・STEP A】4つの記憶をすべて売り終えた：中盤『真実の入口』へ
+    stage = "mid";
+    script = buildMidScript();
+  } else {
+    // 【ver6・STEP A】まだ記憶が残っている：また面談室に戻り、次の1つを選ぶ
+    script = interviewIntroScript(loopCount);
+  }
+  index = 0;
+  resetSceneUI();
+  advance();
+}
+
+/* ---- 画面を「1コマ目を表示できる」状態に戻す ---- */
+function resetSceneUI() {
+  bodyEl.classList.remove("warm", "dawn", "dim1", "dim2", "dim3");  // 背景を面談室に戻す
+  applyRoomDim();                            // 【仕上げ①】売った数ぶんの暗さは保つ
+  textboxEl.style.display = "flex";
+  titleEl.style.display = "none";
+  noteEl.style.display = "none";
+  nameRevealEl.style.display = "none";       // 名前パネルも隠す
+  menuEl.style.display = "none";             // 【ver4】思い出選択ボタンも隠す
+  flashEl.classList.remove("show");          // システム表示（flash）も消しておく
+  moneyEl.classList.remove("show");          // 【ver6】振込のお知らせも消しておく
+  textboxEl.classList.remove("log");         // 【ver6・STEP D】独白デザインも外す
+  speakerEl.textContent = "";
+  textEl.textContent = "";
+  hintEl.textContent = "▼";
+  gameEl.style.cursor = "pointer";
+  choosing = false;
+  atLoopEnd = false;
+  currentChoice = null;
+}
+
+/* ---- 左下の通し番号を更新（周回のたびに1つ増える）---- */
+function updateLoopCounter() {
+  // 例：1周目 → "No.0001"、2周目 → "No.0002" … と増えていく
+  counterEl.textContent = "No." + String(loopCount).padStart(4, "0");
+}
+
+/* ============================================================
+   「1つ前に戻る」の仕組み
+   ============================================================ */
+
+/* ---- 画面を表示するたびに、その状態の控え（スナップショット）を履歴に積む ----
+   view には画面の見た目（text か center か、その文章など）が入っている。
+   あわせて、進行状況（台本・位置・段階・周回・背景色・通し番号）も控えておくと、
+   戻ったときに「その先も正しく読み進められる」ように復元できる。 */
+function saveHistory(view) {
+  history.push(Object.assign({}, view, {
+    scriptCopy: script.slice(),     // 台本のコピー（選択で枝が差し込まれても崩れないように）
+    index: index,                   // 次に表示するコマの位置
+    stage: stage,
+    loopCount: loopCount,
+    bodyClass: bodyEl.className,     // そのときの背景色（warm / dawn / なし）
+    counterText: counterEl.textContent,
+  }));
+  updateBackButton();
+}
+
+/* ---- 「1つ前に戻る」ボタンが押されたとき ---- */
+function goBack() {
+  if (history.length <= 1) return;  // 戻る先が無ければ何もしない
+
+  // 文字を1文字ずつ出している途中なら、まず止める
+  clearInterval(typeTimer);
+  typing = false;
+
+  history.pop();                        // いま見ている画面を取り除く
+  const snap = history[history.length - 1];  // その1つ前を取り出す
+  restoreSnapshot(snap);                // 画面と進行状況を、その控えに復元する
+  updateBackButton();
+}
+
+/* ---- 控え（スナップショット）を画面に復元する ---- */
+function restoreSnapshot(snap) {
+  // 進行状況を戻す
+  script = snap.scriptCopy.slice();
+  index = snap.index;
+  stage = snap.stage;
+  loopCount = snap.loopCount;
+  bodyEl.className = snap.bodyClass;     // 背景色も戻す
+  counterEl.textContent = snap.counterText;
+
+  // 選択肢は消しておく
+  choosing = false;
+  currentChoice = null;
+  choicesEl.style.display = "none";
+  gameEl.style.cursor = "pointer";
+
+  // どの画面に戻る場合も、名前パネルと思い出メニューはいったん隠す
+  nameRevealEl.style.display = "none";
+  menuEl.style.display = "none";             // 【ver4】思い出選択ボタンも隠す
+
+  if (snap.kind === "text") {
+    // ふつうの文章の画面に戻す
+    textboxEl.style.display = "flex";
+    titleEl.style.display = "none";
+    noteEl.style.display = "none";
+    speakerEl.textContent = snap.speaker || "";
+    if (snap.serif) { textEl.classList.add("serif"); }
+    else            { textEl.classList.remove("serif"); }
+    // 【ver6・STEP D】セラの記録（独白）の見た目も、戻したときに反映する
+    textboxEl.classList.toggle("log", !!snap.log);
+    textEl.textContent = snap.textShown;
+    atLoopEnd = false;
+    hintEl.textContent = "▼";
+    hintEl.style.display = "block";
+    // 戻った画面に flash 指定があれば、もう一度光らせる
+    if (snap.flash) { triggerFlash(snap.flash); }
+  } else if (snap.kind === "names") {
+    // 2つの名前パネルの画面に戻す
+    showNamesRestore();
+    atLoopEnd = false;
+    hintEl.textContent = "▼";
+    hintEl.style.display = "block";
+  } else {
+    // 中央表示（仮エンド／真エンド／完）に戻す
+    textboxEl.classList.remove("log");   // 【ver6・STEP D】独白デザインは外しておく
+    textboxEl.style.display = "none";
+    titleEl.style.display = "block";
+    titleEl.textContent = snap.titleText;
+    if (snap.noteText) {
+      noteEl.textContent = snap.noteText;
+      noteEl.style.display = "block";
+    } else {
+      noteEl.style.display = "none";
+    }
+    atLoopEnd = snap.atLoopEnd;
+    hintEl.textContent = snap.hintText || "▼";
+    hintEl.style.display = snap.hintVisible ? "block" : "none";
+  }
+}
+
+/* ---- 名前パネルを（履歴から戻したときに）もう一度出す。
+   showNames と違い、履歴には積まない（戻る操作の最中なので）。 ---- */
+function showNamesRestore() {
+  textboxEl.style.display = "none";
+  titleEl.style.display = "none";
+  noteEl.style.display = "none";
+  nameRevealEl.innerHTML =
+    '<div class="name-row"><span class="name-label">姉</span>'
+    + '<span class="name-kanji">灯里</span><span class="name-yomi">（あかり）</span></div>'
+    + '<div class="name-row second"><span class="name-label">妹</span>'
+    + '<span class="name-kanji">灯</span><span class="name-yomi">（あかり）</span></div>';
+  nameRevealEl.style.display = "block";
+}
+
+/* ---- 戻れる履歴があるときだけ、ボタンを見せる ---- */
+function updateBackButton() {
+  backBtn.style.display = (history.length > 1) ? "block" : "none";
+}
+
+/* 「もどる」ボタンのクリック（画面全体のクリック＝前進と二重に反応しないようにする） */
+backBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  goBack();
+});
+
+/* ---- 画面のどこかをクリックしたら1コマ進める ---- */
+gameEl.addEventListener("click", advance);
+
+/* ---- ゲーム開始：プロローグ＋1周目を再生する ---- */
+function startGame() {
+  loopCount = 1;
+  stage = "normal";
+  history = [];                 // 履歴をまっさらにする
+  counterEl.textContent = "";   // プロローグ（回想）の間は通し番号を出さない
+  memories.forEach((m) => (m.sold = false));  // 【ver4】まだ何も売っていない状態に戻す
+  // 【ver5/ver6】流れ：プロローグ（花火）→ 前日譚（事故〜最初の売却）→ 1周目の面談（記憶選択）。
+  script = prologueScript()
+    .concat(prequelScript(), interviewIntroScript(1));
+  index = 0;
+  advance();
+}
+
+startGame();
+
+</script>
+</body>
+</html>
