@@ -260,6 +260,18 @@
     overflow-wrap: break-word;
   }
 
+  /* 終幕ボタンエリア（「最初から読み直す」「感想をXでシェア」） */
+  #finish-actions {
+    display: none;          /* 普段は隠す。showFinish で flex に切り替える */
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 28px;
+  }
+  @keyframes finishBtnFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
   /* 【ver3・③序盤】セラの画面に一瞬だけ映る「システム表示」。
      普段は透明。表示時に flash-anim（ふわっと出て消える）を1回だけ再生する。 */
   #flash {
@@ -476,6 +488,12 @@
 
     <!-- デモの終わりを知らせる注記（最初は隠しておく） -->
     <div id="demo-note" style="display:none;"></div>
+
+    <!-- 終幕ボタン：「最初から読み直す」「感想をXでシェア」（showFinish で表示） -->
+    <div id="finish-actions">
+      <button type="button" class="choice" id="btn-restart">最初から読み直す</button>
+      <button type="button" class="choice" id="btn-share">感想をXでシェア</button>
+    </div>
 
     <!-- 【ver3・③序盤】セラの画面に一瞬だけ映る「システム表示」（最初は隠しておく） -->
     <div id="flash"></div>
@@ -1153,7 +1171,7 @@ function trueEndScript() {
     { speaker: "セラ", text: "「『わたしの、自慢の宝物』だと。何度も、そう言っていました」", serif: true },
     { speaker: "", text: [
       "――その言葉。",
-      "プロローグで聞いた、あの声と、同じ言葉だった。",
+      "いちばん古い記憶の中で聞いた、あの声と、同じ言葉だった。",
     ] },
     { speaker: "", text: [
       "セラの声は、もう歪んでいなかった。ただ、やさしかった。",
@@ -1857,10 +1875,12 @@ function showFinish(text) {
   hintEl.style.display = "none";
   titleEl.textContent = text;
   titleEl.style.display = "block";
-  const note = "――『記憶を売った夜』、これで全編です。もう一度読むには、ページを再読み込みしてください。";
-  noteEl.textContent = note;
-  noteEl.style.display = "block";
-  saveHistory({ kind: "center", titleText: text, noteText: note, atLoopEnd: false,
+  noteEl.style.display = "none";
+  // 2.5秒後にフェードインでボタンを出す
+  finishActionsEl.style.opacity = "0";
+  finishActionsEl.style.animation = "finishBtnFadeIn 1s ease 2.5s forwards";
+  finishActionsEl.style.display = "flex";
+  saveHistory({ kind: "center", titleText: text, noteText: "", atLoopEnd: false,
                 hintText: "▼", hintVisible: false });
 }
 
@@ -1896,6 +1916,8 @@ function resetSceneUI() {
   textboxEl.style.display = "flex";
   titleEl.style.display = "none";
   noteEl.style.display = "none";
+  finishActionsEl.style.display = "none";
+  finishActionsEl.style.animation = "";
   nameRevealEl.style.display = "none";       // 名前パネルも隠す
   menuEl.style.display = "none";             // 【ver4】思い出選択ボタンも隠す
   flashEl.classList.remove("show");          // システム表示（flash）も消しておく
@@ -1966,9 +1988,11 @@ function restoreSnapshot(snap) {
   choicesEl.style.display = "none";
   gameEl.style.cursor = "pointer";
 
-  // どの画面に戻る場合も、名前パネルと思い出メニューはいったん隠す
+  // どの画面に戻る場合も、名前パネルと思い出メニューと終幕ボタンはいったん隠す
   nameRevealEl.style.display = "none";
   menuEl.style.display = "none";             // 【ver4】思い出選択ボタンも隠す
+  finishActionsEl.style.display = "none";
+  finishActionsEl.style.animation = "";
 
   if (snap.kind === "text") {
     // ふつうの文章の画面に戻す
@@ -2059,6 +2083,36 @@ const titleStartBtn = document.getElementById("title-start-btn");
 titleStartBtn.addEventListener("click", () => {
   titleScreenEl.classList.add("is-hidden");
   startGame();
+});
+
+/* ---- 終幕ボタン ---- */
+const finishActionsEl = document.getElementById("finish-actions");
+const btnRestart      = document.getElementById("btn-restart");
+const btnShare        = document.getElementById("btn-share");
+
+/* 「最初から読み直す」：BGMを止め、ゲームをリセットしてタイトル画面に戻す */
+btnRestart.addEventListener("click", (e) => {
+  e.stopPropagation();   // gameEl の advance() を呼ばないようにする
+  if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; }
+  finishActionsEl.style.display = "none";
+  finishActionsEl.style.animation = "";
+  titleEl.style.display = "none";
+  noteEl.style.display = "none";
+  bodyEl.classList.remove("warm", "dawn", "dim1", "dim2", "dim3");
+  titleScreenEl.classList.remove("is-hidden");
+});
+
+/* 「感想をXでシェア」：定型文入りのX投稿画面を新しいタブで開く */
+btnShare.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const tweetText =
+    "ブラウザで遊べるノベルゲーム『記憶を売った夜』をプレイしました。 " +
+    "https://hiro9215koctwcx-glitch.github.io/aitools-portal/memory-night/ " +
+    "#記憶を売った夜 #ノベルゲーム";
+  window.open(
+    "https://x.com/intent/tweet?text=" + encodeURIComponent(tweetText),
+    "_blank", "noopener,noreferrer"
+  );
 });
 
 </script>
