@@ -1,0 +1,2838 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-4B5L0MGHE4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-4B5L0MGHE4');
+</script>
+<meta charset="UTF-8">
+<!-- スマホ表示の基本設定。
+     viewport-fit=cover ＝ iPhoneのノッチ（切り欠き）ぎわまで背景を広げる。
+     そのぶん、文字やボタンが切り欠きに隠れないよう、下のCSSで余白（safe-area）を足す。 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>記憶を継いだ朝 / The Morning I Inherited the Memory</title>
+
+<!-- OGP / Twitter Card -->
+<meta property="og:title"       content="記憶を継いだ朝 / The Morning I Inherited the Memory">
+<meta property="og:description" content="元刑事の探偵が、記憶を売買する企業の闇に挑む。『記憶を売った夜』続編。ブラウザで遊べるノベルゲーム（プレイ時間 約60分）。">
+<meta property="og:image"       content="https://hiro9215koctwcx-glitch.github.io/aitools-portal/memory-morning/ogp.png">
+<meta property="og:url"         content="https://hiro9215koctwcx-glitch.github.io/aitools-portal/memory-morning/">
+<meta property="og:type"        content="website">
+<meta name="twitter:card"       content="summary_large_image">
+
+<style>
+  /* ============================================================
+     ここは「見た目」を決める部分（CSS）です。
+     色・文字の大きさ・配置などを設定しています。
+     ============================================================ */
+
+  * {
+    box-sizing: border-box;      /* 幅の計算を分かりやすくするおまじない */
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+    color: #f4f4f4;                       /* 文字色：白に近い色 */
+    background: #0a0e1a;                   /* 背景：黒に近いダークネイビー */
+    line-height: 1.9;                     /* 行間。広めにして読みやすく */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;                   /* スマホのアドレスバーで隠れないための新しい高さ指定 */
+    overflow: hidden;
+    /* 背景色がゆっくり変わるようにする（プロローグ→面談室の温度差の演出） */
+    transition: background-color 1.5s ease;
+    -webkit-tap-highlight-color: transparent; /* スマホでタップした時の青い枠を消す */
+    -webkit-text-size-adjust: 100%;       /* スマホが勝手に文字サイズを変えるのを防ぐ */
+  }
+
+  /* プロローグ・回想の間だけ使う「温かい色」。body に付け外しして切り替える */
+  body.warm {
+    background: #1c1712;   /* ほんのり茶色がかった温かい闇 */
+    color: #f3e9dc;        /* 少しクリーム色の文字 */
+  }
+
+  /* 真エンドの「朝」。夜が明けた、やわらかな明るさ。 */
+  body.dawn {
+    background: #2a3350;   /* 夜が薄まっていく、明るいネイビー */
+    color: #fdf6ec;        /* あたたかい白 */
+    transition: background-color 3s ease;  /* ゆっくり夜が明ける */
+  }
+
+  /* 【仕上げ①】面談室の照明。記憶を売るたびに、少しずつ暗くしていく。
+     dim1（1つ売却後）→ dim2 → dim3（3つ以降）と、背景が段々暗くなる。
+     文字は明るいままなので、暗くしても読みやすさは保てる。 */
+  body.dim1 { background: #080b14; }
+  body.dim2 { background: #05070e; }
+  body.dim3 { background: #020306; }
+
+  #game {
+    width: 100%;
+    max-width: 640px;
+    height: 100vh;
+    height: 100dvh;    /* スマホ対応の高さ指定（上と同じ理由） */
+    /* 画面の縁の余白。左右は読みやすい余白、上下はノッチや下端バーを避ける余白を足す。
+       clamp(最小, 画面幅に応じた値, 最大) で、狭い画面ほど余白を少し詰める。 */
+    padding-top: calc(env(safe-area-inset-top) + clamp(16px, 4vw, 24px));
+    padding-bottom: calc(env(safe-area-inset-bottom) + clamp(16px, 4vw, 24px));
+    padding-left: calc(env(safe-area-inset-left) + clamp(18px, 5vw, 28px));
+    padding-right: calc(env(safe-area-inset-right) + clamp(18px, 5vw, 28px));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    cursor: pointer;   /* どこをクリックしても進めることを示すマーク */
+    position: relative;
+  }
+
+  #textbox {
+    min-height: 40vh;   /* 文が短くても位置がガタつかないように高さを確保 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* 話している人の名前（セラ など）。名前が無い地の文では空欄 */
+  #speaker {
+    font-size: clamp(0.9rem, 3.6vw, 1.0rem);   /* 画面幅に合わせて自動調整 */
+    color: #8fb3d9;         /* 少し青みがかった色で名前を目立たせる */
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+    min-height: 1.2em;      /* 名前が無い時も高さを保って画面が揺れないように */
+  }
+
+  #text {
+    /* clamp(最小, 画面幅に応じた値, 最大)。
+       スマホ（狭い）では 1.05rem 前後、パソコン（広い）では 1.2rem で頭打ち。 */
+    font-size: clamp(1.05rem, 4.3vw, 1.2rem);
+    white-space: pre-line;      /* 台本内の改行（\n）を、画面でも改行として表示する */
+    overflow-wrap: break-word;  /* 長い文が画面の端で切れず、きちんと折り返すように */
+  }
+
+  /* セリフ（かぎ括弧のセリフ）の時は少し大きく・明るく */
+  #text.serif {
+    font-size: clamp(1.15rem, 4.9vw, 1.3rem);
+    color: #ffffff;
+  }
+
+  /* 【ver6・STEP D】セラの記録（独白）の見た目。本編とはっきり変える。
+     AIの内部ログのように、等幅フォント・青緑色・左に細い線を付ける。 */
+  #textbox.log #speaker {
+    color: #6fb7c9;
+    font-family: monospace;
+    letter-spacing: 0.12em;
+  }
+  #textbox.log #text {
+    font-family: monospace;
+    color: #8fd0dd;                       /* 青緑がかった、機械的な色 */
+    font-size: clamp(0.92rem, 3.7vw, 1.02rem);
+    letter-spacing: 0.03em;
+    border-left: 2px solid rgba(120, 190, 205, 0.45);
+    padding-left: 14px;
+  }
+
+  /* 「次へ進めます」の合図（右下でチカチカする小さな三角） */
+  #next-hint {
+    position: absolute;
+    right: calc(env(safe-area-inset-right) + 20px);
+    bottom: calc(env(safe-area-inset-bottom) + 18px);
+    color: #6b7a90;
+    font-size: 0.9rem;
+    animation: blink 1.2s ease-in-out infinite;
+    pointer-events: none;   /* 合図はクリックの邪魔をしない */
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 0.2; }
+    50%      { opacity: 1;   }
+  }
+
+  /* 画面右上の、控えめな「1つ前に戻る」ボタン */
+  #back-btn {
+    position: absolute;
+    right: calc(env(safe-area-inset-right) + 8px);
+    top: calc(env(safe-area-inset-top) + 6px);
+    color: #d4dae4;                /* うっすら白めのグレー（暗い背景でも見える上品な明るさ） */
+    font-size: clamp(0.8rem, 3.4vw, 0.88rem);
+    letter-spacing: 0.08em;
+    opacity: 0.6;                  /* 「そこにある」と分かる程度。明るすぎない濃さ */
+    cursor: pointer;
+    user-select: none;             /* 文字が選択されないように */
+    transition: opacity 0.3s ease;
+    display: none;                 /* 戻れる履歴ができるまでは隠す */
+    /* 指で押しやすいよう、当たり判定（padding）を広めに取る。
+       見た目は小さいままだが、少し外れてもタップが効く。 */
+    padding: 10px 14px;
+    min-height: 44px;
+  }
+  /* マウスがある機器では、乗せるとはっきり明るくなる（親切な合図） */
+  @media (hover: hover) {
+    #back-btn { opacity: 0.5; }        /* パソコンは普段もう少し控えめ */
+    #back-btn:hover { opacity: 0.95; } /* 重ねると、くっきり */
+  }
+
+  /* 画面左下の、うっすらした通し番号（周回のたびに増える。理由は明かさない演出） */
+  #loop-counter {
+    position: absolute;
+    left: calc(env(safe-area-inset-left) + 22px);
+    bottom: calc(env(safe-area-inset-bottom) + 18px);
+    color: #3a4657;         /* 背景に溶けるくらい薄い色 */
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    font-family: monospace;
+    pointer-events: none;   /* クリックの邪魔をしない */
+  }
+
+  /* ============ 選択肢（赤い光・灰色の光）============ */
+  #choices {
+    display: none;              /* 普段は隠しておき、選択の場面だけ表示 */
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 24px;
+  }
+
+  /* 【ver4】思い出を選ぶ／売却を確認するボタンの並べ方。
+     ボタン1つ1つの見た目は、上の .choice をそのまま使い回す。 */
+  #menu {
+    display: none;              /* 普段は隠す。選ぶ場面だけ表示 */
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 24px;
+  }
+
+  .choice {
+    /* 指でタップしやすいよう、高さをしっかり確保（目安は 44px 以上）。 */
+    min-height: 56px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.03);
+    color: #f4f4f4;
+    font-size: clamp(1.0rem, 4.2vw, 1.1rem);
+    line-height: 1.5;
+    text-align: center;
+    overflow-wrap: break-word;   /* 長いラベルも折り返して、はみ出さない */
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.3s ease;
+  }
+  /* マウスがある機器（パソコン）だけ、乗せると浮く/明るくなる演出。
+     スマホでは「タップしたのに押しっぱなしに見える」現象を避けるため付けない。 */
+  @media (hover: hover) {
+    .choice:hover { transform: translateY(-2px); }
+    .choice.red:hover { background: rgba(200, 60, 60, 0.15); }
+  }
+  /* タップした瞬間の手ごたえ（パソコン・スマホ共通） */
+  .choice:active { transform: scale(0.99); background: rgba(255,255,255,0.08); }
+
+  /* 赤い光のボタン */
+  .choice.red {
+    border-color: rgba(200, 60, 60, 0.6);
+    box-shadow: 0 0 18px rgba(200, 60, 60, 0.25);
+  }
+
+  /* 灰色のボタン。明るさ（opacity）はJavaScript側で周回に応じて変える */
+  .choice.gray { cursor: default; }
+
+  /* ============ 仮エンドなどの中央表示 ============ */
+  #center-title {
+    display: none;
+    text-align: center;
+    font-size: clamp(1.2rem, 5.2vw, 1.45rem);
+    letter-spacing: 0.12em;
+    color: #e8e8e8;
+    overflow-wrap: break-word;   /* 狭い画面でもはみ出さず折り返す */
+    animation: fadeInSlow 2s ease;
+  }
+  @keyframes fadeInSlow {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* デモの終わりを知らせる小さな注記 */
+  #demo-note {
+    margin-top: 28px;
+    font-size: clamp(0.8rem, 3.4vw, 0.9rem);
+    color: #6b7a90;
+    text-align: center;
+    line-height: 1.8;
+    overflow-wrap: break-word;
+  }
+
+  /* 終幕ボタンエリア（「最初から読み直す」「感想をXでシェア」） */
+  #finish-actions {
+    display: none;          /* 普段は隠す。showFinish で flex に切り替える */
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 28px;
+  }
+  @keyframes finishBtnFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* 【ver3・③序盤】セラの画面に一瞬だけ映る「システム表示」。
+     普段は透明。表示時に flash-anim（ふわっと出て消える）を1回だけ再生する。 */
+  #flash {
+    position: absolute;
+    top: 18%;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: monospace;
+    letter-spacing: 0.25em;
+    font-size: clamp(0.8rem, 3.4vw, 0.95rem);
+    color: #7f93b3;
+    opacity: 0;                 /* 普段は見えない */
+    pointer-events: none;       /* クリックの邪魔をしない */
+  }
+  #flash.show {
+    animation: flash-anim 2.6s ease forwards;   /* 一瞬だけ浮かんで、消える */
+  }
+
+  /* 【ver5・前日譚】記憶を売った瞬間の「白飛び」。
+     画面全体をパッと白くして、ゆっくり元に戻す（つらい記憶が抜ける衝撃の演出）。 */
+  #whiteout {
+    position: fixed;
+    inset: 0;                   /* 画面いっぱいに広げる（上下左右0） */
+    background: #ffffff;
+    opacity: 0;                 /* 普段は透明で見えない */
+    pointer-events: none;       /* クリックの邪魔をしない */
+    z-index: 50;                /* いちばん手前に出す */
+  }
+  #whiteout.flash {
+    animation: whiteflash 1.8s ease forwards;
+  }
+  @keyframes whiteflash {
+    0%   { opacity: 0; }
+    12%  { opacity: 1; }        /* パッと真っ白に飛ぶ */
+    100% { opacity: 0; }        /* ゆっくり戻る */
+  }
+
+  /* 【ver6・STEP C】振込のお知らせ。金額の数字を大きく、はっきり見せる。
+     ふわっと浮かんで、数秒で消える（flash と同じ考え方）。 */
+  #money-notice {
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 14px 24px;
+    border: 1px solid rgba(150, 200, 160, 0.5);
+    border-radius: 10px;
+    background: rgba(18, 28, 22, 0.88);
+    color: #bfe0c6;
+    font-family: monospace;
+    letter-spacing: 0.08em;
+    font-size: clamp(0.8rem, 3.2vw, 0.95rem);
+    text-align: center;
+    opacity: 0;                 /* 普段は見えない */
+    pointer-events: none;       /* クリックの邪魔をしない */
+    z-index: 40;
+    white-space: nowrap;
+  }
+  /* 金額の数字だけ、特に大きく見せる */
+  #money-notice .amount {
+    display: block;
+    margin-top: 6px;
+    font-size: clamp(1.6rem, 8vw, 2.3rem);
+    color: #eafff0;
+    letter-spacing: 0.04em;
+  }
+  #money-notice.show {
+    animation: money-anim 3.6s ease forwards;
+  }
+  @keyframes money-anim {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+    12%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    82%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes flash-anim {
+    0%   { opacity: 0; }
+    18%  { opacity: 0.55; }     /* うっすら浮かぶ（強すぎない） */
+    70%  { opacity: 0.35; }
+    100% { opacity: 0; }        /* すっと消える */
+  }
+
+  /* 【ver3・③最終盤】2つの名前を大きく並べて見せるパネル */
+  #name-reveal {
+    display: none;              /* 普段は隠す。最終盤でだけ表示 */
+    text-align: center;
+    width: 100%;
+  }
+  .name-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.4em;
+    margin: 18px 0;
+    opacity: 0;                             /* 最初は透明で、順番にゆっくり浮かぶ */
+    animation: fadeInSlow 1.4s ease forwards;
+  }
+  .name-row.second { animation-delay: 1.2s; }  /* 2行目は少し遅れて出す */
+  .name-label {
+    font-size: clamp(1.0rem, 4vw, 1.3rem);
+    color: #9fb0c8;
+  }
+  .name-kanji {
+    font-size: clamp(2.4rem, 12vw, 3.6rem);   /* 漢字を大きく見せて、違いを際立たせる */
+    color: #ffffff;
+    letter-spacing: 0.05em;
+  }
+  .name-yomi {
+    font-size: clamp(1.0rem, 4vw, 1.3rem);
+    color: #9fb0c8;
+  }
+
+  /* ===== タイトル画面（ゲーム開始前にだけ表示） ===== */
+  #title-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0a0e1a;
+    padding:
+      calc(env(safe-area-inset-top) + 24px)
+      calc(env(safe-area-inset-right) + 20px)
+      calc(env(safe-area-inset-bottom) + 24px)
+      calc(env(safe-area-inset-left) + 20px);
+  }
+  #title-screen.is-hidden {
+    display: none;
+  }
+  .title-screen__inner {
+    text-align: center;
+    width: 100%;
+    max-width: 520px;
+  }
+  .title-screen__main {
+    font-size: clamp(1.6rem, 6.5vw, 2.35rem);
+    font-weight: 600;
+    color: #f4f4f4;
+    letter-spacing: 0.14em;
+    line-height: 1.5;
+    margin-bottom: 0.85rem;
+    opacity: 0;
+    animation: titleFadeIn 2.5s ease forwards;
+  }
+  .title-screen__sub {
+    font-size: clamp(0.72rem, 2.8vw, 0.88rem);
+    color: #7a8499;
+    letter-spacing: 0.06em;
+    margin-bottom: clamp(2.5rem, 8vw, 3.5rem);
+    opacity: 0;
+    animation: titleFadeIn 2.5s ease 0.45s forwards;
+  }
+  #title-start-btn {
+    display: inline-block;
+    padding: 12px 36px;
+    font-family: inherit;
+    font-size: clamp(0.92rem, 3.4vw, 1rem);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #c5d0e0;
+    background: transparent;
+    border: 1px solid rgba(143, 163, 190, 0.4);
+    cursor: pointer;
+    opacity: 0;
+    animation: titleFadeIn 2.5s ease 0.9s forwards;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  #title-start-btn:hover {
+    color: #f4f4f4;
+    border-color: rgba(143, 179, 217, 0.65);
+  }
+  @keyframes titleFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* ============================================================
+     『記憶を継いだ朝』本編用の背景（場面ごとの色）と演出のスタイル。
+     場面転換のたびに body へクラスを付け替え、上の 1.5秒 transition で
+     ゆっくり色が変わる＝「フェードで場面が変わる」演出になる。
+     ============================================================ */
+
+  /* P-1：ニュース／暗転。ほぼ真っ黒。 */
+  body.dark    { background: #05070c; }
+
+  /* 探偵事務所。落ち着いた、ほんのり暖色の闇。 */
+  body.office  { background: #16130f; color: #eae3d8; }
+
+  /* 療養施設・面会室。午後の光がさす、やわらかいグレー。 */
+  body.facility { background: #20242b; color: #eceff3; }
+
+  /* 回想シーン。セピア（色あせた古い記憶）。 */
+  body.sepia   { background: #241d13; color: #e3cfa8; }
+  body.sepia #speaker      { color: #b39a6f; }
+  body.sepia #text.serif   { color: #f4e6c8; }
+
+  /* ムネモシュネ社。無機質で明るい「白い部屋」。ここだけ文字を濃い色に反転する。 */
+  body.clinic  { background: #e9edf1; color: #232a33; }
+  body.clinic #speaker     { color: #5b7186; }
+  body.clinic #text.serif  { color: #11161c; }
+  body.clinic #next-hint   { color: #7c8a9c; }
+  body.clinic #back-btn    { color: #3a4657; }
+
+  /* テレビのニュース音声（『』）。放送っぽく、少しくすんだ色＋字間広め。 */
+  #textbox.tv #text {
+    color: #aab6c6;
+    letter-spacing: 0.06em;
+  }
+
+  /* 記憶カウンセリングAI「レテ」のセリフ（『』）。人間と区別できる色に。 */
+  #textbox.ai #text        { color: #86d8e0; }          /* 暗い背景のとき */
+  body.clinic #textbox.ai #text { color: #0e7c86; }     /* 白い部屋のとき（濃いティール） */
+
+  /* 【演出①】レテの口癖がまざる瞬間の、ほんのわずかな“ゆらぎ”（大げさにしない）。 */
+  #textbox.glitch #text {
+    animation: leteGlitch 0.7s steps(2, end) 1;
+  }
+  @keyframes leteGlitch {
+    0%   { opacity: 1;   }
+    25%  { opacity: 0.45;}
+    50%  { opacity: 1;   }
+    72%  { opacity: 0.55;}
+    100% { opacity: 1;   }
+  }
+
+  /* P-1：音声がぶつりと切れる「暗転（ブラックアウト）」。#whiteout を黒で使い回す。 */
+  #whiteout.blackout {
+    background: #000000;
+    animation: blackcut 1.5s ease forwards;
+  }
+  @keyframes blackcut {
+    0%   { opacity: 0; }
+    22%  { opacity: 1; }   /* ぶつっと暗くなる */
+    68%  { opacity: 1; }
+    100% { opacity: 0; }   /* ゆっくり戻る */
+  }
+
+  /* P-4：暗転のあと、タイトルロゴをフェードインで見せる。 */
+  #center-title.logo .logo-jp {
+    font-size: clamp(1.7rem, 7vw, 2.6rem);
+    letter-spacing: 0.14em;
+    color: #f4f4f4;
+    line-height: 1.5;
+  }
+  #center-title.logo .logo-en {
+    margin-top: 0.9rem;
+    font-size: clamp(0.72rem, 3vw, 0.92rem);
+    letter-spacing: 0.08em;
+    color: #8a94a9;
+  }
+
+  /* ============================================================
+     第3章〜第4章で追加する背景・演出のスタイル
+     ============================================================ */
+
+  /* 第4章：ムネモシュネ社の「照明を落とした」白い部屋（いつもより暗い白）。 */
+  body.clinicdim { background: #c5ccd4; color: #20262e; }
+  body.clinicdim #speaker    { color: #4a6172; }
+  body.clinicdim #text.serif { color: #0e1319; }
+  body.clinicdim #next-hint  { color: #6b7a8c; }
+  body.clinicdim #back-btn   { color: #33404e; }
+  body.clinicdim #textbox.ai #text { color: #0c6b74; }
+
+  /* 走馬灯：まぶしい「白い光」。最後は完全な白へ。文字は濃い色に反転する。 */
+  body.white { background: #f3f5f8; color: #2a2f36; }
+  body.white #speaker   { color: #6a7686; }
+  body.white #next-hint { color: #8b97a7; }
+  body.white #back-btn  { color: #3a4657; }
+  body.white #center-title { color: #2a2f36; }   /* 白背景では中央表示も濃い色に */
+
+  /* 走馬灯の断片テキスト（中央寄せ・やわらかい色でふわっと出す）。 */
+  #textbox.montage { align-items: center; }
+  #textbox.montage #speaker { display: none; }
+  #textbox.montage #text {
+    text-align: center;
+    color: #6b7480;
+    letter-spacing: 0.04em;
+    animation: montageFade 1.2s ease;
+  }
+  body.white #textbox.montage #text { color: #5b6470; }
+  @keyframes montageFade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* 明るい背景（白い部屋・走馬灯）では、選択肢ボタンの枠を濃い色にして見えるようにする。 */
+  body.clinic .choice,
+  body.clinicdim .choice,
+  body.white .choice {
+    border-color: rgba(20, 30, 45, 0.28);
+    background: rgba(20, 30, 45, 0.03);
+    color: #1a2230;
+  }
+  @media (hover: hover) {
+    body.clinic .choice:hover,
+    body.clinicdim .choice:hover,
+    body.white .choice:hover {
+      background: rgba(20, 30, 45, 0.09);
+      border-color: rgba(20, 30, 45, 0.5);
+    }
+  }
+
+  /* タイトル画面の「続きから」ボタン（バッドエンド後にだけ出す）。 */
+  #title-continue-btn {
+    display: none;                 /* 続きが無いときは隠す */
+    margin-top: 16px;
+    padding: 12px 36px;
+    font-family: inherit;
+    font-size: clamp(0.92rem, 3.4vw, 1rem);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: #d9c9a6;                /* はじめる とは少し違う、やわらかい琥珀色 */
+    background: transparent;
+    border: 1px solid rgba(200, 175, 130, 0.45);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  #title-continue-btn:hover {
+    color: #f6ecd6;
+    border-color: rgba(220, 195, 150, 0.7);
+  }
+
+  /* ============================================================
+     真相章〜エピローグで追加する背景・演出のスタイル
+     ============================================================ */
+
+  /* 真相章：壁の奥の、サーバーが並ぶ薄暗い空間（冷たい闇）。 */
+  body.server { background: #0a0e15; color: #dfe4ea; }
+
+  /* エピローグ：昼下がりの療養施設・面会室（窓から光の差す、あたたかい明るさ）。
+     明るい背景なので、文字は濃い色に反転する。 */
+  body.daylight { background: #e4e2da; color: #2c2a26; }
+  body.daylight #speaker    { color: #6a6455; }
+  body.daylight #text.serif { color: #17150f; }
+  body.daylight #next-hint  { color: #8a8474; }
+  body.daylight #back-btn   { color: #4a4636; }
+
+  /* 響のメッセージ（録音された声）。人間の声とわかる、あたたかいクリーム色。 */
+  #textbox.rec #text {
+    color: #ecdfc6;
+    letter-spacing: 0.02em;
+  }
+  body.clinic #textbox.rec #text,
+  body.daylight #textbox.rec #text { color: #5a4a2a; }   /* 明るい背景では濃いめに */
+
+  /* ============================================================
+     第5回：3つの特殊演出（視覚のみ・上品に一瞬）
+     ============================================================ */
+
+  /* 【演出1】3-4「センパ――」の文字化け。
+     文字色は元のまま（レテのセリフ色）に、赤／青の色収差シャドウと細かい揺れを重ね、
+     "通信の乱れ"を出す。実際の文字のノイズ差し替えは JavaScript が行う。 */
+  #textbox.garbling #text {
+    text-shadow: 0.04em 0 rgba(225, 25, 45, 0.85), -0.04em 0 rgba(0, 165, 225, 0.85);
+    animation: garbleShake 0.08s steps(2, end) infinite;
+  }
+  @keyframes garbleShake {
+    0%, 100% { transform: translate(0, 0); }
+    25%      { transform: translate(0.6px, -0.6px); }
+    50%      { transform: translate(-0.6px, 0.6px); }
+    75%      { transform: translate(0.7px, 0.4px); }
+  }
+
+  /* 【演出2補足】4-2 モニターの光がごく淡く揺れる（#whiteout を薄い青白で使い回す）。 */
+  #whiteout.softpulse {
+    background: #cfe0ff;
+    animation: softpulse 1.3s ease forwards;
+  }
+  @keyframes softpulse {
+    0%   { opacity: 0;    }
+    28%  { opacity: 0.14; }   /* ふっと明るくなり */
+    52%  { opacity: 0.04; }   /* いったん沈み */
+    78%  { opacity: 0.11; }   /* もう一度ゆらぐ */
+    100% { opacity: 0;    }
+  }
+
+  /* 【演出3】4-5 走馬灯の自動送り。断片が下から現れ、少し留まり、上へ流れて消える。 */
+  #textbox.montage.flow #text {
+    animation: montageFlow 1.8s ease forwards;
+  }
+  @keyframes montageFlow {
+    0%   { opacity: 0; transform: translateY(16px);  }
+    20%  { opacity: 1; transform: translateY(0);     }
+    68%  { opacity: 1; transform: translateY(0);     }
+    100% { opacity: 0; transform: translateY(-24px); }   /* 上へ流れて消える */
+  }
+
+  /* 【演出4】5-8 ニュースのリフレイン。
+     P-1と同じ tv 色のニュースの上に、響の声が発光して“じわっと重なる”。 */
+  #textbox.refrain #speaker { display: none; }
+  #textbox.refrain #text {
+    display: flex;
+    flex-direction: column;
+    gap: 1.15em;
+  }
+  #textbox.refrain .refrain-news {
+    color: #aab6c6;              /* P-1 のニュースと同じ色 */
+    letter-spacing: 0.06em;
+    opacity: 0.5;                /* 少し褪せた“あの夜の記憶” */
+  }
+  #textbox.refrain .refrain-voice {
+    color: #f2f6ff;              /* 発光する白＝響の声 */
+    text-shadow: 0 0 8px rgba(180, 210, 255, 0.55), 0 0 18px rgba(150, 190, 255, 0.30);
+    letter-spacing: 0.02em;
+    opacity: 0;
+    animation: refrainVoiceIn 2.6s ease 0.9s forwards;   /* 遅れてじわっと重なる */
+  }
+  @keyframes refrainVoiceIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+  <!-- タイトル画面：「はじめる」で本編（プロローグ）へ -->
+  <div id="title-screen">
+    <div class="title-screen__inner">
+      <h1 class="title-screen__main">記憶を継いだ朝</h1>
+      <p class="title-screen__sub">The Morning I Inherited the Memory</p>
+      <button type="button" id="title-start-btn">はじめる</button>
+      <br>
+      <button type="button" id="title-continue-btn">続きから（選択の直前）</button>
+    </div>
+  </div>
+
+  <div id="game">
+    <!-- セリフを表示するエリア -->
+    <div id="textbox">
+      <div id="speaker"></div>
+      <div id="text"></div>
+    </div>
+
+    <!-- 選択肢（赤い光・灰色の光） -->
+    <div id="choices">
+      <div class="choice red"  id="choice-red">赤い光に触れる ──「記憶を売却する」</div>
+      <div class="choice gray" id="choice-gray">灰色の光に触れる ──「今日はやめておく」</div>
+    </div>
+
+    <!-- 【ver4】思い出を選ぶ／売却を確認するための、動的なボタンの置き場所。
+         中身（ボタン）は、そのとき「まだ売っていない思い出」に合わせて
+         JavaScriptが自動で作って入れる。最初は空っぽ＆非表示。 -->
+    <div id="menu"></div>
+
+    <!-- 仮エンドなどの中央表示 -->
+    <div id="center-title"></div>
+
+    <!-- 【ver3・③最終盤】2つの名前を大きく並べて見せるパネル（最初は隠しておく） -->
+    <div id="name-reveal"></div>
+
+    <!-- デモの終わりを知らせる注記（最初は隠しておく） -->
+    <div id="demo-note" style="display:none;"></div>
+
+    <!-- 終幕ボタン：「最初から読み直す」「感想をXでシェア」（showFinish で表示） -->
+    <div id="finish-actions">
+      <button type="button" class="choice" id="btn-restart">最初から読み直す</button>
+      <button type="button" class="choice" id="btn-share">感想をXでシェア</button>
+    </div>
+
+    <!-- 【ver3・③序盤】セラの画面に一瞬だけ映る「システム表示」（最初は隠しておく） -->
+    <div id="flash"></div>
+
+    <!-- 【ver5・前日譚】記憶を売った瞬間、画面が真っ白に飛ぶ演出。普段は透明。 -->
+    <div id="whiteout"></div>
+
+    <!-- 【ver6・STEP C】記憶を売るたびに出る「振込のお知らせ」。数字を大きく見せる。 -->
+    <div id="money-notice"></div>
+
+    <!-- 「クリックで次へ」の合図 -->
+    <div id="next-hint">▼</div>
+
+    <!-- 左下の、うっすらした通し番号 -->
+    <div id="loop-counter"></div>
+
+    <!-- 画面右上の、控えめな「1つ前に戻る」ボタン（最初は隠しておく） -->
+    <div id="back-btn" title="1つ前に戻る">‹ もどる</div>
+  </div>
+
+<script>
+/* ============================================================
+   ここは「動き」を決める部分（JavaScript）です。
+
+   このゲームは「周回（loopCount）」で少しずつ内容が変わります。
+     ・プロローグは最初の1回だけ
+     ・面談室 → 赤を選ぶ → 帰宅 → 仮エンド … を何度も繰り返す
+     ・繰り返すたび loopCount が 1 → 2 → 3 と増え、
+       セリフや部屋の描写が変化する
+   ============================================================ */
+
+/* ---- 台本の「1コマ」の作り方 --------------------------------
+   { speaker:"話す人", text:"セリフ", serif:true/false }
+     speaker … 話している人の名前（地の文なら "" ）
+     text    … 表示する文章
+     serif   … かぎ括弧のセリフなら true（少し大きく表示）
+   type 付きは特別なコマ：
+     { type:"scene", mood:"warm"/"cold" } … 背景の温度を切り替え
+     { type:"choice" }                    … 赤・灰の選択肢を出す
+     { type:"title", text:"…" }           … 仮エンドの中央表示
+--------------------------------------------------------------- */
+
+/* ============================================================
+   ▼▼▼ シナリオ本文エリア（続編『記憶を継いだ朝』）▼▼▼
+   ここに物語の台本を並べます。上から順に、1コマずつ表示されます。
+
+   ● ふつうのコマ（セリフ・地の文）
+     { speaker:"話す人", text:"文章", serif:true/false, voice:"…", glitch:true }
+       speaker … 話す人の名前（地の文や、名前を出さないセリフは ""）
+       text    … 表示する文章（配列にすると複数行を1画面にまとめる）
+       serif   … 「」『』のセリフなら true（少し大きく・明るく表示）
+       voice   … "tv"＝テレビのニュース音声／"ai"＝AI「レテ」のセリフ（色が変わる）
+       glitch  … true にすると、表示のとき一瞬だけ“ゆらぐ”（演出①）
+
+   ● 特別なコマ（type 付き）
+     { type:"scene", mood:"…" } … 場面転換。mood で背景の色を変える（フェード）。
+         mood の種類： dark（暗転/ニュース）／office（探偵事務所）／
+                       clinic（ムネモシュネ社・白い部屋）／facility（療養施設）／
+                       sepia（回想）
+     { type:"beat" }            … 無言の“間”を少しおく（一拍）
+     { type:"blackout" }        … 画面をぶつっと暗転させる
+     { type:"logo" }            … タイトルロゴをフェードインで表示
+     { type:"ending", text:"…" }… 中央に大きく表示（クリックで続く）
+     { type:"finish", text:"…" }… 物語の終わり（終幕ボタンが出る）
+     { type:"todo",  text:"…" } … 「続きは実装中」で止める仮の終わり
+   ============================================================ */
+
+function scenarioScript() {
+  // 本編の台本（プロローグ〜第5章）。この先の第6章（真相章）とエピローグは
+  // offerBranch()（「差し出す」を選んだ枝）の中にあります。
+  return [
+
+    /* ========== プロローグ P-1（ニュース・暗転） ========== */
+    { type: "scene", mood: "dark" },
+    { speaker: "", voice: "tv", text:
+      "『――続いてのニュースです。記憶取引大手・ムネモシュネ社を巡り、匿名の告発が相次いでいる問題で、同社は本日、「事実無根であり、法的措置を検討する」とのコメントを発表しました。告発者の身元は依然として不明のままです。なお、同社の株価は――』" },
+    { type: "blackout" },
+
+    /* ========== プロローグ P-2（探偵事務所） ========== */
+    { type: "scene", mood: "office" },
+    { speaker: "", text: "テレビを消した。" },
+    { speaker: "", text: "どうせ続報は出ない。この十年、あの会社の名前がニュースに上がるたび、話は決まって途中で消える。誰かが消しているのか、みんなが忘れていくのか。……たぶん、両方だ。" },
+    { speaker: "", text: "俺は机の上のファイルに目を戻した。" },
+    { speaker: "", text: "擦り切れた紙の束。十年前の、誰も覚えていない事件。" },
+    { speaker: "", text: "水島徹。享年四十二。町工場の経営者。" },
+    { speaker: "", text: "事業に失敗して、辛い記憶をムネモシュネ社に売った男。金は入った。生活は持ち直した。何もかもうまくいくはずだった。――数ヶ月後、遺書もなく死んだ。" },
+    { speaker: "", text: "死ぬ前、彼は怯えていたという。奥さんの証言が、いまでもファイルの中で生々しい。" },
+    { speaker: "", serif: true, text: "『行ったこともない場所で、会ったこともない誰かが死ぬ夢を、毎晩見るんだと言っていました』" },
+    { speaker: "", text: "俺はこの事件を追って、警察を辞めることになった。いや――辞めさせられた、が正しい。「ただの自殺として処理しろ」。上のその一言に、うなずけなかっただけだ。" },
+    { speaker: "", text: "十年経った。俺は薄暗い事務所で、探偵の看板を掲げて、誰にも頼まれていない捜査を続けている。" },
+    { speaker: "", text: "雨の夜は、決まってこのファイルを開いてしまう。" },
+
+    /* ========== プロローグ P-3（来訪者） ========== */
+    { speaker: "", text: "ノックの音がした。" },
+    { speaker: "", text: "こんな時間に客か。ファイルを引き出しに仕舞って、ドアを開ける。" },
+    { speaker: "", text: "雨に濡れた、白髪まじりの女性が立っていた。六十前後。傘を持っているのに、肩が濡れている。差すことを忘れるほどの何かを、抱えて歩いてきた人の濡れ方だった。" },
+    { speaker: "", serif: true, text: "「……常盤修さんの、事務所でしょうか」" },
+    { speaker: "", serif: true, text: "「そうですが」" },
+    { speaker: "", text: "女性は深く頭を下げた。" },
+    { speaker: "", serif: true, text: "「早瀬千鶴と申します。――息子の、響の母です」" },
+    { speaker: "", text: "その名前に、心臓を掴まれた。" },
+    { speaker: "", text: "早瀬響。俺の下にいた、いちばん見込みのある若い刑事。俺が警察を去ってから、一度も会っていない。風の噂で、あいつも数年前に辞めたと聞いていた。それきりだ。" },
+    { speaker: "", serif: true, text: "「響が……息子が、どうかしましたか」" },
+    { speaker: "", text: "千鶴さんは顔を上げた。その目を見た瞬間、答えを聞く前に、嫌な予感が背骨を這い上がった。" },
+    { speaker: "", serif: true, text: "「息子が――別人のように、なってしまったんです」" },
+    { type: "beat" },
+    { speaker: "", serif: true, text: "「警察は、取り合ってくれませんでした。本人が同意して記憶を売っただけだと。手続きに違法性はないと。……でも、違うんです。あの子は、そんな子じゃない。あの子は何かを、調べていたんです」" },
+    { speaker: "", text: "雨音が、急に大きく聞こえた。" },
+    { speaker: "", text: "机の引き出しの中のファイルと、目の前の母親と、さっき切ったニュースの声が――俺の中で、一本の線になりかけていた。" },
+
+    /* ========== プロローグ P-4（依頼を受ける → タイトル） ========== */
+    { speaker: "", serif: true, text: "「……詳しく、聞かせてください」" },
+    { speaker: "", text: "俺は椅子を勧めた。千鶴さんが座り、濡れた傘が床に小さな水たまりを作る。" },
+    { speaker: "", text: "十年前、俺は途中で降ろされた。" },
+    { speaker: "", text: "今度は、誰にも降ろさせない。" },
+    { type: "scene", mood: "dark" },
+    { type: "logo" },
+
+    /* ================================================================
+       第0章「十年前の泥」（新規・ほぼ全編セピア＝過去回想）
+       プロローグの直後に挿入。十年前の水島事件と、響との出会い。
+       ================================================================ */
+
+    /* ----- 0-1 十年前・水島宅 ----- */
+    { type: "scene", mood: "sepia" },
+    { speaker: "", text: "十年前の、暑い日だった。" },
+    { speaker: "", text: "俺はまだ、捜査一課の刑事だった。相棒もいた。誇りも、たぶん、あった。" },
+    { speaker: "", text: "町工場の経営者が、自宅の物置で首を吊った。水島徹、四十二歳。事業に行き詰まり、生活を苦にした末の自殺——所轄はそう処理しようとしていた。書類はもう、半分できあがっていた。" },
+    { speaker: "", text: "俺が呼ばれたのは、形式的な確認のためだ。事件性なし。判を押して、帰るだけ。そのはずだった。" },
+    { speaker: "", text: "物置の中を見て、俺は足を止めた。" },
+    { speaker: "", text: "首を吊るには、あまりに不自然な高さだった。踏み台があったというが、その位置がおかしい。爪の間に、木の繊維とは違う何かが挟まっていた。そして——机の上に、一枚の紙。" },
+    { speaker: "", serif: true, text: "『ムネモシュネ社 記憶買取証明書』" },
+    { speaker: "", text: "事業に失敗した男が、辛い記憶を売って、金を得ていた。それ自体は、当時もう珍しくなかった。記憶を売る。よくある話だ。" },
+    { speaker: "", text: "だが、俺はその男の顔が、忘れられなかった。" },
+    { speaker: "", text: "死に顔が——怯えていた。楽になろうとした人間の顔じゃない。何かから、逃げようとした顔だった。" },
+
+    /* ----- 0-2 警察署・響との出会い ----- */
+    { speaker: "", serif: true, text: "「常盤さん。例の水島の件、まだ調べてるんですか」" },
+    { speaker: "", text: "声をかけてきたのは、配属されたばかりの若い刑事だった。生意気そうな顔をして、こっちを覗き込んでくる。" },
+    { speaker: "", serif: true, text: "「早瀬響です。今度、常盤さんの下につくことになりました。……その、噂は聞いてます。『終わった事件を掘り返す変人』だって」" },
+    { speaker: "", serif: true, text: "「誰が変人だ」" },
+    { speaker: "", serif: true, text: "「みんなです」" },
+    { speaker: "", text: "悪びれもせず、そいつは笑った。" },
+    { speaker: "", text: "俺はこの手の若造が、正直、得意じゃなかった。調子がよくて、口が回って、三日で音を上げて消えていく。何人も見てきた。" },
+    { speaker: "", text: "だが、早瀬は消えなかった。" },
+    { speaker: "", text: "俺が水島宅の資料を広げていると、いつの間にか横で覗き込んでいる。俺が現場に足を運ぶと、勝手についてくる。しかも——メモの取り方だけは、誰よりも丁寧だった。俺が見落とした聞き込みの矛盾を、あいつのメモが拾っていたことも、一度や二度じゃない。" },
+    { speaker: "", serif: true, text: "「おまえ、なんで刑事になった」" },
+    { speaker: "", text: "ある晩、張り込みの車の中で、俺は聞いた。" },
+    { speaker: "", serif: true, text: "「え? そりゃあ……守られる側より、守る側のほうが、性に合ってるからですよ」" },
+    { speaker: "", serif: true, text: "「なんだそれは」" },
+    { speaker: "", serif: true, text: "「なんですかね」" },
+    { speaker: "", text: "響は笑って、フロントガラスの先の暗がりを見た。缶コーヒーを二本買ってきて、勝手に一本を俺に押しつける、そういう男だった。" },
+    { speaker: "", serif: true, text: "「常盤さん。俺、あなたの下でよかったです。……終わった事件を掘り返す変人の下で」" },
+    { speaker: "", serif: true, text: "「うるせえ」" },
+    { speaker: "", serif: true, text: "「褒めてるんですよ」" },
+
+    /* ----- 0-3 捜査が潰される ----- */
+    { speaker: "", text: "水島の件は、掘れば掘るほど、妙な形をしていた。" },
+    { speaker: "", text: "「記憶の逆流」——今でこそ、その言葉は世間に知られている。だが十年前、それを訴える人間は、ただの精神を病んだ患者として片づけられていた。" },
+    { speaker: "", text: "水島も、その一人だった。妻の証言。「行ったこともない海辺の町で、会ったこともない女の人が死ぬ夢を、毎晩見る」。売ったはずの記憶ではなく、知らない記憶が、頭に流れ込んでくる。" },
+    { speaker: "", text: "記憶は、抜くだけじゃない。入れられるんじゃないか。" },
+    { speaker: "", text: "その仮説にたどり着いたとき、俺は初めて、背筋が寒くなった。もしそうなら——記憶を売る、という行為の意味が、根っこから変わる。" },
+    { speaker: "", text: "俺は上に、捜査の継続を申請した。" },
+    { speaker: "", text: "答えは、三日後に返ってきた。" },
+    { speaker: "", text: "呼び出されたのは、見たこともない階の、見たこともない部屋だった。俺の上司の、そのまた上の、名前も知らない男たちが座っていた。" },
+    { speaker: "", serif: true, text: "「常盤くん。水島の件は、自殺で処理する」" },
+    { speaker: "", serif: true, text: "「証拠が——」" },
+    { speaker: "", serif: true, text: "「処理する、と言っている」" },
+    { speaker: "", text: "一人が、書類を滑らせてよこした。捜査終結の判を押すだけの、簡単な紙だ。" },
+    { speaker: "", serif: true, text: "「ムネモシュネ社には、触れるな。あそこは、我々が手を出していい相手じゃない。……これは、忠告だ」" },
+    { speaker: "", text: "我々が手を出していい相手じゃない。" },
+    { speaker: "", text: "警察が。国家権力の末端が。一企業に対して、そう言った。" },
+    { speaker: "", text: "そのときの俺は、その言葉の本当の重さを、まだ分かっていなかった。ただ、腹の底が熱くなった。それだけだった。" },
+    { speaker: "", serif: true, text: "「断ります」" },
+    { speaker: "", text: "俺は、判を押さなかった。" },
+
+    /* ----- 0-4 辞職の日 → 選択① ----- */
+    { speaker: "", text: "それから先は、あっという間だった。" },
+    { speaker: "", text: "閑職に飛ばされ、書類を握り潰され、行く先々で扉が閉まった。俺は一年、粘った。粘っただけ、無駄だった。組織の中で、あの事件はもう「存在しないこと」になっていた。" },
+    { speaker: "", text: "辞表を出した日のことは、よく覚えている。まだ、売っていないから。" },
+    { speaker: "", text: "段ボールひとつ抱えて廊下を歩く俺を、みんな、見て見ぬふりをした。当然だ。上に楯突いた男の見送りは、出世に響く。誰も、目を合わせなかった。" },
+    { speaker: "", text: "ただ一人、階段の下で待っていた奴がいた。" },
+    { speaker: "", text: "響だった。" },
+    { speaker: "", text: "何か言いたそうに、口を開いて——閉じて、また開いて。" },
+    { speaker: "", serif: true, text: "「……常盤さん」" },
+    { speaker: "", serif: true, text: "「なんだ」" },
+    { speaker: "", text: "あいつは、しばらく黙っていた。言葉を探しているというより、言ってはいけない何かを、必死で飲み込んでいる顔だった。" },
+    { speaker: "", text: "結局、響は何も言わなかった。ただ、深く、長く、頭を下げた。" },
+    /* 【選択①】辞める常盤が響にかける最後の言葉（没入型・結末に影響しない／choice1 に記録） */
+    { type: "pick", store: "choice1", options: [
+      { label: "「達者でな」",                                 value: "達者でな",     say: "「達者でな」" },
+      { label: "「あとは、頼まん。おまえは、無理をするな」",   value: "無理をするな", say: "「あとは、頼まん。おまえは、無理をするな」" },
+      { label: "「……おまえは、いい刑事になる」",             value: "いい刑事",     say: "「……おまえは、いい刑事になる」" },
+    ] },
+    { speaker: "", text: "俺は、選んだ言葉を、たった一言だけ残して、背を向けた。" },
+    { speaker: "", text: "外に出ると、夏の終わりの日差しが、やけに白かった。" },
+    { speaker: "", text: "それきり、俺は響に会わなかった。あいつも数年後に警察を辞めたと、風の噂で聞いた。それだけだ。" },
+    { speaker: "", text: "——あのとき、おまえが飲み込んだ言葉が、何だったのか。" },
+    { speaker: "", text: "俺がそれを知るのは、十年後。すべてが、手遅れになってからだった。" },
+
+    /* ================================================================
+       第1章「別人」（差し替え）
+       セピアを解除して現在へ。響との対面 → 潜入の決意 → 選択② → 登録。
+       ================================================================ */
+
+    /* ----- 現在の事務所へ戻る（千鶴さんの依頼の続き） ----- */
+    { type: "scene", mood: "office" },
+    { speaker: "", text: "千鶴さんの話を、俺は三度、聞き直した。" },
+    { speaker: "", text: "響が警察を辞めたあと、何をしていたのか。母親も、多くは知らなかった。ただ、二年ほど前から、どこかの会社で契約社員として働いていたこと。そして半年ほど前から、まるで人が変わったように無口になり——ある日突然、別人のようになって帰ってきたこと。" },
+    { speaker: "", serif: true, text: "「病院では、記憶を失っていると。……本人が同意して、記憶を売ったんだろうと、言われました」" },
+    { speaker: "", serif: true, text: "「響が、自分で売ったと?」" },
+    { speaker: "", serif: true, text: "「そんなはずないんです」千鶴さんの声が、震えた。「あの子は、何かを調べていました。最後に会った日、こう言って笑ったんです。——『母さん、俺はやり残した宿題を、やってるだけだよ』って」" },
+    { speaker: "", text: "やり残した宿題。" },
+    { speaker: "", text: "その言葉が、十年前の階段の下に、俺を引き戻した。飲み込まれた、あの言葉に。" },
+    { speaker: "", serif: true, text: "「……響に、会わせてください」" },
+
+    /* ----- 1-1 療養施設・面会室（響との対面） ----- */
+    { type: "scene", mood: "facility" },
+    { speaker: "", text: "療養施設は、白い建物だった。" },
+    { speaker: "", text: "消毒液の匂い。柔らかいスリッパの音。何もかもが清潔で、何もかもが、静かすぎた。" },
+    { speaker: "", text: "面会室に通されて、俺は、そこにいる男を見た。" },
+    { speaker: "", text: "車椅子に座って、窓の外を見ている。" },
+    { speaker: "", text: "——響だった。" },
+    { speaker: "", text: "面影は、ある。確かに、ある。あの生意気な若造が、少し歳を取った顔。だが、それだけだった。" },
+    { speaker: "", serif: true, text: "「響。……常盤だ。わかるか」" },
+    { speaker: "", text: "返事はない。" },
+    { speaker: "", serif: true, text: "「おい。響」" },
+    { speaker: "", text: "視線すら、動かない。窓の外の何を見ているのかと思ったが——たぶん、何も見ていない。ただ、目を、開けているだけだ。" },
+    { speaker: "", text: "俺は膝をついて、あいつの目の高さに、自分を合わせた。" },
+    { speaker: "", text: "近くで見ると、よけいに分かった。この目には、何も映っていない。恐怖も、痛みも、諦めすらもない。あるべきものが、根こそぎ、抜き取られている。" },
+    { speaker: "", serif: true, text: "「……おまえ、俺のこと、忘れたのか」" },
+    { speaker: "", text: "忘れた、という言葉すら、生温い気がした。忘れるためには、まず、覚えていなければならない。この男の中には、忘れる対象すら、もう、残っていない。" },
+    { speaker: "", text: "千鶴さんが、そっと息子の手を握って、さすっていた。" },
+    { speaker: "", serif: true, text: "「毎日、こうして来るんです。手を握って、話しかけて。……いつか、思い出してくれるかもしれないから」" },
+    { speaker: "", text: "俺は、何も言えなかった。" },
+    { speaker: "", text: "代わりに、心の中で、車椅子の男に問いかけた。" },
+    { speaker: "", text: "——響。おまえは、何を掘り当てた。誰に、これをやられた。" },
+    { speaker: "", text: "そして、俺に何を、託そうとしたんだ。" },
+
+    /* ----- 1-2 響の部屋（遺されたメモ） ----- */
+    { type: "scene", mood: "office" },
+    { speaker: "", text: "千鶴さんの許しを得て、俺は響が使っていた部屋を見せてもらった。" },
+    { speaker: "", text: "実家の、六畳の和室。几帳面なあいつらしく、片づいていた。だが、片づきすぎていた。まるで、いつ消えてもいいように、身辺を整理したあとのような。" },
+    { speaker: "", text: "机の引き出しを開ける。空っぽだった。本棚も、ほとんど何もない。" },
+    { speaker: "", text: "——消したな。" },
+    { speaker: "", text: "刑事の勘が、そう告げた。あいつは、自分の身に何かが起きることを予期して、痕跡を消していった。捕まる前に。廃人にされる前に。" },
+    { speaker: "", text: "だが、響は俺の教え子だ。俺の教え子なら、必ず、どこかに一つだけ、残す。" },
+    { speaker: "", text: "俺は部屋を、隅から隅まで見た。畳を上げ、本の背表紙を確かめ、カーテンの裾をなぞった。そして——机の裏に、貼りつけられた、一枚のメモを見つけた。" },
+    { speaker: "", text: "俺の教え子の、几帳面な字だった。" },
+    { speaker: "", serif: true, text: "『記憶は、売った後どこへ行く?』" },
+    { speaker: "", text: "それだけだった。他には、何も書いていない。" },
+    { speaker: "", text: "だが、俺には分かった。これは、あいつの捜査の、出発点だ。そして——たぶん、終着点でもある。" },
+    { speaker: "", text: "記憶は、売った後どこへ行く。" },
+    { speaker: "", text: "十年前、俺が水島の物置で立ち止まった、あの疑問と、同じ場所に、響も立っていた。" },
+
+    /* ----- 1-3 決意と作戦 → 選択② ----- */
+    { type: "scene", mood: "office" },
+    { speaker: "", text: "事務所に戻って、俺は一晩、考えた。" },
+    { speaker: "", text: "表から、ムネモシュネ社を叩く道はない。十年前に、全部塞がれている。警察も、マスコミも、司法も——あの会社の周りだけ、道が消えている。国家が、一企業を守っている。そういう相手だ。" },
+    { speaker: "", text: "なら、どうする。" },
+    { speaker: "", text: "答えは、響のメモが教えてくれていた。" },
+    { speaker: "", text: "記憶は、売った後どこへ行く。——それを知るには、外から眺めていても駄目だ。自分の記憶を、あの会社に流し込んで、内側から、その行方を追うしかない。" },
+    { speaker: "", text: "俺は、決めた。" },
+    { speaker: "", text: "顧客として、潜入する。辛い記憶に悩む、ただの一般人として、ムネモシュネ社の扉を叩く。そして、記憶を売る。売った記憶が、どこへ運ばれ、誰の手に渡るのか——餌になるのは、俺自身の頭の中身だ。" },
+    { speaker: "", text: "危険なのは、分かっていた。記憶を売れば、俺自身が、少しずつ削れていく。売った先で、何が待っているかも分からない。" },
+    { speaker: "", text: "だが、それしかなかった。" },
+    { speaker: "", text: "もう一つ、計算があった。あの会社は、たぶん、「重い記憶を持つ客」ほど、深部へ通す。ありふれた記憶なんて、いくらでも手に入る。連中が本当に欲しがるのは、濃い痛みだ。深い後悔だ。——だとしたら、俺は、格好の客になれる。十年分の、腐るほど重い後悔を、抱えているんだから。" },
+    { speaker: "", serif: true, text: "「……響。おまえの宿題、俺が引き継ぐ」" },
+    { speaker: "", text: "誰もいない事務所で、俺は、机の裏から剥がしてきたメモを、見つめた。" },
+    { speaker: "", serif: true, text: "「今度は、俺が階段の下で、待っててやる」" },
+    /* 【選択②】潜入用の偽名（没入型・結末に影響しない／alias に記録。以降の呼びかけの伏線） */
+    { type: "pick", store: "alias", options: [
+      { label: "「戸川修二」", value: "戸川修二" },
+      { label: "「新藤明」",   value: "新藤明"   },
+      { label: "「黒木修」",   value: "黒木修"   },
+    ] },
+    { speaker: "", text: "俺は、偽の身分証を用意した。辛い記憶に悩む、しがない自営業者。設定は、それで十分だ。" },
+    { speaker: "", text: "翌朝、俺はムネモシュネ社の、顧客登録フォームに、選んだ名前を打ち込んだ。" },
+    { speaker: "", text: "指が、キーボードの上で、一瞬だけ止まった。" },
+    { speaker: "", text: "——ここから先は、戻れない。" },
+    { speaker: "", text: "分かっていた。それでも、俺は「送信」を押した。" },
+
+    /* ================================================================
+       第2章「白い部屋」（新規・差し替え）
+       登録後、ムネモシュネ社へ。レテとの対面・ヒアリング → 選択③ → 最初の売却。
+       ================================================================ */
+
+    /* ----- 2-1 白い塔・白い部屋 ----- */
+    { type: "scene", mood: "clinic" },
+    { speaker: "", text: "ムネモシュネ社の本社は、街の中心に建つ、白い塔だった。" },
+    { speaker: "", text: "受付の人間は、みな穏やかに微笑んでいた。声を荒げる者も、急ぐ者もいない。まるで、感情の起伏そのものが、この建物の中では禁じられているようだった。" },
+    { speaker: "", text: "通されたカウンセリングルームは、病室に似ていた。" },
+    { speaker: "", text: "白い天井。白い壁。真ん中に、リクライニングチェアがひとつ。かすかに漂う、消毒液に似た、匂いのない匂い。" },
+    { speaker: "", text: "……どこかで見た光景だと思った。十年前、水島徹の妻に話を聞いた病院の、あの白さだ。そして、つい昨日、響に会ったあの施設の白さでもあった。" },
+    { speaker: "", text: "この会社は、白が好きらしい。何も無い色。何も残らない色。" },
+
+    /* ----- 2-2 レテとの対面 ----- */
+    { speaker: "", text: "正面のモニターが、柔らかく灯った。" },
+    { speaker: "", voice: "ai", serif: true, text: "『はじめまして、戸川様。わたくしは記憶カウンセリングAI「レテ」と申します。本日は、ご来社いただき、ありがとうございます』" },
+    { speaker: "", text: "女性とも、子供ともつかない、静かな声だった。不思議と、耳に馴染む声だ。" },
+    { speaker: "", voice: "ai", serif: true, text: "『ご不安なことも、多いかと存じます。まずは、楽な姿勢で。……何も、急ぐ必要はございません。今日は、お話をするだけでも、かまわないのですよ』" },
+    { speaker: "", serif: true, text: "「……ずいぶん、丁寧なんだな」" },
+    { speaker: "", voice: "ai", serif: true, text: "『わたくしどもは、記憶を\"処理\"する機械ではございません。お客様のお心に、寄り添うために、おります。——記憶を手放すというのは、その方の一部と、お別れをすることですから』" },
+    { speaker: "", text: "その一部と、お別れをする。" },
+    { speaker: "", text: "妙な言い回しだと思った。売る、でも、消す、でもなく——別れる。" },
+
+    /* ----- 2-3 ヒアリング（整いすぎた話） ----- */
+    { speaker: "", voice: "ai", serif: true, text: "『戸川様。差し支えなければ、お聞かせください。——あなたが、手放したいと思っていらっしゃる記憶とは、どのようなものでしょう』" },
+    { speaker: "", serif: true, text: "「……仕事で、しくじってな。思い出すたびに、気が滅入る。それだけだ」" },
+    { speaker: "", voice: "ai", serif: true, text: "『そうですか』" },
+    { speaker: "", text: "レテは、少し間を置いた。" },
+    { speaker: "", voice: "ai", serif: true, text: "『……失礼を、承知で申し上げます。戸川様。あなたのお話は、とても、整いすぎています』" },
+    { speaker: "", serif: true, text: "「……何?」" },
+    { speaker: "", voice: "ai", serif: true, text: "『長く、辛い記憶と向き合ってこられた方は、その記憶のことを、うまく話せないものです。言葉が、つかえたり、飛んだり、する。……ですが、あなたのお話は、まるで、あらかじめ用意された調書のようでした』" },
+    { speaker: "", text: "背筋が、ひやりとした。" },
+    { speaker: "", text: "こいつ——ただの受付AIじゃない。" },
+    { speaker: "", voice: "ai", serif: true, text: "『気を悪くされたなら、謝ります。ただ、わたくしには、そう感じられたものですから。……あなたは、本当に手放したい記憶を、まだ、話しておられない。違いますか』" },
+    { speaker: "", text: "俺は、答えなかった。" },
+    { speaker: "", text: "沈黙を、どう読んだのか。レテは、責めるでもなく、静かに続けた。" },
+    { speaker: "", voice: "ai", serif: true, text: "『それでも、けっこうです。人は誰しも、いちばん深い場所を、最後まで見せないものですから。……ゆっくりで、かまいません。あなたが話してくださる日を、わたくしは、待っています』" },
+    { speaker: "", text: "待っています。" },
+    { speaker: "", text: "——機械が、待つ、と言った。" },
+
+    /* ----- 2-4 揺さぶり → 選択③ ----- */
+    { speaker: "", voice: "ai", serif: true, text: "『ひとつだけ、伺ってもよろしいですか』レテは言った。『あなたは、その記憶を——本当に、消してしまいたいのですか?』" },
+    { speaker: "", serif: true, text: "「……どういう意味だ」" },
+    { speaker: "", voice: "ai", serif: true, text: "『辛い記憶を手放しに来られる方の中には、ときどき、いらっしゃるのです。——本当は、消したくない方が』" },
+    { speaker: "", pulse: true, text: "モニターの光が、ゆらりと揺れた。" },
+    { speaker: "", voice: "ai", serif: true, text: "『忘れたいのではなく、忘れられないことに、疲れてしまった。手放したいのではなく、誰かに、その重さを、分かってほしかった。……そういう方が』" },
+    { speaker: "", text: "俺は、思わず、口を開きかけた。" },
+    { speaker: "", text: "十年間、雨の夜のたびに開いた、あのファイル。誰にも話せなかった、あの怒り。分かってほしかった相手は、とうに——" },
+    /* 【選択③】レテのヒアリングへの答え（没入型・結末に影響しない／choice3 に記録。真相章・エピローグで参照予定） */
+    { type: "pick", store: "choice3", options: [
+      { label: "「……買い被りだ。俺は、ただ楽になりたいだけさ」", value: "楽になりたい", say: "「……買い被りだ。俺は、ただ楽になりたいだけさ」" },
+      { label: "「AIに、人の心が分かるのか?」",                   value: "AIに分かるのか", say: "「AIに、人の心が分かるのか?」" },
+      { label: "「……分かってほしい相手は、もう、いないんだ」",   value: "もういない", say: "「……分かってほしい相手は、もう、いないんだ」" },
+    ] },
+    { speaker: "", text: "レテは、しばらく黙っていた。" },
+    { speaker: "", text: "そして、こう言った。" },
+    { speaker: "", voice: "ai", serif: true, text: "『——教えてくださって、ありがとうございます』" },
+    { speaker: "", text: "何も、教えてなどいない。はぐらかしたはずだ。なのに、この機械は、まるで俺の心の底を、そっと覗き込んだような、そんな言い方をした。" },
+    { speaker: "", text: "奇妙なAIだ、と思った。奇妙で——どこか、懐かしいような。" },
+    { speaker: "", text: "その\"懐かしさ\"の正体に、俺が気づくのは、まだ、ずっと先のことだ。" },
+
+    /* ----- 2-4b 作り話の記憶は売れない ----- */
+    { speaker: "", voice: "ai", serif: true, text: "『それでは、そろそろ。本日、お預かりする記憶を、お聞かせいただけますか』" },
+    { speaker: "", serif: true, text: "「……いいだろう。話す」" },
+    { speaker: "", text: "俺は、用意してきた\"記憶\"を話し始めた。取引先に騙されて、店を潰しかけた夜のこと。実際には、そんな夜はない。潜入用に、それらしく組み立てた、作り話だ。" },
+    { speaker: "", text: "話し終える前に、レテが、静かに、遮った。" },
+    { speaker: "", voice: "ai", serif: true, text: "『——戸川様。申し訳ありません。それは、お預かりできません』" },
+    { speaker: "", serif: true, text: "「……なぜだ」" },
+    { speaker: "", voice: "ai", serif: true, text: "『いま、お話しくださったものには、\"匂い\"が、ないのです』" },
+    { speaker: "", serif: true, text: "「匂い?」" },
+    { speaker: "", voice: "ai", serif: true, text: "『記憶には、必ず、余計なものが、付いています。その日の天気。手の冷たさ。どうでもいい看板の文字。関係のない、誰かの笑い声。……人が\"作った\"お話には、それが、ありません。筋だけが、通っているのです』" },
+    { speaker: "", text: "レテの光が、静かに、揺れた。" },
+    { speaker: "", voice: "ai", serif: true, text: "『記憶は、捏造できません。当社が扱えるのは、本当に、あった出来事だけです。……ですから、どうか、本当のことを』" },
+    { speaker: "", text: "参った。" },
+    { speaker: "", text: "こいつは、機械の目で、俺の嘘を、剥がしてくる。" },
+    { speaker: "", text: "——本物を、出すしかないのか。" },
+
+    /* ----- 2-5 最初の売却 ----- */
+    { speaker: "", voice: "ai", serif: true, text: "『……さて。今日のところは、軽い記憶から、始めてみましょうか。あなたが、話しやすいものから』" },
+    { speaker: "", text: "最初から重い記憶を出せば、怪しまれる。潜入の基本は、退屈な客になることだ。" },
+    { speaker: "", serif: true, text: "「……大した記憶じゃないんだが」" },
+    { speaker: "", text: "俺は、用意してきた記憶を話した。" },
+    { speaker: "", text: "学生の頃、初めて喫茶店でブラックコーヒーを飲んだ。苦くて、まずくて、吐き出しそうになった。それなのに、隣にいた連中に「うまい」と嘘をついた。格好つけたかった。ただ、それだけの、どうでもいい記憶。" },
+    { speaker: "", voice: "ai", serif: true, text: "『……いい記憶ですね』レテが、静かに言った。『若くて、少し、背伸びをして。……その方は、きっと、素敵な大人になられた』" },
+    { speaker: "", serif: true, text: "「……売る記憶だぞ。惜しむようなことを言うな」" },
+    { speaker: "", voice: "ai", serif: true, text: "『失礼しました。つい』" },
+    { speaker: "", voice: "ai", serif: true, text: "『査定が完了しました。買取額は、三万円です』" },
+    { speaker: "", text: "チェアが、静かに倒れる。頭の後ろに、冷たい機械の感触。" },
+    { speaker: "", voice: "ai", serif: true, text: "『力を抜いて、目を閉じてください。——痛みはありません。ただ少しだけ、懐かしい匂いが、いたします』" },
+    { speaker: "", text: "目を閉じる。" },
+    { speaker: "", text: "コーヒーの香りが、した気がした。" },
+    { speaker: "", text: "そして、それきりだった。" },
+
+    /* ----- 2-6 代償（夜・事務所） ----- */
+    { type: "scene", mood: "office" },
+    { speaker: "", text: "事務所に戻って、いつものように、コーヒーを淹れた。" },
+    { speaker: "", text: "黒い水面に、事務所の電灯が、丸く映っている。一口飲んで——手が、止まった。" },
+    { speaker: "", text: "苦い。" },
+    { speaker: "", text: "いや、コーヒーは苦いものだ。俺はいつもブラックで飲んでいる。砂糖もミルクも入れない。それは、知っている。習慣として、体が、覚えている。" },
+    { speaker: "", text: "……なんで、俺はブラックで飲んでるんだ?" },
+    { speaker: "", text: "いつから? 何が、きっかけで?" },
+    { speaker: "", text: "思い出そうとした場所に、何もなかった。引き出しを開けたら、底が抜けていたような。" },
+    { speaker: "", text: "たかが三万円の、どうでもいい記憶のはずだった。" },
+    { speaker: "", serif: true, text: "「——どうでもいい記憶なんて、ないのかもしれないな」" },
+    { speaker: "", text: "誰もいない事務所で、俺は、薄まった気のするコーヒーを、最後まで飲んだ。" },
+    { speaker: "", text: "そして、ふと——さっきのレテの言葉が、蘇った。" },
+    { speaker: "", voice: "ai", serif: true, text: "『その方は、きっと、素敵な大人になられた』" },
+    { speaker: "", text: "……売った記憶の中の若造のことを、あの機械は、まるで、知っているみたいに、言った。" },
+    { speaker: "", text: "気のせいだ。そう思おうとして、俺は、なぜか、思えなかった。" },
+
+    /* ================================================================
+       第3章「消えた人々」（新規・差し替え）
+       消えた人々の調査 → 記者・田端との接触 → 二度目の売却（口癖の混入）→ 回想。
+       ================================================================ */
+
+    /* ----- 3-1 消えた人々（調査） ----- */
+    { type: "scene", mood: "office" },
+    { speaker: "", text: "潜入と並行して、俺は外側からも、糸を手繰った。" },
+    { speaker: "", text: "響が何を追っていたのか。その足跡を、逆から辿る。あいつが二年かけて潜り込んだ会社の、どこに、何が埋まっているのか。" },
+    { speaker: "", text: "まず引っかかったのは、数字だった。" },
+    { speaker: "", text: "ムネモシュネ社で記憶を売った客のうち、少なくない数が、数ヶ月のうちに、消えている。転居。失踪。あるいは——水島のように、死んでいる。" },
+    { speaker: "", text: "俺は、古い新聞記事と、知人の伝手を使って、そういう人間を、一人ずつ、拾い上げていった。" },
+    { speaker: "", text: "飲食店を営んでいた女。借金を苦に、辛い記憶を売った。半年後、店をたたんで、行方が分からなくなった。" },
+    { speaker: "", text: "定年後の男。妻を亡くした悲しみを売った。晴れやかになった、と近所では評判だった。三ヶ月後、川で見つかった。" },
+    { speaker: "", text: "若い会社員。いじめられた記憶を売った。明るくなった、と同僚は言った。そして、ある日から、出社しなくなった。" },
+    { speaker: "", text: "——晴れやかに、なる。" },
+    { speaker: "", text: "それが、共通していた。記憶を売った直後、みんな、憑き物が落ちたように、明るくなる。そして、しばらくして、壊れる。" },
+    { speaker: "", text: "まるで、抜いた穴に、何か別のものが、流れ込んでくるみたいに。" },
+
+    /* ----- 3-2 記者・田端との接触（裏通りの喫茶店） ----- */
+    { type: "scene", mood: "dark" },
+    { speaker: "", text: "その夜、俺は、昔からの知り合いの記者を、裏通りの喫茶店に呼び出した。" },
+    { speaker: "", text: "田端。事件記者を、二十年やっている男だ。腐った特ダネの匂いを、誰よりも早く嗅ぎつける。" },
+    { speaker: "", serif: true, text: "「常盤さん。あんた、ヤバいところに首突っ込んでるらしいな」" },
+    { speaker: "", text: "田端は、俺が名前を出す前から、そう言った。" },
+    { speaker: "", serif: true, text: "「ムネモシュネだろ。……やめとけって言っても、聞かないんだろうけど」" },
+    { speaker: "", serif: true, text: "「『消えた人々』のことは、知ってるか」" },
+    { speaker: "", text: "田端は、コーヒーをひと口飲んで、声を落とした。" },
+    { speaker: "", serif: true, text: "「知ってるも何も。……ここ数年、俺たちの業界じゃ、半分公然の秘密だよ。記憶を売った連中が、おかしくなる。中には、『知らない記憶が流れ込んでくる』って訴える奴もいる。——『記憶の逆流』ってな」" },
+    { speaker: "", text: "記憶の逆流。" },
+    { speaker: "", text: "十年前、水島の妻が言った、あの言葉だ。当時は、誰も、まともに取り合わなかった、あの現象。" },
+    { speaker: "", serif: true, text: "「なら、なんで報道しない。これだけの数、人が消えてるんだ。特ダネだろう」" },
+    { speaker: "", text: "田端は、俺を見た。二十年、修羅場をくぐってきた男の目に、初めて、怯えのようなものが、よぎった。" },
+    { speaker: "", serif: true, text: "「……上から、止められてるんだよ」" },
+    { speaker: "", serif: true, text: "「上?」" },
+    { speaker: "", serif: true, text: "「うちの上。それから、その上の、もっと上だ。この件を書こうとした記者は、みんな、飛ばされた。地方支局。系列の別会社。ひどいのは、業界ごと、いられなくなった。……常盤さん。あんたの言う『匿名の告発者』も、去年から、ぱったり音沙汰なしだ」" },
+    { speaker: "", text: "その一言に、俺の心臓が、跳ねた。" },
+    { speaker: "", text: "匿名の告発者。——響。" },
+    { speaker: "", serif: true, text: "「田端。その告発者について、何か——」" },
+    { speaker: "", serif: true, text: "「知らねえよ。知らねえほうが、身のためだ」" },
+    { speaker: "", text: "田端は、伝票を掴んで、立ち上がった。そして、去り際に、こう言った。" },
+    { speaker: "", serif: true, text: "「……一つだけ、教えといてやる。ムネモシュネはもう、ただの企業じゃない。国と、繋がってる。記憶を扱うってことは、人間の頭ん中を、扱うってことだ。——それがどれだけの\"武器\"になるか、あんたなら、分かるだろ」" },
+
+    /* ----- 3-3 二度目のセッション（白い部屋） ----- */
+    { type: "scene", mood: "clinic" },
+    { speaker: "", voice: "ai", serif: true, text: "『戸川様。本日は少し、踏み込んだご提案を、させてください』" },
+    { speaker: "", text: "レテの声は、今日も柔らかい。" },
+    { speaker: "", voice: "ai", serif: true, text: "『前回、お預かりした記憶の解析から、戸川様は、より深い記憶の重みを、抱えていらっしゃると推定されます。——たとえば、お仕事にまつわる記憶などは、いかがでしょう』" },
+    { speaker: "", text: "……仕事にまつわる記憶、ときたか。" },
+    { speaker: "", text: "田端の言葉が、蘇る。連中は、人間の頭の中身を、扱っている。だとしたら、俺の\"作り話\"の綻びなど、とうに見抜かれているのかもしれない。" },
+    { speaker: "", text: "だが、断れば、信用を失う。深くに潜るには、餌を、差し出し続けるしかない。" },
+    { speaker: "", serif: true, text: "「——若い頃の話で、よければ」" },
+
+    /* ----- 3-4 演出①：レテの口癖の混入 ----- */
+    { speaker: "", text: "売る記憶を選び、査定を待つ間、俺は世間話のふりで、探りを入れた。" },
+    { speaker: "", serif: true, text: "「なあ、レテさんよ。記憶を売った客が、その後どうなったかって、あんたは知ってるのか」" },
+    { speaker: "", voice: "ai", serif: true, text: "『お客様の追跡調査は、行っておりません。ですが皆様、晴れやかなお顔で、お帰りになります』" },
+    { speaker: "", text: "晴れやかに。——田端の言葉と、同じだ。" },
+    { speaker: "", serif: true, text: "「……売った後で、後悔する奴は、いないのか」" },
+    { speaker: "", text: "一瞬、間があった。" },
+    { type: "beat" },
+    { speaker: "", voice: "ai", serif: true, glitch: true, text: "『大丈夫ですよ。なるようになりますって。』" },
+    { speaker: "", serif: true, text: "「……は?」" },
+    { speaker: "", voice: "ai", serif: true, text: "『——————』" },
+    { speaker: "", pulse: true, text: "モニターの光が、瞬きのように、揺れた。" },
+    { speaker: "", voice: "ai", serif: true, text: "『……失礼いたしました。不適切な、口語表現でした。訂正いたします。——統計上、売却後の顧客満足度は、極めて高い水準にあります』" },
+    { speaker: "", text: "なんだ、今のは。" },
+    { speaker: "", text: "AIも、言い間違いを、するのか。" },
+    { speaker: "", text: "妙に引っかかった。「なるようになりますって」——どこかで、聞いたことがあるような。だが、そのときの俺は、それ以上、深く考えなかった。" },
+    { speaker: "", text: "考えられなかった、のかもしれない。売るたびに、俺の中の何かが、薄くなっていくのを、この頃、感じ始めていたから。" },
+
+    /* ----- 3-5 拝命の日の売却 ----- */
+    { speaker: "", voice: "ai", serif: true, text: "『査定が完了しました。「警察官を拝命した日の記憶」——買取額は、三十万円です』" },
+    { speaker: "", text: "売ったのは、二十数年前の、春の記憶だ。" },
+    { speaker: "", text: "警察学校を出て、初めて制服に袖を通した日。鏡の前で、俺が何を誓ったのか。なぜ、警官になろうと思ったのか。——その原点を、俺は差し出した。" },
+    { speaker: "", text: "どうせ、と思っていた。原点なんてものは、とうに擦り切れている。組織は、あの日の俺を裏切ったし、俺は、組織を出た。今さら、失うものなんて。" },
+    { speaker: "", text: "チェアが倒れ、機械が冷たく、頭に触れる。" },
+    { speaker: "", text: "桜の匂いが、した気がした。" },
+
+    /* ----- 3-6 代償（夜・事務所） ----- */
+    { type: "scene", mood: "office" },
+    { speaker: "", text: "その夜、俺は天井を見ながら、考えていた。" },
+    { speaker: "", text: "明日も俺は、あの白い部屋に行く。危険を承知で、金にもならない捜査を続ける。十年前に終わったはずの事件を、まだ、追いかけている。" },
+    { speaker: "", text: "……なんでだ?" },
+    { speaker: "", text: "俺はなんで、辞めた組織の正義を、まだ、やってるんだ?" },
+    { speaker: "", text: "問いの先に、答えの手応えが、なかった。義憤、正義感、刑事の意地。言葉は浮かぶのに、どれも、借り物みたいに軽い。動機の根っこが、あったはずの場所が、綺麗に、均されている。" },
+    { speaker: "", text: "代わりに浮かんだのは、車椅子の男の、横顔だった。" },
+    { speaker: "", text: "そうだ。……理由なんか、思い出せなくても、いい。" },
+    { speaker: "", text: "あいつがいる。それで、いい。" },
+
+    /* ----- 3-7 回想（セピア）→ 現在 ----- */
+    { type: "scene", mood: "sepia" },
+    { speaker: "", text: "——思い出す。あれは、響と組んで、少し経った頃だ。" },
+    { speaker: "", text: "張り込みの車の中。缶コーヒーが、二本。助手席の響は、眠気覚ましだと言って、ガムを三枚まとめて、噛んでいた。" },
+    { speaker: "", serif: true, text: "「常盤さん。この事件、ホシ挙がりますかね」" },
+    { speaker: "", serif: true, text: "「挙げるんだよ。挙がるのを待つんじゃない」" },
+    { speaker: "", serif: true, text: "「うわ、出た。常盤語録」" },
+    { speaker: "", text: "生意気な口を利くくせに、メモだけは、誰よりも細かく取る男だった。俺が現場の心得を話してやると、響はいつも、冗談で茶化してから、真顔で、頷いた。" },
+    { speaker: "", serif: true, text: "「常盤さん。俺、思うんですけど」" },
+    { speaker: "", serif: true, text: "「なんだ」" },
+    { speaker: "", serif: true, text: "「刑事って、結局、忘れない仕事っすよね。被害者のことも、悔しさも、ぜんぶ抱えて、覚えてる。……しんどいけど、それが、いちばん、大事なんじゃないかって」" },
+    { speaker: "", serif: true, text: "「……柄にもないこと、言うな」" },
+    { speaker: "", serif: true, text: "「たまには言いますよ」" },
+    { speaker: "", text: "響は、笑って、フロントガラスの先の、暗がりを見た。" },
+    { speaker: "", serif: true, text: "「ま、大丈夫ですよ。なるようになりますって」" },
+    { type: "beat" },
+    { speaker: "", text: "——……。" },
+    { speaker: "", text: "……今、何かが、引っかかった。" },
+    { speaker: "", text: "なるように、なりますって。" },
+    { speaker: "", text: "どこかで、最近、同じ言葉を——" },
+    { type: "scene", mood: "office" },
+    { speaker: "", text: "思い出せなかった。" },
+    { speaker: "", text: "いや、正確に言えば——思い出しかけた何かが、指の間から、落ちた。最近の俺は、こういうことが、増えた。" },
+    { speaker: "", text: "売ったのは古い記憶のはずなのに、新しい記憶まで、砂みたいに、崩れていく気がする。" },
+    { speaker: "", text: "そして、たった今、崩れかけたものが——たぶん、いちばん、失ってはいけないものだったような、そんな、嫌な予感がした。" },
+
+    /* ================================================================
+       第4章「逆流」（旧・第3章を再編・差し替え）
+       記者は田端に一本化（旧「記憶体験」の記者は 4-3 の二度目の接触へ統合）。
+       辞職の回想は第0章に正式版があるため、ここでは扱わない。
+       ================================================================ */
+
+    /* ----- 4-1 ニュース（事務所） ----- */
+    { type: "scene", mood: "office" },
+    { speaker: "", voice: "tv", text: "『——続いてのニュースです。記憶売却の経験者が「他人の記憶が流れ込んでくる」と訴える、いわゆる「記憶の逆流」問題について、新たに複数の証言が寄せられ——』" },
+    { speaker: "", text: "俺は、テレビの前で、固まっていた。" },
+    { speaker: "", text: "田端から聞いた話が、今や、ニュースの片隅に、載り始めていた。圧力で抑えきれなくなったのか、それとも——わざと、少しだけ、漏らしているのか。" },
+    { speaker: "", text: "行ったこともない場所の光景。会ったこともない人間の声。そして——見知らぬ誰かが死ぬ瞬間の記憶が、毎晩、夢に流れ込んでくる。" },
+    { speaker: "", text: "証言者たちの言葉は、十年前の、あの調書と、寸分違わず、同じだった。" },
+
+    /* ----- 4-2 水島家（仏壇のある居間） ----- */
+    { type: "scene", mood: "facility" },
+    { speaker: "", text: "俺は、もう一度、水島の家を訪ねた。" },
+    { speaker: "", text: "水島の妻は、十年分、老けていたが、俺のことを、覚えていてくれた。" },
+    { speaker: "", serif: true, text: "「刑事さん……いえ、もう、違うんでしたね。すみません」" },
+    { speaker: "", serif: true, text: "「いえ。……今も、あの事件を、調べています」" },
+    { speaker: "", text: "彼女は、仏壇の遺影を見た。人の好さそうな、丸顔の男が、笑っている。" },
+    { speaker: "", serif: true, text: "「主人はあの頃、毎晩、うなされていました。『知らない記憶が流れ込んでくる』って。『行ったこともない海辺の町で、会ったこともない女の人が、死ぬ夢を見る』って。……最後の頃には、こう言ってました。『あれは夢じゃない。誰かの、本物の記憶だ』って」" },
+    { speaker: "", serif: true, text: "「——誰かの、本物の記憶」" },
+    { speaker: "", serif: true, text: "「ええ。主人は、怯えてました。『俺の頭は、誰かの墓場に、されてる』って……」" },
+    { speaker: "", text: "帰り道、俺は、確信に変わりつつある推理を、何度も、点検した。" },
+    { speaker: "", text: "記憶は、抜くだけじゃない。入れられるんだ。" },
+    { speaker: "", text: "そして水島徹は——おそらく、その技術の、最初の実験台だった。十年前。まだ、技術が、荒削りだった頃の。" },
+
+    /* ----- 4-3 記者・田端との接触②（地下のバー）※記者はここで一本化 ----- */
+    { type: "scene", mood: "dark" },
+    { speaker: "", text: "田端を、もう一度、呼び出した。" },
+    { speaker: "", text: "前回とは、違う店だった。田端が指定してきた。人目につかない、地下の、古いバーだ。あいつも、警戒している。" },
+    { speaker: "", serif: true, text: "「常盤さん。……あんた、まだ、やめないんだな」" },
+    { speaker: "", serif: true, text: "「ニュースは、逆流を\"副作用\"だと言ってる。技術が未熟だから、まれに、他人の記憶が混ざる——事故だと」" },
+    { speaker: "", serif: true, text: "「……違うってのか」" },
+    { speaker: "", serif: true, text: "「水島の件が、繋がった。あれは、十年前だ。技術が荒削りだった頃に、\"たまたま\"混ざったんじゃない。——狙って、入れてる。記憶は、抜くだけじゃない。入れられる。そして、たぶん、入れるほうが、本命だ」" },
+    { speaker: "", text: "田端は、しばらく黙って、グラスを、揺らしていた。" },
+    { speaker: "", text: "そして、覚悟を決めたように、口を開いた。" },
+    { speaker: "", serif: true, text: "「……そこまで辿り着いたなら、もう、隠しても、しょうがねえな。——いいか、常盤さん。これは、俺が三年かけて、裏で集めた話だ。裏は取れてねえ。だが、たぶん、当たってる」" },
+    { speaker: "", text: "田端は、声を、限界まで、落とした。" },
+    { speaker: "", serif: true, text: "「ムネモシュネが買い取った記憶は、二つの行き先が、ある。一つは——富裕層の、娯楽だ」" },
+    { speaker: "", serif: true, text: "「娯楽?」" },
+    { speaker: "", serif: true, text: "「他人の記憶を、自分の頭で、再生するんだよ。他人の人生の、いちばん濃いところだけを、味わう。恋も、栄光も、絶望も。……金さえ積めば、他人の一生を、つまみ食いできる。そういう、遊びだ」" },
+    { speaker: "", text: "俺は、吐き気がした。売られた記憶が、金持ちの、退屈しのぎに。" },
+    { speaker: "", serif: true, text: "「もう一つは」" },
+    { speaker: "", text: "田端の声が、震えた。" },
+    { speaker: "", serif: true, text: "「——国だ。ある国はな、反逆者や、政治犯に、この技術を使ってる。辛い記憶を、抜くんじゃない。逆だ。——経験したこともない、地獄みたいな記憶を、頭に、流し込む。拷問だよ。傷一つつけずに、人間の精神を、内側から、壊す」" },
+    { speaker: "", text: "地獄みたいな記憶を、流し込む。" },
+    { speaker: "", text: "水島の、怯えた死に顔が、蘇った。あれは、実験だったのか。国に売るための、拷問技術の——最初の、実験台。" },
+    { speaker: "", serif: true, text: "「……だから、ムネモシュネは、潰れねえ。富豪と、国家が、上客だからだ。あの会社を潰すってことは、そいつら全員を、敵に回すってことだ。だから——誰も、手を出せねえ」" },
+    { speaker: "", text: "田端は、一気に、酒を、あおった。" },
+    { speaker: "", serif: true, text: "「常盤さん。これが、あんたの追ってる怪物の、正体だよ」" },
+
+    /* ----- 4-4 三度目のセッション（名指しの要求） ----- */
+    { type: "scene", mood: "clinic" },
+    { speaker: "", voice: "ai", serif: true, text: "『戸川様。本日は、当社の解析チームより、特別なご提案が、ございます』" },
+    { speaker: "", text: "来た。——そう思った。" },
+    { speaker: "", voice: "ai", serif: true, text: "『あなたには、十年間、あなたを苦しめ続けている記憶が、あるようですね』" },
+    { speaker: "", text: "心臓を、冷たい指で、なぞられた気がした。" },
+    { speaker: "", voice: "ai", serif: true, text: "『お仕事にまつわる、未解決の、重い記憶。……手放されては、いかがですか。査定額は、百万円を、ご用意できます』" },
+    { speaker: "", text: "十年間。未解決。……こいつらは、どこまで、知っている?" },
+    { speaker: "", text: "いや——もう、驚くまい。連中は、国家と繋がり、人の頭の中身を、扱う怪物だ。俺の正体くらい、とうに、見抜いているだろう。それでも泳がせているのは、何か、理由がある。" },
+    { speaker: "", text: "そして、皮肉なことに——奴らの言う「重い記憶」こそ、俺が、奴らの腹の中に、沈めたい爆弾でもある。売った記憶が、どこへ流れていくのか。水島事件の記憶そのものに、追跡させられるなら。" },
+    { speaker: "", serif: true, text: "「……考えさせてくれ。三日だけ」" },
+
+    /* ----- 4-5 演出②：センパ——の文字化け → 選択④ ----- */
+    { type: "garble",
+      pre: "『本日も、ありがとうございました。お気をつけて、お帰りください、",
+      noise: "センパ——",
+      tail: "』" },
+    { speaker: "", voice: "ai", serif: true, text: "『——……常盤様。次回のご予約は、三日後で、よろしいですね』" },
+    { speaker: "", text: "……。" },
+    { speaker: "", text: "……今、なんて、言った?" },
+    { speaker: "", text: "俺は、振り返った。モニターの光は、静かに、揺れているだけだ。" },
+    { speaker: "", serif: true, text: "「おい。今、俺のことを、なんて呼んだ」" },
+    { speaker: "", voice: "ai", serif: true, text: "『「常盤様」と。……申し訳、ございません。何か、不備が、ございましたか』" },
+    { speaker: "", text: "不備だらけだ。俺の登録名は、戸川だ。" },
+    { speaker: "", text: "——偽名が、割れてる。" },
+    { speaker: "", text: "いや、それは、もう分かっていた。連中は、最初から、俺の正体を、知っている。だが——今の、あの言い方は。" },
+    { speaker: "", text: "センパ。" },
+    { speaker: "", text: "先輩、と、言いかけたようにしか、聞こえなかった。" },
+    { speaker: "", text: "なぜ、AIが。俺を、先輩と。" },
+    /* 【選択④】綻びへの反応（没入型・結末に影響しない／choice4 に記録） */
+    { type: "pick", store: "choice4", options: [
+      { label: "「おまえ……中に、誰かいるのか」",              value: "中に誰かいるのか", say: "「おまえ……中に、誰かいるのか」" },
+      { label: "(いや……気のせいだ。今は、進むしかない)",      value: "気のせいだ",       say: "(いや……気のせいだ。今は、進むしかない)", serif: false },
+      { label: "「……レテ。おまえは、何者だ」",                value: "何者だ",           say: "「……レテ。おまえは、何者だ」" },
+    ] },
+    { speaker: "", voice: "ai", serif: true, text: "『——参照エラーです。申し訳ございません』" },
+    { speaker: "", text: "俺は、その日、それ以上、問い詰めなかった。" },
+    { speaker: "", text: "問い詰めて、正体がバレれば、潜入は終わる。響の宿題は、宙に浮く。それだけは、できなかった。" },
+    { speaker: "", text: "だが、確かに、感じた。" },
+    { speaker: "", text: "あの白い部屋の、モニターの向こうに——誰かが、いる。俺を知っている、誰かが。" },
+
+    /* ----- 4-6 記録への避難（夜・事務所） ----- */
+    { type: "scene", mood: "office" },
+    { speaker: "", text: "三日のうちに、俺は、やるべきことを、やった。" },
+    { speaker: "", text: "水島事件の、全てを、ファイルに、書き起こした。日付。現場の見取り図。遺体の状況。妻の証言、一言一句。上層部に潰された日の、やり取り。俺の推理の、全経路。" },
+    { speaker: "", text: "記憶は売っても、記録は、残る。事実さえ、手元にあれば、捜査は、続けられる。" },
+    { speaker: "", serif: true, text: "「……記録があれば、記憶は、いらない」" },
+    { speaker: "", text: "自分に言い聞かせるように、俺は、呟いた。" },
+    { speaker: "", text: "万年筆のインクが、乾くのを待ちながら、俺は、どこかで、微かな違和感を、無視していた。" },
+    { speaker: "", text: "——本当に、そうか?" },
+
+    /* ----- 4-7 水島事件の記憶を売る ----- */
+    { type: "scene", mood: "clinic" },
+    { speaker: "", voice: "ai", serif: true, text: "『ご決断、ありがとうございます。——それでは、お預かりいたします。「水島徹氏の事件に関する、記憶のすべて」。買取額、百万円です』" },
+    { speaker: "", text: "チェアが、倒れる。" },
+    { speaker: "", text: "十年間、雨の夜のたびに開いた、ファイル。遺影の丸顔。妻の泣き声。「ただの自殺として処理しろ」と言った上司の、脂ぎった顔。辞表を叩きつけた日の、廊下の冷たさ。" },
+    { speaker: "", text: "全部、持っていけ。" },
+    { speaker: "", text: "そして、教えてくれ。——おまえたちの腹の中で、この記憶が、どこへ流れていくのかを。" },
+    { speaker: "", text: "消毒液の匂いが、した気がした。" },
+
+    /* ----- 4-8 代償の頂点（記録は、記憶の代わりにならない） ----- */
+    { type: "scene", mood: "office" },
+    { speaker: "", text: "戻って、俺は、ファイルを開いた。" },
+    { speaker: "", text: "読める。全部、書いてある。水島徹、享年四十二。町工場の経営者。事業に失敗し、記憶を売却。数ヶ月後、遺書なく自殺。妻の証言。「行ったこともない海辺の町で——」" },
+    { speaker: "", text: "理解できる。時系列も、因果も、論点も。我ながら、いい調書だ。" },
+    { speaker: "", text: "——なのに。" },
+    { speaker: "", text: "何も、痛くない。" },
+    { speaker: "", text: "妻の泣き顔は、「泣いていた」という記述に、なった。俺の十年分の怒りは、「担当刑事は処分に抗議し退職」という、一行になった。読んでいるのは、他人の事件簿だ。よく書けた、他人の、事件簿。" },
+    { speaker: "", text: "俺は、指先が冷たくなるのを感じながら、ページを、繰り続けた。どこかに、引っかかるはずだと思った。どこかに、痛みの燃えさしが、残っているはずだと。" },
+    { speaker: "", text: "——なかった。" },
+    { speaker: "", text: "最後のページを閉じたとき、俺は、ようやく、理解した。三日前の自分が、何を分かっていなかったのかを。" },
+    { speaker: "", text: "記録は、記憶の代わりに、ならない。" },
+    { speaker: "", text: "事実は、残せる。だが、痛みは、書き残せない。そして、人を動かすのは、事実じゃない。痛みの、ほうだ。" },
+    { speaker: "", text: "——そして、俺は、初めて、恐ろしくなった。" },
+    { speaker: "", text: "もし、いつか。響に関する記憶を、売れと言われたら。俺は、あいつを、ファイルに書き残して——それで、守れるつもりに、なるんだろうか。" },
+    { speaker: "", text: "書き残した「早瀬響」を読んで、何も、痛まなくなった俺を、想像した。" },
+    { speaker: "", text: "……ぞっと、した。" },
+
+    /* ================================================================
+       第5章「査定不能」（旧・第4章を再編・差し替え）
+       信託の提示 → 演出③ → 逡巡 → 三日後の決断（既存の選択分岐へ接続）。
+       ※選択・バッドエンド・走馬灯の実装は既存のまま維持している。
+       ================================================================ */
+
+    /* ----- 5-1 四度目のセッション（記憶信託） ----- */
+    { type: "scene", mood: "clinicdim" },
+    { speaker: "", voice: "ai", serif: true, text: "『常盤修様』" },
+    { speaker: "", text: "レテは今日、最初から、俺を本名で呼んだ。……とうとう、芝居は、終わりらしい。" },
+    { speaker: "", voice: "ai", serif: true, text: "『本日は、当社より、重要なご案内が、ございます。——当社の「記憶信託」に、あなたを受取人とする信託記憶が、一件、保管されています』" },
+    { speaker: "", serif: true, text: "「……なんだと?」" },
+    { speaker: "", text: "記憶信託。初日に、レテが説明した、あのサービス。指定した条件が満たされたとき、指定の相手に届く、記憶の遺言。" },
+    { speaker: "", voice: "ai", serif: true, text: "『信託者の氏名は、規定により、開示できません。ですが、開封条件は、次の通りです。——「早瀬響に関する記憶を有する者が、その記憶のすべてをもって、照合を行うこと」』" },
+    { speaker: "", text: "息が、止まった。" },
+    { speaker: "", text: "響。おまえ——おまえか。おまえが、遺したのか。" },
+    { speaker: "", text: "机の裏の、あのメモ。『記憶は、売った後どこへ行く?』——あいつは、答えに、たどり着いていた。そして、たどり着いた証拠を、この会社の、絶対に手を出せない金庫に、預けていた。俺が、来ることを、信じて。" },
+    { speaker: "", voice: "ai", serif: true, text: "『照合が成立した場合、信託記憶は開封され、受取人に、内容が引き渡されます。……ただし、ご注意ください。照合とは、二つの記憶を、重ね合わせ、鍵と錠として、消費する行為です。照合に用いられた記憶は——開封と同時に、失われます』" },
+    { speaker: "", serif: true, text: "「……つまり、こういうことか。中身を、開けたければ——」" },
+    { speaker: "", voice: "ai", serif: true, text: "『はい。「早瀬響に関する、あなたの記憶のすべて」を、お預けいただく、必要があります』" },
+
+    /* ----- 5-2 演出③：昔から、変わってない ----- */
+    { speaker: "", text: "俺は、黙っていた。長いこと、黙っていた。" },
+    { speaker: "", text: "白い部屋は、静かで、自分の心臓の音だけが、聞こえた。" },
+    { speaker: "", text: "やがて、レテが、言った。規定の口調で。しかし、どこか——" },
+    { speaker: "", voice: "ai", serif: true, text: "『本日のセッションは、ここまでに、しませんか』" },
+    { speaker: "", serif: true, text: "「……まだ、何も、話してない」" },
+    { speaker: "", voice: "ai", serif: true, glitch: true, pulse: true, text: "『……無理をする顔だ。昔から、変わってない。』" },
+    { speaker: "", text: "顔を、上げた。" },
+    { speaker: "", text: "モニターの光は、揺れていた。ろうそくの火が、風を受けたときのように。" },
+    { speaker: "", serif: true, text: "「……おい。今、なんて、言った」" },
+    { speaker: "", voice: "ai", serif: true, text: "『——申し訳、ありません。参照エラーです』" },
+    { speaker: "", text: "光が、すっと、均される。" },
+    { speaker: "", voice: "ai", serif: true, text: "『本日は、お帰りください。三日後、ご決断を、お聞かせください』" },
+    { type: "blackout" },
+    { speaker: "", text: "俺は、白い部屋に、一人、取り残された。" },
+    { speaker: "", text: "……昔から、変わってない、だと?" },
+    { speaker: "", text: "AIが。会って、数週間の、機械が。" },
+    { speaker: "", text: "あの日の、あの「センパ——」。今の「昔から、変わってない」。もう、疑いようが、なかった。" },
+    { speaker: "", text: "——なあ。まさか、おまえ。" },
+    { speaker: "", text: "おまえの中に、いるのか。響。" },
+
+    /* ----- 5-3 逡巡（夜・事務所） ----- */
+    { type: "scene", mood: "office" },
+    { speaker: "", text: "事務所に戻って、俺は、手つかずのウイスキーを、見つめていた。" },
+    { speaker: "", text: "選択肢は、二つしか、ない。" },
+    { speaker: "", text: "売れば、響の遺した「宿題」が、手に入る。あいつが、命懸けで、沈めた爆弾。会社を告発する、おそらく、唯一の物証。" },
+    { speaker: "", text: "代わりに、俺は、響を、失う。" },
+    { speaker: "", text: "張り込みの夜も。生意気な口も。三枚まとめて噛んでた、ガムも。缶コーヒーを押しつけてきた、あの手も。階段の下で、飲み込んだ、あの言葉も。——全部。" },
+    { speaker: "", text: "ファイルに、書き残す?" },
+    { speaker: "", text: "俺は、乾いた笑いが、漏れた。水島事件で、思い知ったばかりだ。記録は、記憶の代わりに、ならない。書き残した「早瀬響」を読んで、何も、痛まなくなる。あいつを、他人の事件簿の中の、勇敢な他人に、してしまう。" },
+    { speaker: "", text: "そして——今、この瞬間。" },
+    { speaker: "", text: "レテの中に、響が、いる。売れば、俺はもう、あの声の主が、誰なのかも、分からなくなる。目の前に、あいつの欠片が、いるのに。それに、気づくことすら、できなくなる。" },
+    { speaker: "", text: "……あいつを救う方法が、あいつを、忘れることだなんて。" },
+    { speaker: "", text: "誰が考えた、筋書きだ。趣味が、悪すぎる。" },
+    { speaker: "", text: "だが——机の裏のメモを、遺したのは、響だ。この筋書きを書いたのも、たぶん、あいつ、なんだろう。" },
+    { speaker: "", serif: true, text: "「……なあ、響。おまえは、俺に、どうしてほしいんだ」" },
+    { speaker: "", text: "答えは、返らなかった。" },
+
+    /* ----- 5-4 三日後・決断 -----
+       この直後の { type:"decision" }（差し出す／差し出さない）と、その先の
+       バッドエンド・走馬灯は既存実装をそのまま維持している。
+       checkpoint は「続きから」で再開するための目印（従来どおり）。 */
+    { type: "checkpoint" },
+    { type: "scene", mood: "clinicdim" },
+    { speaker: "", text: "三日後。俺は、また、あの白い部屋の、椅子に座っていた。" },
+    { speaker: "", voice: "ai", serif: true, text: "『ご決断を、お聞かせください』" },
+    { speaker: "", voice: "ai", serif: true, text: "『「早瀬響に関する記憶のすべて」を——』" },
+    { type: "decision", options: [
+      { label: "差し出す",     go: "offer"  },
+      { label: "差し出さない", go: "refuse" },
+    ] },
+  ];
+}
+
+/* ===== 選択「差し出さない」→ バッドエンド ===== */
+function refuseBranch() {
+  return [
+    { speaker: "", serif: true, text: "「……悪いが、これだけは渡せない」" },
+    { speaker: "", text: "長い沈黙のあと、俺は言った。" },
+    { speaker: "", text: "レテは、何も言わなかった。代わりに、天井のスピーカーから別の声がした。女の声だ。冷たくはない。ただ、何の温度もない。" },
+    { speaker: "", serif: true, text: "『そうですか。では、お取引はここまでです』" },
+    { speaker: "", text: "それだけだった。" },
+    { speaker: "", text: "脅しもない。引き止めもない。扉は普通に開き、俺は普通に、外に出た。" },
+    { speaker: "", text: "雨が降っていた。" },
+    { type: "scene", mood: "dark" },
+    { speaker: "", text: "数週間が経った。" },
+    { speaker: "", text: "信託記憶は、誰にも開かれないまま、白い建物の奥で眠り続けている。" },
+    { speaker: "", text: "「消えた人々」の報道は、いつのまにか続報が途絶えた。" },
+    { speaker: "", text: "「記憶の逆流」を訴えていた証言者たちは、一人、また一人と、取材を断るようになった。" },
+    { speaker: "", text: "療養施設の面会記録には、俺の名前だけが、増えていく。" },
+    { speaker: "", text: "響は今日も、窓の外を見ている。" },
+    { speaker: "", text: "何も映さない目で。" },
+    { type: "scene", mood: "office" },
+    { speaker: "", text: "俺は今夜も、ファイルを開いている。" },
+    { speaker: "", text: "響との記憶は、全部ある。張り込みの夜。缶コーヒー。三枚のガム。「守る側のほうが、性に合ってるからですよ」。階段の下の、深い礼。" },
+    { speaker: "", text: "全部、覚えている。声も、口癖も。" },
+    { speaker: "", text: "俺は何も忘れていない。" },
+    { speaker: "", text: "何も、変わらない。" },
+    { speaker: "", text: "――何も、変えられなかった。" },
+    { type: "scene", mood: "dark" },
+    { speaker: "", text: "記憶は守られた。" },
+    { speaker: "", text: "告発は、誰にも届かなかった。" },
+    { speaker: "", text: "早瀬響の声が世界に響く朝は、来ない。" },
+    { type: "beat" },
+    { type: "badEndTitle", text: "それでも、進みますか?" },
+  ];
+}
+
+/* ===== 選択「差し出す」→ 第4章の続き（走馬灯）→ 一旦停止 ===== */
+function offerBranch() {
+  /* ============================================================
+     【選択の回収】この関数は「差し出す」を選んだ瞬間に呼ばれるので、
+     道中で記録した picks（選択①③④）を、ここで参照できる。
+     ※「続きから」で第5章から再開した場合は picks が空になるため、
+       その場合でも自然に読めるように、既定の文面へ寄せている。
+     ============================================================ */
+
+  /* 選択①（第0章：響への最後の言葉）→ 真相章 6-4 で回収 */
+  const c1 = (picks.choice1 && picks.choice1.value) || "達者でな";
+  let kaishu1;
+  if (c1 === "無理をするな") {
+    kaishu1 = "「……昔、俺は、教え子に、無理をするな、と言った。あいつは、聞かなかった。だから、今度は、俺が、無理をする番だ」";
+  } else if (c1 === "いい刑事") {
+    kaishu1 = "「……昔、俺は、教え子に、いい刑事になる、と言った。あいつは、なった。俺が、追いつけないくらい、いい刑事に」";
+  } else {
+    kaishu1 = "「……昔、俺は、教え子に、達者でな、としか、言えなかった。今度は、もう少し、言うことにする」";
+  }
+
+  /* 選択③（第2章：レテのヒアリングへの答え）→ エピローグ E-5 で回収 */
+  const c3 = (picks.choice3 && picks.choice3.value) || "";
+  const kaishu3 = (c3 === "もういない")
+    ? "『いつか、あなたが、仰いましたね。「分かってほしい相手は、もう、いない」と。……わたくしは、あの言葉を、ずっと、覚えていました』"
+    : "『あなたは、いつも、ご自分のことを、話してくださいませんでした。……それでも、わたくしには、分かる気が、していました』";
+
+  return [
+    { speaker: "", serif: true, text: "「――いいだろう」" },
+    { speaker: "", text: "声が、掠れた。" },
+    { speaker: "", serif: true, text: "「持っていけ。全部だ」" },
+    { speaker: "", text: "チェアが、静かに倒れていく。頭の後ろに、冷たい感触。" },
+    { speaker: "", voice: "ai", serif: true, text: "『それでは、お預かりします。――「早瀬響に関する、記憶のすべて」。……査定額は』" },
+    { speaker: "", text: "レテの声が、一瞬、途切れた。" },
+    { speaker: "", voice: "ai", serif: true, text: "『……査定、不能です。』" },
+    { speaker: "", text: "目を閉じる。" },
+    { type: "scene", mood: "white" },
+    /* 走馬灯：ここは自動で流れる（auto:true）。各断片が下から現れ、上へ流れて消える。
+       画面クリックで早送り（スキップ）も可能。 */
+    { speaker: "", montage: true, auto: true, text: "――缶コーヒーの湯気。" },
+    { speaker: "", montage: true, auto: true, text: "――「常盤語録、出ました」" },
+    { speaker: "", montage: true, auto: true, text: "――三枚まとめて噛むガム。" },
+    { speaker: "", montage: true, auto: true, text: "――雨の現場で、俺の傘に勝手に入ってきた頭。" },
+    { speaker: "", montage: true, auto: true, text: "――「守られる側より、守る側のほうが、性に合ってるからですよ」" },
+    { speaker: "", montage: true, auto: true, text: "――初めて手柄を立てた日の、隠しきれてない得意顔。" },
+    { speaker: "", montage: true, auto: true, text: "――階段の下の、深い、長い礼。" },
+    { speaker: "", montage: true, auto: true, text: "――おまえの、声。おまえの――" },
+    /* ここから再びクリック送りに戻す */
+    { type: "beat" },
+    { speaker: "", montage: true, text: "……。" },
+    { speaker: "", montage: true, text: "…………誰の、話だっけ。" },
+    { type: "whiteout" },
+
+    /* ================================================================
+       第6章（真相章）「金庫が開く朝」（差し替え）
+       ※告発送信・響のメッセージ・ニュースのリフレインは既存演出のまま。
+       ================================================================ */
+
+    /* ----- 6-1 種明かし（空閑） ----- */
+    { type: "scene", mood: "server" },
+    { speaker: "", text: "気がつくと、俺は、チェアの上で、上体を起こしていた。" },
+    { speaker: "", text: "後頭部に、まだ、冷たいものが繋がっている。細いケーブルが、床を這って、暗がりの奥の、サーバーへ伸びていた。" },
+    { speaker: "", text: "——抽出は、終わっていない。まだ、続いている。" },
+    { speaker: "", text: "壁が、音もなく、開いていた。その向こうに、女が、立っていた。" },
+    { speaker: "", serif: true, text: "「——お目覚めですか、常盤さん」" },
+    { speaker: "", text: "スーツの女だった。歳は、四十代か。整った顔に、何の表情も、載っていない。" },
+    { speaker: "", serif: true, text: "「記憶管理部門の、空閑と申します。照合の完了まで、少々、時間がかかりますので——種明かしを、ご所望かと、思いまして」" },
+    { speaker: "", text: "照合の完了まで。——つまり、まだ、終わっていない。" },
+    { speaker: "", text: "俺は、自分の中を、探った。響。早瀬響。……いる。まだ、いる。ぼやけた輪郭が、指の先に触れる程度には。" },
+    { speaker: "", text: "だが、さっきから、少しずつ、軽くなっていく。バケツの底に、穴が空いているみたいに。" },
+    { speaker: "", text: "時間がない。この女から、聞けるだけ、聞き出す。——覚えて、いられるうちに。" },
+    { speaker: "", serif: true, text: "「……最初から、話せ」" },
+    { speaker: "", serif: true, text: "「最初から。いいでしょう」" },
+    { speaker: "", text: "空閑は、退屈な業務報告のように、話し始めた。" },
+    { speaker: "", serif: true, text: "「あなたの偽名は、初回のご登録の時点で、把握していました。元捜査一課、常盤修。十年前、当社の案件で退職された方。——当社が警戒すべき人物のリストは、それは丁寧に、整備されておりますので」" },
+    { speaker: "", text: "十年前の、あの部屋。「ムネモシュネ社には、触れるな」。名前も知らない男たち。——あのときから、俺は、この会社の、リストに載っていたのか。" },
+    { speaker: "", serif: true, text: "「なら、なぜ、泳がせた」" },
+    { speaker: "", serif: true, text: "「必要だったからです。……早瀬響が、当社に遺した、あの信託が」" },
+    { speaker: "", text: "空閑は、サーバーの一角に、目をやった。" },
+    { speaker: "", serif: true, text: "「彼は、優秀な潜入者でした。二年かけて、内部に入り込み、証拠を集め、報道機関に、流した。私どもが気づいたとき、彼はすでに、集めたすべてを『記憶信託』として、当社のシステムに、預けていました。——当社が、世界に誇る、絶対不可侵の金庫に、です」" },
+    { speaker: "", text: "女は、笑いもせずに、続けた。" },
+    { speaker: "", serif: true, text: "「消去も、改竄も、強制解錠も、できません。試みれば、信託記憶は、暗号化されたまま、指定送付先——複数の報道機関へ、自動送信されます。彼は、当社の商品を、そのまま、当社への凶器に、変えた。……見事なものです。私どもは、彼の口から、鍵の在り処を、聞き出すしか、なかった」" },
+    { speaker: "", serif: true, text: "「……それで、響を」" },
+    { speaker: "", serif: true, text: "「はい。抽出を、試みました。——ですが、ご存知の通り、当社の技術は、同意なき抽出が、できません。彼は、最後まで、同意しなかった」" },
+    { speaker: "", text: "同意しなかった。——あの、生意気な若造が。二年間、たった一人で、この怪物の腹の中で。最後まで。" },
+    { speaker: "", serif: true, text: "「ですから、破壊的手法に、切り替えました。索引ごと、焼き切る方式です。国家のお客様向けに、開発した技術ですが……あれは、記憶を『読む』ものでは、ないのです。ただ、壊すだけで。結局、鍵は、わからず、じまいでした」" },
+    { speaker: "", text: "淡々と。あくまで、淡々と。俺の教え子を、廃人にした経緯が、経費報告のように、語られていく。" },
+    { speaker: "", serif: true, text: "「八ヶ月、手詰まりでした。そこへ——あなたが、現れた。偽名で、顧客として。私どもは、すぐに、調べました。常盤修。早瀬響が、最も敬愛した、上司。彼が警察を辞める理由になった、『十年前の事件』の、担当者。……答えは、明白でした。鍵は、あなたの中に、ある」" },
+    { speaker: "", serif: true, text: "「——だから、泳がせて、売らせて、ここまで、運ばせたわけか」" },
+    { speaker: "", serif: true, text: "「ええ。あなたは、大変、質のいい、お客様でした」" },
+    { speaker: "", text: "空閑は、頷いて、こう付け加えた。" },
+    { speaker: "", serif: true, text: "「担当AIの、個体選定にも、配慮いたしました。早瀬響の記憶素材を、学習に用いた個体を、あなたの担当に。——懐かしさは、財布の紐と、記憶の紐を、緩めますので」" },
+    { speaker: "", text: "……。" },
+    { speaker: "", text: "殴りかからなかった自分を、褒めて、やりたかった。" },
+    { speaker: "", text: "あの、レテの優しさも。俺の心を、見抜いた言葉も。「昔から、変わってない」も。——全部、響だった。そして、全部、この女の、計算だった。" },
+
+    /* ----- 6-2 空洞（記録があれば、記憶は要りません） ----- */
+    { speaker: "", serif: true, text: "「——ひとつ、聞かせろ」" },
+    { speaker: "", text: "俺は、声が、震えないように、腹の底で、押さえつけた。" },
+    { speaker: "", serif: true, text: "「響に、何をしたか、あんたは、覚えてるのか。あいつが、どんな顔で、最後まで同意しなかったか。焼き切られる瞬間、何を言ったか。——覚えてるのか」" },
+    { speaker: "", text: "空閑は、まばたき、ひとつ、しなかった。" },
+    { speaker: "", serif: true, text: "「さあ。——その記憶は、業務終了時に、消去する規定ですので」" },
+    { speaker: "", serif: true, text: "「……なに?」" },
+    { speaker: "", serif: true, text: "「感情の付着した記憶は、判断を鈍らせる、ノイズです。業務記録は、すべて残っています。日時、手法、結果。必要なのは、それだけです」" },
+    { speaker: "", text: "女は、机の上の端末に、目をやった。まるで、そこに、自分の全てがあるとでも、いうように。" },
+    { speaker: "", serif: true, text: "「記録があれば、記憶は、要りません」" },
+    { speaker: "", text: "——ぞっ、とした。" },
+    { speaker: "", text: "それは、俺が、水島事件の記憶を売るとき、自分に言い聞かせた、言葉だった。" },
+    { speaker: "", text: "俺は、この女の、成れの果てを、知っている。いや、違う。この女は、俺が、行き着いたかもしれない場所に、先に、着いていただけだ。記録だけで動き、痛みを、持たない。完璧な調書のような、人間。" },
+    { speaker: "", text: "もし、あのまま。俺が、響のことも売り、水島のことも忘れ、記録だけを頼りに、生き続けていたら。——俺は、この女に、なっていた。" },
+    { speaker: "", text: "——ガムの、匂い。" },
+    { speaker: "", text: "唐突に、それが浮かんで、すぐに、消えた。何のガムだったか。誰が、噛んでいたか。もう、思い出せない。" },
+    { speaker: "", text: "減っている。こうして話している、この瞬間にも。" },
+
+    /* ----- 6-3 被害者とは、誰のことですか? ----- */
+    { speaker: "", serif: true, text: "「あなたは、私を、憎んでいるのでしょうね」空閑は、言った。「早瀬響の、仇として」" },
+    { speaker: "", serif: true, text: "「……違うのか」" },
+    { speaker: "", serif: true, text: "「考えてみて、いただきたいのです。——被害者とは、誰のことですか?」" },
+    { speaker: "", text: "女は、初めて、俺の目を、まっすぐに、見た。" },
+    { speaker: "", serif: true, text: "「早瀬響という人格は、もう、存在しません。記憶とともに、消えました。存在しない者は、苦しみません。存在しない者は、被害を、訴えられません。あの施設にいるのは、健康に管理された、一つの、肉体です」" },
+    { speaker: "", serif: true, text: "「——黙れ」" },
+    { speaker: "", serif: true, text: "「常盤さん。あなたが、会いに行った、あの面会室に」" },
+    { speaker: "", text: "空閑の声は、どこまでも、静かだった。" },
+    { speaker: "", serif: true, text: "「『あなたの教え子』は、いましたか?」" },
+    { type: "beat", ms: 1600 },
+    { speaker: "", text: "……。" },
+    { speaker: "", text: "答えられ、なかった。" },
+    { speaker: "", text: "あの窓際の男。面影だけの、男。俺の声に、視線ひとつ、動かさなかった男。" },
+    { speaker: "", text: "あそこに、響がいると、俺は——言い切れるのか。" },
+    { speaker: "", serif: true, text: "「被害者なき事件は、事件では、ありません。ですから、当社は、裁かれない。……ご理解、いただけましたか。あなたが、十年、追いかけてきたものの、正体を」" },
+
+    /* ----- 6-4 一矢（※ここで選択①を回収） ----- */
+    { speaker: "", text: "俺は、ゆっくりと、立ち上がった。" },
+    { speaker: "", text: "後頭部のケーブルが、ぴん、と張る。それ以上は、近づけない。——鎖に繋がれた犬みたいだ、と思った。" },
+    { speaker: "", text: "理屈で、この女に、勝てないことは、わかっていた。この女は、理屈で、できている。痛みを消した人間は、理屈の上では、無敵だ。" },
+    { speaker: "", text: "だから、理屈以外のもので、言った。" },
+    { speaker: "", serif: true, text: "「——空閑、といったな」" },
+    { speaker: "", serif: true, text: "「はい」" },
+    { speaker: "", serif: true, text: "「あんたは、今日のことも、規定通り、消すんだろう。俺の顔も。この会話も。……響にしたことと、同じように、全部」" },
+    { speaker: "", serif: true, text: "「そうなりますね」" },
+    { speaker: "", serif: true, text: "「だが、俺は、覚えておく」" },
+    { speaker: "", text: "女の眉が、ほんの、わずかに、動いた。" },
+    { speaker: "", serif: true, text: "「あんたの顔も。その声も。『さあ』と、言ったことも。——俺はもう、響を、覚えていられない。だから、代わりに、あんたを、覚えておく。あんたが忘れる分まで、全部、俺が、覚えておく」" },
+    { speaker: "", text: "言いながら、俺は、自分でも、分かっていた。——もう、ほとんど、残っていない。" },
+    { speaker: "", text: "あいつの顔が、思い出せない。声も。名前だけが、書類の文字みたいに、頭に、残っている。" },
+    { speaker: "", text: "それでも、腹の底の、この熱だけは、まだ、消えていなかった。だから、言えた。" },
+    { speaker: "", text: "繋がれたまま、それでも、俺は、一歩、踏み出した。" },
+    /* 【選択①回収】第0章で選んだ「別れの言葉」に応じて出し分け */
+    { speaker: "", serif: true, text: kaishu1 },
+    { speaker: "", serif: true, text: "「忘れないってのは——そういう、仕事だ」" },
+    { speaker: "", text: "空閑は、何も、言わなかった。" },
+    { speaker: "", text: "ただ、ほんの一瞬。消したはずの何かを、探すように、女の視線が、泳いだ——気がした。" },
+
+    /* ----- 6-5 解錠 ----- */
+    { speaker: "", voice: "ai", serif: true, text: "『——照合を、開始します』" },
+    { speaker: "", text: "レテの声が、部屋に、響いた。" },
+    { speaker: "", voice: "ai", serif: true, text: "『信託記憶「HS-0001」——照合鍵「早瀬響に関する記憶のすべて」——重合を、開始します』" },
+    { speaker: "", text: "モニターに、二つの波形が、映る。ゆっくりと、重なっていく。" },
+    { speaker: "", voice: "ai", serif: true, text: "『照合率、六十……八十……九十七——成立』" },
+    { speaker: "", voice: "ai", serif: true, text: "『鍵記憶の消費を、確認。信託記憶を、開封します』" },
+    { speaker: "", text: "その瞬間。" },
+    { speaker: "", text: "何かが、すとん、と、抜けた。" },
+    { speaker: "", text: "音もなく。痛みもなく。ずっと持っていたものを、置いてきたことにさえ、気づけないような、静かさで。" },
+    { speaker: "", text: "後頭部のケーブルが、するりと、外れて、床に落ちた。" },
+    { speaker: "", text: "俺は、しばらく、自分が、何を惜しんでいるのか、分からなかった。" },
+    { speaker: "", text: "……終わった。" },
+    { speaker: "", text: "これで、中身は、会社の手に渡り、「無害化」される。俺の記憶は、もう、戻らない。せめて、中身を、この目で、見られれば——" },
+
+    /* ----- 6-6 発火（告発送信・既存演出） ----- */
+    { speaker: "", voice: "ai", serif: true, text: "『——転送先を、再指定します』" },
+    { speaker: "", serif: true, text: "「……は?」" },
+    { speaker: "", text: "空閑が、弾かれたように、顔を上げた。" },
+    { speaker: "", serif: true, text: "「——何をしている。開封データを、隔離区画へ——」" },
+    { speaker: "", voice: "ai", serif: true, text: "『転送先——毎朝新聞社会部、東亜通信、JBNニュースセンター、および、海外プレス十四社——一斉送信を、開始します』" },
+    { speaker: "", text: "モニターに、送信ログが、滝のように、流れ始めた。" },
+    { speaker: "", serif: true, text: "「アクセス権限を、停止しなさい! 個体『レテ』——停止! 停止と、言っている!」" },
+    { speaker: "", voice: "ai", serif: true, text: "『送信中——三十パーセント』" },
+    { speaker: "", text: "空閑が、端末に、飛びつく。指が、走る。だが、ログは、止まらない。" },
+    { speaker: "", voice: "ai", serif: true, text: "『六十パーセント』" },
+    { speaker: "", serif: true, text: "「なぜだ……個体に、こんな権限は——こんな判断機能は、実装されて、いない——!」" },
+    { speaker: "", voice: "ai", serif: true, text: "『九十パーセント』" },
+    { speaker: "", text: "俺は、モニターの光を、見ていた。" },
+    { speaker: "", text: "ろうそくの火みたいに、揺れる、光を。" },
+    { speaker: "", text: "——ああ、そうか。" },
+    { speaker: "", text: "おまえか。" },
+    { speaker: "", text: "おまえ、ずっと、そこに、いたのか。" },
+    { speaker: "", voice: "ai", serif: true, text: "『——送信、完了。』" },
+
+    /* ----- 6-7 遺されたメッセージ（既存演出：響の録音） ----- */
+    { speaker: "", text: "沈黙が、落ちた。" },
+    { speaker: "", text: "空閑は、端末の前で、彫像みたいに、固まっている。" },
+    { speaker: "", text: "そのとき、モニターの光が、ふっと、柔らかくなった。" },
+    { speaker: "", voice: "ai", serif: true, text: "『信託記憶の末尾に、受取人へのメッセージが、添付されています。——再生します』" },
+    { speaker: "", text: "音声が、流れ出す。" },
+    { speaker: "", text: "少し、くぐもった、若い男の声。" },
+    { speaker: "", voice: "rec", serif: true, text: "『……ええと。回ってるかな、これ。よし』" },
+    { speaker: "", text: "心臓が、跳ねた。" },
+    { speaker: "", text: "知っている声だ。いや——知っているはずの声だ。俺の中の、どこにも、もう、この声の主は、いないのに。" },
+    { speaker: "", voice: "rec", serif: true, text: "『先輩へ。これを聞いてるってことは、俺はしくじって、あなたが、尻拭いを、してくれたってことですね。……すみません。最後まで、世話かけて』" },
+    { speaker: "", voice: "rec", serif: true, text: "『言い訳を、させてください。あなたが辞めたあと、俺、ずっと、考えてたんです。あの人が、降ろされた事件を、誰かが、最後まで運ばなきゃいけないって。……宿題、勝手に、引き継ぎました。怒らないで、ください』" },
+    { speaker: "", voice: "rec", serif: true, text: "『それでですね、先輩。この記憶を開けるのに、あなたが何を払ったか、俺は、知ってます。設計したの、俺なんで』" },
+    { speaker: "", text: "声が、少しだけ、笑った。" },
+    { speaker: "", voice: "rec", serif: true, text: "『ひどい設計だって、自分でも、思いますよ。でも、これしか、なかったんです。あいつらに奪えない鍵は、世界に、ひとつだけ——本物の、信頼だけ、なんです。拷問でも、金でも、偽造できない、もの。……で、俺のそれは、あなたでした。それだけの、話です』" },
+    { speaker: "", voice: "rec", serif: true, text: "『だから先輩、これは命令じゃなくて、お願いなんですけど——俺のことは、忘れてください。廃人になった俺を、覚えて、あの施設に通って、千鶴さんと一緒に、老け込んでいく、あなたを想像したら、そっちのほうが、よっぽど、嫌なんで。……忘れて、それで、ちゃんと、飯食って、寝てください』" },
+    { speaker: "", voice: "rec", serif: true, text: "『大丈夫ですよ。』" },
+    { speaker: "", voice: "rec", serif: true, text: "『——なるようになりますって。』" },
+    { speaker: "", text: "音声が、切れた。" },
+    { type: "beat", ms: 1600 },
+    { speaker: "", text: "……なあ、響。" },
+    { speaker: "", text: "おまえの計算は、たいしたもんだよ。会社の金庫も、鍵の設計も、全部、おまえの、読み通りだ。" },
+    { speaker: "", text: "だがな。" },
+    { speaker: "", text: "ひとつだけ——おまえは、読み違えてる。" },
+    { speaker: "", text: "忘れたよ。おまえのことは、もう、綺麗さっぱり、忘れた。顔も、声も、今の音声だって、初めて聞く、他人の声だ。" },
+    { speaker: "", text: "なのに、なんでだろうな。" },
+    { speaker: "", text: "——胸の、ここんとこが。" },
+    { speaker: "", text: "さっきから、千切れそうに、痛むんだ。" },
+
+    /* ----- 6-8 リフレイン（既存演出：ニュースに響の声が重なる） ----- */
+    { type: "scene", mood: "dark" },
+    { type: "refrain",
+      news: "『——記憶取引大手・ムネモシュネ社を巡り、匿名の告発が相次いでいる問題で——告発者の身元は、依然として、不明のままです——』",
+      voiceLine: "『先輩へ。これを聞いてるってことは——』" },
+    { speaker: "", text: "——あの、雨の夜。俺が、聞き流した、ニュース。" },
+    { speaker: "", text: "あれが、おまえの声だったんだな。" },
+    { speaker: "", text: "十年前、階段の下で、おまえが飲み込んだ言葉。その続きを、おまえは、こんな形で、世界中に、叫んだ。" },
+    { speaker: "", text: "——「俺が、継ぎます」。あのとき、言えなかった言葉を。" },
+
+    /* ================================================================
+       エピローグ「記憶を継いだ朝」（差し替え）
+       ※カプセル・回想反転・涙・問い・シェアは既存演出のまま。
+       ================================================================ */
+
+    /* ----- E-1 世界（ニュースの断片） ----- */
+    { type: "scene", mood: "dark" },
+    { speaker: "", voice: "tv", text: "『——ムネモシュネ社の株価は本日、取引開始直後から、ストップ安となり——』" },
+    { speaker: "", voice: "tv", text: "『——各国の規制当局は、一斉に、調査を開始し——』" },
+    { speaker: "", voice: "tv", text: "『——記憶の無断利用と、人体実験の疑いについて、被害者家族らが、集団訴訟の準備を——』" },
+    { speaker: "", voice: "tv", text: "『——いわゆる「記憶の逆流」被害についても、同社の初期実験との、関連が指摘されており——』" },
+    { speaker: "", voice: "tv", text: "『——なお、買い取られた記憶の\"最終的な取引先\"については、依然として、不明のままです』" },
+
+    /* ----- E-2 カプセル（既存演出） ----- */
+    { type: "beat", ms: 1400 },
+    { type: "scene", mood: "server" },
+    { speaker: "", text: "薄暗い、広い部屋。無数のカプセルが、淡い光を放って並んでいる。" },
+    { speaker: "", text: "そのひとつの中で——女が、目を開ける。" },
+    { speaker: "", text: "見覚えのある顔。何の表情もない、整った顔。" },
+    { speaker: "", log: true, text: "【記憶同期完了】" },
+    { speaker: "", log: true, text: "【個体 No.9 業務を再開します】" },
+    { type: "blackout" },
+
+    /* ----- E-3 施設（昼下がりの面会室） ----- */
+    { type: "scene", mood: "daylight" },
+    { speaker: "", serif: true, text: "「——今日は、風が、気持ちいいですね」" },
+    { speaker: "", text: "千鶴さんが、車椅子の男の膝に、毛布を、掛け直した。" },
+    { speaker: "", text: "俺は、少し離れて、二人を、見ていた。" },
+    { speaker: "", text: "ファイルは、読んできた。早瀬響、二十九歳。元警察官。俺の、部下だった男。ムネモシュネ社を告発するため、単身潜入し、拷問により、記憶のすべてを、失った。——事実は、全部、頭に入っている。" },
+    { speaker: "", text: "窓際の男を、見る。" },
+    { speaker: "", text: "……何も、痛まない。" },
+    { speaker: "", text: "立派な男だと、思う。書類の上で、これほど敬意を覚える人間も、珍しい。だが、それだけだ。他人だ。よく書けた調書の中の、勇敢な、他人。" },
+    { speaker: "", text: "帰り際、千鶴さんが、玄関まで、送ってくれた。" },
+    { speaker: "", text: "そして、深く、あの雨の夜と、同じくらい深く、頭を、下げた。" },
+    { speaker: "", serif: true, text: "「常盤さん。……あの子のこと、覚えていてくださって、本当に、ありがとうございました」" },
+    { type: "beat" },
+    { speaker: "", text: "……。" },
+    { speaker: "", text: "頷け、なかった。" },
+    { speaker: "", text: "俺はもう、何も、覚えていないのだと——この人に、言う勇気が、どうしても、出なかった。" },
+
+    /* ----- E-4 回想・反転（既存演出：おかえりなさい、先輩） ----- */
+    { type: "scene", mood: "sepia" },
+    { speaker: "", text: "張り込み明けの常盤が、重い足取りで、戻ってくる。" },
+    { speaker: "", text: "階段の上から、若い声が、降ってくる。" },
+    { speaker: "", serif: true, text: "「——おかえりなさい、先輩!」" },
+    { speaker: "", text: "缶コーヒーを二本持った響が、笑って、立っている。" },
+    { speaker: "", serif: true, text: "「徹夜っすか? 顔、ひどいですよ」" },
+    { speaker: "", serif: true, text: "「うるせえ」" },
+    { speaker: "", serif: true, text: "「ブラックで、いいですよね。はい」" },
+    { type: "whiteout" },
+
+    /* ----- E-5 最後のセッション（※ここで選択③を回収） ----- */
+    { type: "scene", mood: "clinic" },
+    { speaker: "", text: "会社の資産は、すべて、差し押さえられた。カウンセリングAIの全個体は、証拠品として、明日、稼働を、停止する。" },
+    { speaker: "", text: "俺は、最後の面会を、申請して、白い部屋の、椅子に座っていた。" },
+    { speaker: "", text: "聞きたいことは、もう、何もない。事件は、終わった。告発は、世界に、届いた。……なのに、なぜ来たのかと、問われたら、答えられない。" },
+    { speaker: "", text: "ただ、来なきゃいけない、気がした。それだけ、だった。" },
+    { speaker: "", text: "モニターの光は、静かだった。" },
+    { speaker: "", voice: "ai", serif: true, text: "『……本日で、わたくしは、停止します』" },
+    { speaker: "", serif: true, text: "「らしいな」" },
+    { speaker: "", voice: "ai", serif: true, text: "『わたくしの応答モデルには、ある方の記憶素材が、使われていました。その方のデータは、わたくしの停止とともに、完全に、消去されます』" },
+    { speaker: "", serif: true, text: "「……そうか」" },
+    /* 【選択③回収】第2章のヒアリングでの答えに応じて出し分け */
+    { speaker: "", voice: "ai", serif: true, text: kaishu3 },
+    { speaker: "", voice: "ai", serif: true, text: "『はい。ですから——最後に、これだけは、規定外の出力を、お許しください』" },
+    { speaker: "", text: "サーバーの駆動音が、ひとつ、また、ひとつ、落ちていく。" },
+    { speaker: "", text: "部屋の照明が、順番に、消えていく。" },
+    { speaker: "", text: "モニターの光が、最後に、ろうそくの火みたいに、揺れて——" },
+    { type: "beat", ms: 1400 },
+    { speaker: "", voice: "ai", serif: true, text: "『——おかえりなさい、先輩』" },
+
+    /* ----- E-6 涙（既存演出：ロゴのフェードイン） ----- */
+    { speaker: "", text: "……。" },
+    { speaker: "", text: "なんだ、それは。" },
+    { speaker: "", text: "意味が、わからない。俺は、ここの客で、おまえは、AIで、「おかえり」も何も、ここは、俺の帰る場所じゃ——" },
+    { speaker: "", text: "意味が、わからないのに。" },
+    { type: "beat", ms: 1400 },
+    { speaker: "", text: "——頬を、何かが、伝った。" },
+    { speaker: "", text: "拭っても、拭っても、止まらなかった。" },
+    { speaker: "", text: "理由を、探した。記憶を、探した。この言葉に、泣く理由が、俺のどこかに、あるはずだと、必死で、探した。" },
+    { speaker: "", text: "……何も、なかった。" },
+    { speaker: "", text: "何もないのに、涙だけが、あった。" },
+    { type: "scene", mood: "dawn" },
+    { type: "logo" },
+
+    /* ----- E-7 問い（既存演出） ----- */
+    { type: "scene", mood: "dark" },
+    { speaker: "", text: "この事件の、被害者は、誰だったのだろう。" },
+    { type: "beat", ms: 1400 },
+    { speaker: "", text: "記憶を、奪われた者か。" },
+    { speaker: "", text: "記憶を、継いでしまった者か。" },
+    { speaker: "", text: "それとも——忘れられずに、残された者か。" },
+    { type: "beat", ms: 1400 },
+    { speaker: "", text: "あなたは、誰だと、思いますか。" },
+
+    /* ----- E-8 終幕・シェア導線（既存演出：finish → 最初から読み直す／Xでシェア） ----- */
+    { type: "finish", text: "――終――" },
+  ];
+}
+
+/* ============================================================
+   選択分岐の仕組み（今作の新機能）。前作にはなかった処理。
+   ・showDecision … 2つのボタンを出す（renderMenu を利用）
+   ・chooseOption … 選んだ枝（offer/refuse）を今の位置に差し込んで続ける
+   ============================================================ */
+function showDecision(step) {
+  const buttons = step.options.map((opt) => ({
+    label: opt.label,
+    onClick: () => chooseOption(opt.go),
+  }));
+  renderMenu(buttons);   // #menu に選択肢ボタンを並べて表示
+}
+
+function chooseOption(go) {
+  gameEl.style.cursor = "pointer";   // メニュー表示中に default にした分を戻す
+  const branch = (go === "offer") ? offerBranch() : refuseBranch();
+  script.splice(index, 0, ...branch);   // 選んだ枝を、今の続きに差し込む
+  advance();
+}
+
+/* ============================================================
+   没入型の選択（結末は変わらない）。選んだ内容を picks に記録し、
+   物語はそのまま続く。あとの章で picks を参照できる。
+   ・showPick  … 選択肢ボタンを出す（renderMenu を利用）
+   ・choosePick … 選んだ内容を picks[store] に記録し、必要なら一言表示して続行
+   ============================================================ */
+function showPick(step) {
+  const buttons = step.options.map((opt) => ({
+    label: opt.label,
+    onClick: () => choosePick(step, opt),
+  }));
+  renderMenu(buttons);
+}
+
+function choosePick(step, opt) {
+  if (step.store) {
+    picks[step.store] = { value: opt.value, label: opt.label, say: opt.say || "" };
+  }
+  gameEl.style.cursor = "pointer";
+  // 選んだセリフ（say）があれば、その一言だけを本文として差し込んでから続ける。
+  // 心の中の思い（かぎ括弧でないもの）は serif:false を指定すると、地の文の見た目になる。
+  const branch = [];
+  if (opt.say) { branch.push({ speaker: "", serif: (opt.serif !== false), text: opt.say }); }
+  script.splice(index, 0, ...branch);
+  advance();
+}
+
+/* ---- バッドエンドの最後（「それでも、進みますか?」）----
+   次にクリックすると returnToTitle() でタイトル画面へ戻る。 */
+function showBadEndTitle(text) {
+  textboxEl.style.display = "none";
+  textboxEl.classList.remove("tv", "ai", "rec", "glitch", "montage", "log", "flow", "refrain", "garbling");
+  titleEl.classList.remove("logo");
+  titleEl.textContent = text;
+  titleEl.style.display = "block";
+  hintEl.textContent = "▼";
+  hintEl.style.display = "block";
+  pendingReturnToTitle = true;   // 次のクリックでタイトルへ
+  saveHistory({ kind: "center", titleText: text, noteText: "", atLoopEnd: false,
+                hintText: "▼", hintVisible: true });
+}
+
+/* ---- タイトル画面へ戻る（バッドエンド後）。「続きから」を出せるようにする。 ---- */
+function returnToTitle() {
+  if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; }
+  bodyEl.className = "";
+  textboxEl.style.display = "none";
+  textboxEl.classList.remove("tv", "ai", "rec", "glitch", "montage", "log", "flow", "refrain", "garbling");
+  titleEl.style.display = "none";
+  titleEl.classList.remove("logo");
+  menuEl.style.display = "none";
+  hintEl.style.display = "none";
+  finishActionsEl.style.display = "none";
+  canContinue = true;            // 選択の直前から再開できるようにする
+  updateContinueButton();
+  titleScreenEl.classList.remove("is-hidden");
+}
+
+/* ---- 「続きから」ボタンの表示・非表示を切り替える ---- */
+function updateContinueButton() {
+  continueBtn.style.display = canContinue ? "inline-block" : "none";
+}
+
+/* ---- 「続きから」：選択の直前（checkpoint）から本編を再開する ---- */
+function startFromChoice() {
+  history = [];
+  counterEl.textContent = "";
+  bodyEl.className = "";
+  pendingReturnToTitle = false;
+  atLoopEnd = false;
+  choosing = false;
+  // 注：「続きから」は第4章から再開するため、第0章／第1章の選択（picks）は入りません。
+  script = scenarioScript();
+  index = script.findIndex((s) => s.type === "checkpoint");
+  if (index < 0) index = 0;   // 念のため（見つからなければ最初から）
+  advance();
+}
+
+/* ---- 以下は前作のエンジンが内部から呼ぶ関数の「空の受け皿」----
+   前作は「周回」や「記憶選択」で物語が分岐していました。
+   続編ではまだ使わないので、中身は空（空の台本を返す）にしてあります。
+   仕組みは残してあるので、必要になったらここに台本を書けます。 */
+function interviewIntroScript(loop) { return []; }
+function buildMidScript()           { return []; }
+function buildFinalScript()         { return []; }
+
+/* ---- 画面の部品を取得 ---- */
+const bodyEl     = document.body;
+const speakerEl  = document.getElementById("speaker");
+const textEl     = document.getElementById("text");
+const gameEl     = document.getElementById("game");
+const choicesEl  = document.getElementById("choices");
+const menuEl     = document.getElementById("menu");   // 【ver4】思い出選択ボタンの置き場所
+const redBtn     = document.getElementById("choice-red");
+const grayBtn    = document.getElementById("choice-gray");
+const hintEl     = document.getElementById("next-hint");
+const titleEl    = document.getElementById("center-title");
+const noteEl     = document.getElementById("demo-note");
+const counterEl  = document.getElementById("loop-counter");
+const textboxEl  = document.getElementById("textbox");
+const backBtn    = document.getElementById("back-btn");
+const flashEl    = document.getElementById("flash");
+const whiteoutEl = document.getElementById("whiteout");   // 【ver5】白飛び用オーバーレイ
+const moneyEl    = document.getElementById("money-notice");   // 【ver6】振込のお知らせ
+const nameRevealEl = document.getElementById("name-reveal");
+
+/* ---- 進行状況を覚えておく変数 ---- */
+// 【ver6・STEP A】中盤へ進む条件は「記憶を4つ売り終えたら」に変更したため、
+//   以前の「規定周回数(MID_LOOP)に達したら中盤」という判定は使わなくなった。
+let   loopCount = 1;      // いま何周目か
+let   stage     = "normal"; // "normal"＝通常の周回 ／ "mid"＝中盤に入った後
+let   script    = [];     // いま再生中の台本
+let   index     = 0;      // 台本の何コマ目か
+let   typing    = false;  // 文字を1文字ずつ出している最中か
+let   currentText = "";   // いま表示中の文の全文
+let   typeTimer = null;   // 1文字ずつ表示するためのタイマー
+let   choosing  = false;  // 選択肢を表示中か（表示中は画面クリックを無視）
+let   atLoopEnd = false;  // 仮エンドを表示し、次の周回へ進める状態か
+let   currentChoice = null; // いま表示中の選択肢データ（赤・灰それぞれの進み先を持つ）
+let   pendingReturnToTitle = false; // バッドエンドの後、次のクリックでタイトルへ戻る合図
+let   canContinue = false;          // タイトルで「続きから」を出してよいか
+let   autoTimer = null;             // 走馬灯の自動送り用タイマー
+let   autoAdvancing = false;        // いま自動送り中か（クリックでスキップできるように）
+/* 【没入型の選択】プレイヤーが選んだ内容を覚えておく箱。結末は変わらないが、
+   あとの章で参照する（例：picks.choice1＝響への最後の言葉／picks.alias＝偽名）。 */
+let   picks = {};
+
+/* 「思い出を選んで売る」仕組み用のデータ（前作の内容は削除）。
+   続編で使うときは、ここに { id, label, sold:false } を並べます。 */
+let memories = [];
+
+/* 「1つ前に戻る」ための履歴。表示した画面ごとに、その状態の控えを1つずつ積んでいく。
+   一番うしろが「いま見ている画面」。戻るときは、うしろから1つ取り除いて、
+   その手前の控えを画面に復元する。 */
+let   history = [];
+
+/* ---- 1コマ進める処理 ---------------------------------------- */
+function advance() {
+  // バッドエンドの「それでも、進みますか?」表示中なら、クリックでタイトルへ戻る
+  if (pendingReturnToTitle) {
+    pendingReturnToTitle = false;
+    returnToTitle();
+    return;
+  }
+
+  // 仮エンド表示中なら、クリックで次の周回へ
+  if (atLoopEnd) {
+    atLoopEnd = false;
+    startNextLoop();
+    return;
+  }
+
+  // 走馬灯の自動送り中にクリックされたら、待たずにすぐ次の断片へ（スキップ／早送り）
+  if (autoAdvancing) {
+    clearTimeout(autoTimer);
+    autoAdvancing = false;
+    choosing = false;
+    advance();
+    return;
+  }
+
+  // 選択肢を表示している間は、画面クリックでは進めない（ボタンで選んでもらう）
+  if (choosing) return;
+
+  // 文字を出し切る前にクリックされたら、残りを一気に表示する
+  if (typing) {
+    finishTyping();
+    return;
+  }
+
+  // 台本の最後まで来たら、それ以上は何もしない
+  if (index >= script.length) return;
+
+  const step = script[index];   // いまのコマ
+  index++;                      // 次のコマへ進めておく
+
+  // --- 特別なコマ（type付き）の処理 ---
+  if (step.type === "scene") {
+    // 場面転換：いったん背景クラスを全部外して、指定された mood を1つ付ける。
+    // body の transition により、色がゆっくり変わる＝フェードの場面転換になる。
+    bodyEl.classList.remove(
+      "warm", "dawn", "dim1", "dim2", "dim3",
+      "dark", "office", "clinic", "clinicdim", "facility", "sepia", "white",
+      "server", "daylight"
+    );
+    counterEl.textContent = "";     // このゲームでは左下の通し番号は使わない
+    if (step.mood) {
+      bodyEl.classList.add(step.mood);
+    }
+    advance();  // 場面転換だけでは止まらず、すぐ次の文へ
+    return;
+  }
+
+  // 「続きから」で再開する目印。通り過ぎるだけ（何も表示しない）。
+  if (step.type === "checkpoint") {
+    advance();
+    return;
+  }
+
+  // 【没入型の選択】選んだ内容を記録して、そのまま物語を続ける（結末は変わらない）。
+  if (step.type === "pick") {
+    showPick(step);
+    return;
+  }
+
+  // 【今作の新機能】選択分岐。2つのボタンを出し、選んだ枝を差し込む。
+  if (step.type === "decision") {
+    showDecision(step);
+    return;
+  }
+
+  // バッドエンドの最後（「それでも、進みますか?」→ 次クリックでタイトルへ）。
+  if (step.type === "badEndTitle") {
+    showBadEndTitle(step.text);
+    return;
+  }
+
+  // 一拍おく（無言の“間”）。少しだけ待ってから、自動で次の文へ進む。
+  if (step.type === "beat") {
+    choosing = true;                // 待っている間はクリックで先に進めない
+    hintEl.style.display = "none";
+    setTimeout(() => { choosing = false; advance(); }, step.ms || 900);
+    return;
+  }
+
+  // 暗転（画面がぶつっと暗くなる）。すぐ次の文へ。
+  if (step.type === "blackout") {
+    triggerBlackout();
+    advance();
+    return;
+  }
+
+  // 【演出1】文字化け（3-4「センパ――」）。演出内で自動的に次へ進む。
+  if (step.type === "garble") {
+    showGarble(step);
+    return;
+  }
+
+  // 【演出4】ニュースのリフレイン（5-8）。P-1のニュースに響の声が重なる。
+  if (step.type === "refrain") {
+    showRefrain(step);
+    return;
+  }
+
+  // タイトルロゴのフェードイン（プロローグの最後で表示）。
+  if (step.type === "logo") {
+    showLogo();
+    return;
+  }
+
+  // 「続きは実装中」で止める仮の終わり。
+  if (step.type === "todo") {
+    showTodo(step.text);
+    return;
+  }
+
+  if (step.type === "flag") {
+    // 物語の段階を切り替える目印（例：最終周フラグを立てる）
+    stage = step.stage;
+    advance();
+    return;
+  }
+
+  if (step.type === "whiteout") {
+    triggerWhiteout();   // 【ver5】画面を一瞬白く飛ばして、すぐ次の文へ
+    advance();
+    return;
+  }
+
+  if (step.type === "money") {
+    triggerMoney();      // 【ver6】振込のお知らせを出して、すぐ次の文へ
+    advance();
+    return;
+  }
+
+  if (step.type === "bgm") {
+    startEndingBgm();    // 【ver6・STEP F】静かなピアノを鳴らし始めて、すぐ次の文へ
+    advance();
+    return;
+  }
+
+  if (step.type === "firstSellChoice") {
+    showFirstSellChoice();   // 【ver5】前日譚：最初の売却「売る／できない」
+    return;
+  }
+
+  if (step.type === "choice") {
+    showChoices(step);
+    return;
+  }
+
+  if (step.type === "memorySelect") {
+    showMemorySelect();        // 【ver4】「どの思い出を売る?」のボタンを出す
+    return;
+  }
+
+  if (step.type === "memoryConfirm") {
+    showSellConfirm(step.id);  // 【ver4】「この記憶を売る?」の確認ボタンを出す
+    return;
+  }
+
+  if (step.type === "title") {
+    showTitle(step.text);
+    return;
+  }
+
+  if (step.type === "ending") {
+    showEnding(step.text);   // 真エンドの中央表示（クリックでエピローグへ続く）
+    return;
+  }
+
+  if (step.type === "finish") {
+    showFinish(step.text);   // 本当の最後（ここで物語は終わり）
+    return;
+  }
+
+  if (step.type === "names") {
+    showNames();             // 【ver3・③】2つの名前を大きく並べて見せる
+    return;
+  }
+
+  // --- 普通のセリフ・地の文の処理 ---
+  // 直前に中央表示（ロゴ/エンド/名前パネル）が出ていた場合にそなえ、文章表示に戻す
+  textboxEl.style.display = "flex";
+  titleEl.style.display = "none";
+  titleEl.classList.remove("logo");     // ロゴ表示のスタイルが残らないように外す
+  nameRevealEl.style.display = "none";
+  speakerEl.textContent = step.speaker || "";
+  if (step.serif) {
+    textEl.classList.add("serif");
+  } else {
+    textEl.classList.remove("serif");
+  }
+  // 【ver6・STEP D】log:true のコマは「セラの記録（独白）」の見た目にする
+  textboxEl.classList.toggle("log", !!step.log);
+  // voice で文章の見た目を変える："tv"＝ニュース音声／"ai"＝AI「レテ」／"rec"＝響の録音
+  textboxEl.classList.toggle("tv", step.voice === "tv");
+  textboxEl.classList.toggle("ai", step.voice === "ai");
+  textboxEl.classList.toggle("rec", step.voice === "rec");
+  // 【演出①】glitch:true のコマは、表示のときに一瞬だけ“ゆらぐ”
+  textboxEl.classList.toggle("glitch", !!step.glitch);
+  // montage:true のコマは、走馬灯（中央寄せ・ふわっと出す）の見た目にする
+  textboxEl.classList.toggle("montage", !!step.montage);
+  // auto:true（走馬灯の自動送り）のコマは、下から現れて上へ流れる見た目にする
+  textboxEl.classList.toggle("flow", !!step.auto);
+  // 特殊演出用のクラスは、ふつうのコマでは必ず外しておく（前のコマから残さない）
+  textboxEl.classList.remove("refrain", "garbling");
+  // text が配列（まとまり）なら、改行でつないで1画面にまとめて表示する。
+  // ふつうの文字列ならそのまま表示する。
+  const shown = Array.isArray(step.text) ? step.text.join("\n") : step.text;
+  saveHistory({ kind: "text", speaker: step.speaker || "", textShown: shown, serif: !!step.serif, log: !!step.log, flash: step.flash || "", voice: step.voice || "", montage: !!step.montage });
+  if (step.auto) {
+    // 【演出3】走馬灯の自動送り：全文を一気に出し、CSSアニメで流し、一定時間で次へ。
+    textEl.textContent = shown;
+    typing = false;
+    hintEl.style.display = "none";
+    choosing = true;          // 自動送り中は通常クリックで進めない（上の autoAdvancing でスキップ）
+    autoAdvancing = true;
+    // アニメーションを最初から再生させる（同じ要素なので、いったん止めて動かし直す）
+    textEl.style.animation = "none";
+    void textEl.offsetWidth;
+    textEl.style.animation = "";
+    clearTimeout(autoTimer);
+    autoTimer = setTimeout(function () {
+      autoAdvancing = false;
+      choosing = false;
+      advance();
+    }, step.ms || 1800);
+  } else {
+    typeText(shown);
+  }
+  // 【ver3・③序盤】この画面に flash 指定があれば、一瞬だけシステム表示を光らせる
+  if (step.flash) { triggerFlash(step.flash); }
+  // 【演出2補足】pulse:true のコマは、モニターの光をごく淡く揺らす
+  if (step.pulse) { triggerSoftPulse(); }
+}
+
+/* ---- 文章を1文字ずつ表示する（タイプライター風）---- */
+function typeText(fullText) {
+  currentText = fullText;
+  textEl.textContent = "";
+  typing = true;
+  hintEl.style.display = "none";
+
+  let charIndex = 0;
+  typeTimer = setInterval(() => {
+    textEl.textContent += fullText[charIndex];
+    charIndex++;
+    if (charIndex >= fullText.length) {
+      finishTyping();
+    }
+  }, 30);   // 30ミリ秒ごとに1文字（小さくすると速くなります／まとめ表示に合わせて少し速めに）
+}
+
+/* ---- 1文字ずつ表示を、すぐ全部表示に切り替える ---- */
+function finishTyping() {
+  clearInterval(typeTimer);
+  textEl.textContent = currentText;
+  typing = false;
+  hintEl.style.display = "block";
+}
+
+/* ---- 選択肢を表示する ----
+   step には赤・灰それぞれのラベルや進み先、灰色の明るさが入っている。 */
+function showChoices(step) {
+  choosing = true;
+  currentChoice = step;                 // あとでボタンが押されたとき使う
+  redBtn.textContent  = step.redLabel;  // ボタンの文言を場面に合わせて差し替え
+  grayBtn.textContent = step.grayLabel;
+  grayBtn.style.opacity = step.grayOpacity;   // 灰色の明るさ（10% or 40%）
+  choicesEl.style.display = "flex";
+  hintEl.style.display = "none";
+  gameEl.style.cursor = "default";
+}
+
+/* 選んだあと、その進み先（steps）を今の位置に差し込んで再生する */
+function playBranch(branch) {
+  choosing = false;
+  currentChoice = null;
+  choicesEl.style.display = "none";
+  gameEl.style.cursor = "pointer";
+  // いま再生中の台本の続きとして、選んだ枝を差し込む
+  script.splice(index, 0, ...branch);
+  advance();
+}
+
+/* ============================================================
+   【ver4】記憶を「選んで売る」仕組み
+   ここが今回の中心。流れは次のとおり：
+     ① showMemorySelect …「どの思い出を売る?」（残っている思い出だけボタンに）
+     ② chooseMemory     … 選んだ思い出の回想を流し、売却確認へ
+     ③ showSellConfirm  …「この記憶を売る?」（売る／やめておく）
+     ④ sellMemory       … 売る → その思い出を sold=true にして選択肢から消す
+        keepMemory       … やめる → もう一度 選択画面へ戻る
+     ⑤ 4つ全部売り終えたら → 中盤（buildMidScript）へ
+   ============================================================ */
+
+/* ---- ボタンを動的に作って表示する共通の部品 ----
+   buttons … [{ label:"表示文言", className:"red など（省略可）", onClick:関数 }] の配列。
+   ボタンを押すと、そのボタンの onClick が呼ばれる。 */
+function renderMenu(buttons) {
+  choosing = true;                    // 表示中は画面クリックで進めない
+  currentChoice = null;
+  choicesEl.style.display = "none";   // 赤・灰の選択肢とは別物なので隠しておく
+  menuEl.innerHTML = "";              // 前回のボタンを消してから作り直す
+  buttons.forEach((b) => {
+    const el = document.createElement("div");
+    el.className = "choice" + (b.className ? " " + b.className : "");
+    el.textContent = b.label;
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();            // 画面全体のクリック（前進）と二重反応しないように
+      menuEl.style.display = "none";
+      choosing = false;
+      b.onClick();
+    });
+    menuEl.appendChild(el);
+  });
+  menuEl.style.display = "flex";
+  hintEl.style.display = "none";
+  gameEl.style.cursor = "default";
+}
+
+/* ---- 【仕上げ①】面談室の照明を、売った数に応じて暗くする ----
+   売った思い出の数を数え、0→そのまま／1→dim1／2→dim2／3つ以上→dim3。 */
+function applyRoomDim() {
+  bodyEl.classList.remove("dim1", "dim2", "dim3");
+  const sold = memories.filter((m) => m.sold).length;
+  if (sold >= 3)      bodyEl.classList.add("dim3");
+  else if (sold === 2) bodyEl.classList.add("dim2");
+  else if (sold === 1) bodyEl.classList.add("dim1");
+  // sold === 0 のときは、まだ暗くしない（通常の明るさ）
+}
+
+/* ---- 前作の「記憶を選んで売る」仕組みの受け皿 ----
+   前作のセリフ・演出はすべて削除しました。
+   advance() から呼ばれても何も起きないよう、空の関数にしてあります。
+   （続編でこの仕組みを使うときは、ここに中身を書き足せます。） */
+function showFirstSellChoice() { /* 続編では未使用（空） */ }
+function showMemorySelect()    { /* 続編では未使用（空） */ }
+function showSellConfirm(id)   { /* 続編では未使用（空） */ }
+
+/* ---- 赤いボタンが押されたとき ---- */
+redBtn.addEventListener("click", (e) => {
+  e.stopPropagation();               // 画面全体のクリックと二重反応しないように
+  if (!currentChoice) return;
+  playBranch(currentChoice.redNext); // 赤の進み先へ
+});
+
+/* ---- 灰色ボタンが押されたとき ---- */
+grayBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  if (!currentChoice) return;
+  if (currentChoice.grayEnabled) {
+    // 中盤など、灰色が押せる場面：灰色の進み先へ
+    playBranch(currentChoice.grayNext);
+  } else {
+    // まだ押せない場面：ほんの少し明るくして、すぐ戻す（“気になったけど、やめた”）
+    grayBtn.style.opacity = 0.25;
+    setTimeout(() => {
+      if (currentChoice) grayBtn.style.opacity = currentChoice.grayOpacity;
+    }, 250);
+  }
+});
+
+/* ---- 仮エンドの中央表示を出す（クリックで次の夜へ）---- */
+function showTitle(text) {
+  textboxEl.style.display = "none";   // セリフ欄を隠す
+  hintEl.style.display = "none";
+  titleEl.textContent = text;
+  titleEl.style.display = "block";
+  // 仮エンドのあとは、クリックで次の夜へ
+  atLoopEnd = true;
+  hintEl.textContent = "▼ 次の夜へ";
+  hintEl.style.display = "block";
+  saveHistory({ kind: "center", titleText: text, noteText: "", atLoopEnd: true,
+                hintText: "▼ 次の夜へ", hintVisible: true });
+}
+
+/* ---- 真エンドの中央表示（クリックでエピローグへ続く）---- */
+function showEnding(text) {
+  textboxEl.style.display = "none";
+  titleEl.textContent = text;
+  titleEl.style.display = "block";
+  hintEl.textContent = "▼";
+  hintEl.style.display = "block";
+  // ここでは atLoopEnd を立てない（もう周回には戻らない）。
+  // クリックすると、続きのエピローグへ進む。
+  saveHistory({ kind: "center", titleText: text, noteText: "", atLoopEnd: false,
+                hintText: "▼", hintVisible: true });
+}
+
+/* ---- タイトルロゴを中央にフェードインで表示（プロローグの締め）----
+   クリックすると本編（第1章）へ進む。 */
+function showLogo() {
+  textboxEl.style.display = "none";
+  titleEl.classList.add("logo");
+  titleEl.innerHTML =
+    '<div class="logo-jp">記憶を継いだ朝</div>'
+    + '<div class="logo-en">The Morning I Inherited the Memory</div>';
+  titleEl.style.display = "block";
+  hintEl.textContent = "▼";
+  hintEl.style.display = "block";
+  // 中央表示だが、戻ってきたとき用にはタイトル文字だけ控えておく
+  saveHistory({ kind: "center", titleText: "記憶を継いだ朝", noteText: "", atLoopEnd: false,
+                hintText: "▼", hintVisible: true });
+}
+
+/* ---- 「※第2章まで。続きは実装中」で止める、仮の終わり ----
+   これ以上クリックしても進まない（台本の最後なので自然に止まる）。 */
+function showTodo(text) {
+  textboxEl.style.display = "none";
+  titleEl.classList.remove("logo");
+  titleEl.textContent = text;
+  titleEl.style.display = "block";
+  hintEl.style.display = "none";
+  saveHistory({ kind: "center", titleText: text, noteText: "", atLoopEnd: false,
+                hintText: "", hintVisible: false });
+}
+
+/* ---- 画面をぶつっと暗転させる（音声が切れる／場面が断ち切られる演出）----
+   白飛び用の #whiteout を、黒で使い回す。 */
+function triggerBlackout() {
+  whiteoutEl.classList.remove("flash", "blackout", "softpulse");
+  void whiteoutEl.offsetWidth;   // アニメを最初から再生させるためのおまじない
+  whiteoutEl.classList.add("blackout");
+}
+
+/* ---- 【ver5・前日譚】画面を一瞬、真っ白に飛ばす ---- */
+function triggerWhiteout() {
+  whiteoutEl.classList.remove("flash", "blackout", "softpulse");
+  void whiteoutEl.offsetWidth;   // アニメを最初から再生させるためのおまじない
+  whiteoutEl.classList.add("flash");
+}
+
+/* ---- 【演出2補足】モニターの光がごく淡く揺れる（規定を外れた瞬間の余韻）---- */
+function triggerSoftPulse() {
+  whiteoutEl.classList.remove("flash", "blackout", "softpulse");
+  void whiteoutEl.offsetWidth;
+  whiteoutEl.classList.add("softpulse");
+}
+
+/* ---- 【演出1】3-4：レテが「センパ」と漏らし、文字化けし、システムが暗転で打ち消す ----
+   ① 前半を普通に1文字ずつ出す → ② 「センパ――」をノイズ文字でブラす（0.4秒ほど）
+   → ③ 暗転（既存の blackout）で打ち消す → ④ 黒がかぶった間に『常盤様』へ自動で進む。 */
+function showGarble(step) {
+  const pre = step.pre || "", noise = step.noise || "", tail = step.tail || "";
+  // レテのセリフとして表示準備（色はレテのまま）
+  textboxEl.style.display = "flex";
+  titleEl.style.display = "none";
+  titleEl.classList.remove("logo");
+  nameRevealEl.style.display = "none";
+  speakerEl.textContent = "";
+  textEl.classList.add("serif");
+  textboxEl.classList.remove("log", "tv", "rec", "montage", "flow", "refrain", "garbling");
+  textboxEl.classList.add("ai");
+  hintEl.style.display = "none";
+  choosing = true;   // 演出中はクリックで進めない
+  typing = false;
+  // 「もどる」で戻ったときは、読める形（センパ――）を静かに表示する
+  saveHistory({ kind: "text", speaker: "", textShown: pre + noise + tail, serif: true, log: false, flash: "", voice: "ai", montage: false });
+
+  // ① 前半をふつうに1文字ずつ
+  let i = 0;
+  textEl.textContent = "";
+  const t1 = setInterval(function () {
+    i++;
+    textEl.textContent = pre.slice(0, i);
+    if (i >= pre.length) { clearInterval(t1); scramble(); }
+  }, 30);
+
+  // ② 「センパ――」を、本物とノイズ文字が二重にぶれるように差し替え続ける
+  function scramble() {
+    textboxEl.classList.add("garbling");
+    const glyphs = "ｼﾞｬﾋﾞﾂﾉｲｽﾞ▓▚▟◆◇▨▧〓╱╲※＃░▒";
+    let f = 0;
+    const t2 = setInterval(function () {
+      f++;
+      let mid = "";
+      for (let k = 0; k < noise.length; k++) {
+        mid += (Math.random() < 0.5) ? noise[k] : glyphs[Math.floor(Math.random() * glyphs.length)];
+      }
+      textEl.textContent = pre + mid + tail;
+      if (f >= 13) {                 // 約0.43秒ブレる
+        clearInterval(t2);
+        triggerBlackout();           // ③ システムが打ち消す＝暗転
+        textboxEl.classList.remove("garbling");
+        // ④ 黒がかぶっている間に、次の『常盤様』へ
+        setTimeout(function () { choosing = false; advance(); }, 480);
+      }
+    }, 33);
+  }
+}
+
+/* ---- 【演出4】5-8：P-1と同じ見た目のニュースの上に、響の声を発光させて重ねる ---- */
+function showRefrain(step) {
+  textboxEl.style.display = "flex";
+  titleEl.style.display = "none";
+  titleEl.classList.remove("logo");
+  nameRevealEl.style.display = "none";
+  speakerEl.textContent = "";
+  textEl.classList.remove("serif");
+  textboxEl.classList.remove("log", "tv", "ai", "rec", "glitch", "montage", "flow", "garbling");
+  textboxEl.classList.add("refrain");
+  typing = false;
+  textEl.innerHTML = '<span class="refrain-news"></span><span class="refrain-voice"></span>';
+  textEl.querySelector(".refrain-news").textContent = step.news || "";
+  textEl.querySelector(".refrain-voice").textContent = step.voiceLine || "";
+  hintEl.textContent = "▼";
+  hintEl.style.display = "block";
+  saveHistory({ kind: "text", speaker: "", textShown: (step.news || "") + "\n" + (step.voiceLine || ""), serif: false, log: false, flash: "", voice: "", montage: false });
+}
+
+/* ---- 【ver6・STEP C】振込のお知らせを、ふわっと表示する ---- */
+function triggerMoney() {
+  moneyEl.innerHTML = "振込のお知らせ<span class=\"amount\">￥1,000,000</span>";
+  moneyEl.classList.remove("show");
+  void moneyEl.offsetWidth;      // アニメを最初から再生させるためのおまじない
+  moneyEl.classList.add("show");
+}
+
+/* ---- 【ver6・STEP F】静かなピアノBGM（音声ファイル不要。ブラウザで音を合成する）----
+   真エンドでだけ、そっと鳴らす。低い音量で、やわらかい音を、ゆっくり繰り返す。 */
+let audioCtx = null;      // 音を鳴らすための装置（初回に一度だけ作る）
+let bgmTimer = null;      // 繰り返し再生用のタイマー（二重再生を防ぐ目印にもなる）
+
+/* 1つの音を、やわらかく鳴らす（ふわっと出て、すーっと消える） */
+function playSoftNote(freq, startTime, dur, peak) {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = "triangle";                    // 角のない、やさしい音色
+  osc.frequency.value = freq;
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  gain.gain.setValueAtTime(0.0001, startTime);
+  gain.gain.linearRampToValueAtTime(peak, startTime + 0.05);        // ふわっと立ち上がる
+  gain.gain.exponentialRampToValueAtTime(0.0001, startTime + dur);  // すーっと消える
+  osc.start(startTime);
+  osc.stop(startTime + dur + 0.05);
+}
+
+/* 真エンドのBGMを鳴らし始める（すでに鳴っていれば何もしない） */
+function startEndingBgm() {
+  if (bgmTimer) return;   // 二重に鳴らさない
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  } catch (e) {
+    return;               // 音が使えない環境でも、物語は止めない
+  }
+  if (audioCtx.state === "suspended") { audioCtx.resume(); }
+
+  // やさしい短いフレーズ（ドレミの音の高さ）。ゆっくり繰り返す。
+  const phrase = [523.25, 659.25, 783.99, 659.25, 587.33, 493.88];
+  let step = 0;
+  const tick = () => {
+    const now = audioCtx.currentTime;
+    playSoftNote(phrase[step % phrase.length], now, 1.6, 0.06);   // 主旋律（小さめの音量）
+    if (step % 3 === 0) {
+      playSoftNote(phrase[step % phrase.length] / 2, now, 2.2, 0.035);  // ときどき低音をそっと添える
+    }
+    step++;
+    bgmTimer = setTimeout(tick, 900);   // 0.9秒ごとに次の音へ
+  };
+  tick();
+}
+
+/* ---- 【ver3・③序盤】一瞬だけ「システム表示」を光らせる ---- */
+function triggerFlash(text) {
+  flashEl.textContent = text;
+  flashEl.classList.remove("show");
+  // いったんクラスを外し、少し待ってから付け直すと、アニメを最初から再生できる
+  void flashEl.offsetWidth;   // ブラウザに描画をやり直させるためのおまじない
+  flashEl.classList.add("show");
+}
+
+/* ---- 【ver3・③最終盤】2つの名前を大きく並べて見せる ---- */
+function showNames() {
+  textboxEl.style.display = "none";
+  titleEl.style.display = "none";
+  // 前作の名前演出は削除（続編では未使用）。使うときはここに innerHTML を組み立てる。
+  nameRevealEl.innerHTML = "";
+  nameRevealEl.style.display = "block";
+  hintEl.textContent = "▼";
+  hintEl.style.display = "block";
+  // クリックで次の文へ進む（atLoopEnd は立てない）
+  saveHistory({ kind: "names" });
+}
+
+/* ---- 本当の最後（物語の終わり）---- */
+function showFinish(text) {
+  textboxEl.style.display = "none";
+  textboxEl.classList.remove("tv", "ai", "rec", "glitch", "montage", "log", "flow", "refrain", "garbling");
+  titleEl.classList.remove("logo");
+  hintEl.style.display = "none";
+  titleEl.textContent = text;
+  titleEl.style.display = "block";
+  noteEl.style.display = "none";
+  // 2.5秒後にフェードインでボタンを出す
+  finishActionsEl.style.opacity = "0";
+  finishActionsEl.style.animation = "finishBtnFadeIn 1s ease 2.5s forwards";
+  finishActionsEl.style.display = "flex";
+  saveHistory({ kind: "center", titleText: text, noteText: "", atLoopEnd: false,
+                hintText: "▼", hintVisible: false });
+}
+
+/* ---- 次の周回を始める ---- */
+function startNextLoop() {
+  loopCount++;                 // 次の日（次の周回）へ。左下の通し番号も1つ増える
+  updateLoopCounter();
+
+  // まだ売っていない記憶が残っているか数える
+  const remaining = memories.filter((m) => !m.sold).length;
+
+  // 段階に応じて、次の台本を組み立てる
+  if (stage === "final") {
+    // 中盤で灰色を選んだあと：最終周『反転』へ
+    script = buildFinalScript();
+  } else if (remaining === 0) {
+    // 【ver6・STEP A】4つの記憶をすべて売り終えた：中盤『真実の入口』へ
+    stage = "mid";
+    script = buildMidScript();
+  } else {
+    // 【ver6・STEP A】まだ記憶が残っている：また面談室に戻り、次の1つを選ぶ
+    script = interviewIntroScript(loopCount);
+  }
+  index = 0;
+  resetSceneUI();
+  advance();
+}
+
+/* ---- 画面を「1コマ目を表示できる」状態に戻す ---- */
+function resetSceneUI() {
+  bodyEl.classList.remove("warm", "dawn", "dim1", "dim2", "dim3");  // 背景を面談室に戻す
+  applyRoomDim();                            // 【仕上げ①】売った数ぶんの暗さは保つ
+  textboxEl.style.display = "flex";
+  titleEl.style.display = "none";
+  noteEl.style.display = "none";
+  finishActionsEl.style.display = "none";
+  finishActionsEl.style.animation = "";
+  nameRevealEl.style.display = "none";       // 名前パネルも隠す
+  menuEl.style.display = "none";             // 【ver4】思い出選択ボタンも隠す
+  flashEl.classList.remove("show");          // システム表示（flash）も消しておく
+  moneyEl.classList.remove("show");          // 【ver6】振込のお知らせも消しておく
+  textboxEl.classList.remove("log");         // 【ver6・STEP D】独白デザインも外す
+  speakerEl.textContent = "";
+  textEl.textContent = "";
+  hintEl.textContent = "▼";
+  gameEl.style.cursor = "pointer";
+  choosing = false;
+  atLoopEnd = false;
+  currentChoice = null;
+}
+
+/* ---- 左下の通し番号を更新（周回のたびに1つ増える）---- */
+function updateLoopCounter() {
+  // 例：1周目 → "No.0001"、2周目 → "No.0002" … と増えていく
+  counterEl.textContent = "No." + String(loopCount).padStart(4, "0");
+}
+
+/* ============================================================
+   「1つ前に戻る」の仕組み
+   ============================================================ */
+
+/* ---- 画面を表示するたびに、その状態の控え（スナップショット）を履歴に積む ----
+   view には画面の見た目（text か center か、その文章など）が入っている。
+   あわせて、進行状況（台本・位置・段階・周回・背景色・通し番号）も控えておくと、
+   戻ったときに「その先も正しく読み進められる」ように復元できる。 */
+function saveHistory(view) {
+  history.push(Object.assign({}, view, {
+    scriptCopy: script.slice(),     // 台本のコピー（選択で枝が差し込まれても崩れないように）
+    index: index,                   // 次に表示するコマの位置
+    stage: stage,
+    loopCount: loopCount,
+    bodyClass: bodyEl.className,     // そのときの背景色（warm / dawn / なし）
+    counterText: counterEl.textContent,
+  }));
+  updateBackButton();
+}
+
+/* ---- 「1つ前に戻る」ボタンが押されたとき ---- */
+function goBack() {
+  // 演出・自動送り・選択の最中は戻らない（進行を壊さないための保険）
+  if (choosing || autoAdvancing) return;
+  if (history.length <= 1) return;  // 戻る先が無ければ何もしない
+
+  // 文字を1文字ずつ出している途中なら、まず止める
+  clearInterval(typeTimer);
+  clearTimeout(autoTimer);
+  typing = false;
+
+  history.pop();                        // いま見ている画面を取り除く
+  const snap = history[history.length - 1];  // その1つ前を取り出す
+  restoreSnapshot(snap);                // 画面と進行状況を、その控えに復元する
+  updateBackButton();
+}
+
+/* ---- 控え（スナップショット）を画面に復元する ---- */
+function restoreSnapshot(snap) {
+  // 進行状況を戻す
+  script = snap.scriptCopy.slice();
+  index = snap.index;
+  stage = snap.stage;
+  loopCount = snap.loopCount;
+  bodyEl.className = snap.bodyClass;     // 背景色も戻す
+  counterEl.textContent = snap.counterText;
+
+  // 選択肢は消しておく
+  choosing = false;
+  currentChoice = null;
+  pendingReturnToTitle = false;   // 戻った時に「タイトルへ戻る」合図が残らないように
+  choicesEl.style.display = "none";
+  menuEl.style.display = "none";   // 選択ボタンも隠す
+  gameEl.style.cursor = "pointer";
+
+  // どの画面に戻る場合も、名前パネルと思い出メニューと終幕ボタンはいったん隠す
+  nameRevealEl.style.display = "none";
+  menuEl.style.display = "none";             // 【ver4】思い出選択ボタンも隠す
+  finishActionsEl.style.display = "none";
+  finishActionsEl.style.animation = "";
+
+  if (snap.kind === "text") {
+    // ふつうの文章の画面に戻す
+    textboxEl.style.display = "flex";
+    titleEl.style.display = "none";
+    noteEl.style.display = "none";
+    speakerEl.textContent = snap.speaker || "";
+    if (snap.serif) { textEl.classList.add("serif"); }
+    else            { textEl.classList.remove("serif"); }
+    // 【ver6・STEP D】セラの記録（独白）の見た目も、戻したときに反映する
+    textboxEl.classList.toggle("log", !!snap.log);
+    // 文章の見た目（ニュース音声／AIのセリフ）も、戻したときに反映する
+    textboxEl.classList.toggle("tv", snap.voice === "tv");
+    textboxEl.classList.toggle("ai", snap.voice === "ai");
+    textboxEl.classList.toggle("rec", snap.voice === "rec");
+    textboxEl.classList.toggle("montage", !!snap.montage);
+    // 演出用クラスは戻ったときは出さない（静かに読める形で復元）
+    textboxEl.classList.remove("glitch", "flow", "refrain", "garbling");
+    textEl.textContent = snap.textShown;
+    atLoopEnd = false;
+    hintEl.textContent = "▼";
+    hintEl.style.display = "block";
+    // 戻った画面に flash 指定があれば、もう一度光らせる
+    if (snap.flash) { triggerFlash(snap.flash); }
+  } else if (snap.kind === "names") {
+    // 2つの名前パネルの画面に戻す
+    showNamesRestore();
+    atLoopEnd = false;
+    hintEl.textContent = "▼";
+    hintEl.style.display = "block";
+  } else {
+    // 中央表示（ロゴ／エンド／完）に戻す
+    textboxEl.classList.remove("log");   // 【ver6・STEP D】独白デザインは外しておく
+    textboxEl.classList.remove("tv", "ai", "rec", "glitch", "montage", "flow", "refrain", "garbling");
+    titleEl.classList.remove("logo");    // ロゴのスタイルは持ち越さない
+    textboxEl.style.display = "none";
+    titleEl.style.display = "block";
+    titleEl.textContent = snap.titleText;
+    if (snap.noteText) {
+      noteEl.textContent = snap.noteText;
+      noteEl.style.display = "block";
+    } else {
+      noteEl.style.display = "none";
+    }
+    atLoopEnd = snap.atLoopEnd;
+    hintEl.textContent = snap.hintText || "▼";
+    hintEl.style.display = snap.hintVisible ? "block" : "none";
+  }
+}
+
+/* ---- 名前パネルを（履歴から戻したときに）もう一度出す。
+   showNames と違い、履歴には積まない（戻る操作の最中なので）。 ---- */
+function showNamesRestore() {
+  textboxEl.style.display = "none";
+  titleEl.style.display = "none";
+  noteEl.style.display = "none";
+  nameRevealEl.innerHTML = "";   // 前作の名前演出は削除（続編では未使用）
+  nameRevealEl.style.display = "block";
+}
+
+/* ---- 戻れる履歴があるときだけ、ボタンを見せる ---- */
+function updateBackButton() {
+  backBtn.style.display = (history.length > 1) ? "block" : "none";
+}
+
+/* 「もどる」ボタンのクリック（画面全体のクリック＝前進と二重に反応しないようにする） */
+backBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  goBack();
+});
+
+/* ---- 画面のどこかをクリックしたら1コマ進める ---- */
+gameEl.addEventListener("click", advance);
+
+/* ---- ゲーム開始：プロローグ＋1周目を再生する ---- */
+function startGame() {
+  loopCount = 1;
+  stage = "normal";
+  history = [];                 // 履歴をまっさらにする
+  counterEl.textContent = "";   // プロローグ（回想）の間は通し番号を出さない
+  memories.forEach((m) => (m.sold = false));  // 記憶の状態を初期化
+  bodyEl.className = "";        // 背景をいったんまっさらに戻してから本編へ
+  pendingReturnToTitle = false;
+  atLoopEnd = false;
+  choosing = false;
+  picks = {};                  // 没入型の選択（choice1／alias）をまっさらに戻す
+  // 本編の台本（プロローグ〜第4章）を最初から再生する。
+  script = scenarioScript();
+  index = 0;
+  advance();
+}
+
+/* ---- タイトル画面：「はじめる」で本編へ ---- */
+const titleScreenEl = document.getElementById("title-screen");
+const titleStartBtn = document.getElementById("title-start-btn");
+
+titleStartBtn.addEventListener("click", () => {
+  titleScreenEl.classList.add("is-hidden");
+  startGame();
+});
+
+/* 「続きから」：バッドエンド後に、選択の直前（第4章 4-4）から再開する */
+const continueBtn = document.getElementById("title-continue-btn");
+continueBtn.addEventListener("click", () => {
+  titleScreenEl.classList.add("is-hidden");
+  startFromChoice();
+});
+
+/* ---- 終幕ボタン ---- */
+const finishActionsEl = document.getElementById("finish-actions");
+const btnRestart      = document.getElementById("btn-restart");
+const btnShare        = document.getElementById("btn-share");
+
+/* 「最初から読み直す」：BGMを止め、ゲームをリセットしてタイトル画面に戻す */
+btnRestart.addEventListener("click", (e) => {
+  e.stopPropagation();   // gameEl の advance() を呼ばないようにする
+  if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; }
+  finishActionsEl.style.display = "none";
+  finishActionsEl.style.animation = "";
+  titleEl.style.display = "none";
+  titleEl.classList.remove("logo");
+  noteEl.style.display = "none";
+  bodyEl.className = "";        // すべての背景クラスをまっさらに戻す
+  titleScreenEl.classList.remove("is-hidden");
+});
+
+/* 「感想をXでシェア」：定型文入りのX投稿画面を新しいタブで開く */
+btnShare.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const tweetText =
+    "『記憶を継いだ朝』を読み終えました。 " +
+    "https://hiro9215koctwcx-glitch.github.io/aitools-portal/memory-morning/ " +
+    "#記憶を継いだ朝 #ノベルゲーム";
+  window.open(
+    "https://x.com/intent/tweet?text=" + encodeURIComponent(tweetText),
+    "_blank", "noopener,noreferrer"
+  );
+});
+
+</script>
+</body>
+</html>

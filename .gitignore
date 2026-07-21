@@ -45,3 +45,9 @@ memory-night/scenario/
 memory-night/00_設定資料.md
 memory-night/README.md
 memory-night/.claude/
+
+# memory-morning（続編。公開は index.html のみ。ネタバレ資料・原稿は除外）
+memory-morning/scenario/
+memory-morning/00_設定資料.md
+memory-morning/*.docx
+memory-morning/index_*_backup.html
