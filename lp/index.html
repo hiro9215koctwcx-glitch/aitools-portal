@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ムダを減らしたい会社のための、AI業務改善。｜AIツール工房</title>
-  <meta name="description" content="毎月20時間のムダな作業を減らし、本当に大切な仕事に集中できる環境へ。3分でわかる無料診断。" />
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-  <script>emailjs.init("X3Au2ue1PZFWu5yq4");</script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>会社のことを全部知っている「AI社員」｜AIアシスタント導入｜AIツール工房</title>
+  <meta name="description" content="社内マニュアルや資料を覚えたAIアシスタントが、社員の質問に24時間回答。メール作成・翻訳（日英モンゴル語）・研修スライド作成まで。お試し導入¥29,800から。" />
   <style>
     :root {
       --bg: #f4f6f8;
@@ -1649,11 +1646,15 @@
       } catch (e) {}
     })();
   </script>
+  <style>
+    textarea.input-field { width:100%; resize:vertical; font-family:inherit; }
+    #features .reason-card__num { font-size:1.6rem; }
+  </style>
 </head>
 <body>
   <div id="top-promo-banner" class="top-promo-banner" role="region" aria-label="キャンペーン告知">
-    <a class="top-promo-banner__link" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">
-      <span class="top-promo-banner__text">🔥 7月限定｜無料モニター 先着3名募集中（残り3名）→クリックで応募</span>
+    <a class="top-promo-banner__link" href="#診断">
+      <span class="top-promo-banner__text">🔥 10月限定｜お試し導入 ¥29,800 先着3社 → 無料デモを申し込む</span>
     </a>
     <button type="button" class="top-promo-banner__close" aria-label="バナーを閉じる">&times;</button>
   </div>
@@ -1661,19 +1662,19 @@
   <header class="site-header">
     <div class="container site-header__inner">
       <a class="logo" href="#">AIツール工房</a>
-      <a class="header-cta" href="#診断">無料診断</a>
+      <a class="header-cta" href="#診断">無料デモ申込</a>
     </div>
   </header>
 
   <section class="hero">
     <div class="container hero__inner">
       <div class="hero__content">
-        <h1 class="hero__catch">忙しい店舗オーナーの<br />毎日の作業を、AIが助ける。</h1>
-        <p class="hero__sub">SNS投稿・売上管理・顧客管理…ITが苦手でも3分で使えます。</p>
-        <span class="hero__badge">⚡ 完全無料・登録不要</span>
+        <h1 class="hero__catch">会社のことを全部知っている<br />「AI社員」を、あなたの会社に。</h1>
+        <p class="hero__sub">マニュアル・社内ルール・過去の資料を覚えたAIアシスタントが、社員の質問に24時間答えます。メール作成・翻訳・研修スライドづくりまで、これ1つで。</p>
+        <span class="hero__badge">⚡ 最短1週間で導入／お試し ¥29,800</span>
         <div class="hero__cta-wrap">
-          <a class="btn btn--hero-primary" href="#free-tools">無料ツールを使う →</a>
-          <p class="hero__note">クレジットカード不要</p>
+          <a class="btn btn--hero-primary" href="#診断">15分の無料デモを申し込む →</a>
+          <p class="hero__note">オンライン対応・全国OK・無理な営業はしません</p>
         </div>
       </div>
       <div class="hero__visual">
@@ -1682,126 +1683,22 @@
     </div>
   </section>
 
-  <section class="kokun-intro" aria-label="こうくんの紹介">
-    <div class="container">
-      <div class="kokun-intro__card">
-        <img class="kokun-intro__avatar" src="./kokun-removebg-preview.png" alt="" width="100" height="56" />
-        <div class="kokun-intro__bubble">
-          <p class="kokun-intro__name">こうくん（AIツール工房のマスコット）</p>
-          <p class="kokun-intro__speech">難しいことは全部ぼくに任せて！SNS投稿も、売上管理も、顧客管理も、ぜーんぶ無料で使えるよ😊</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <section class="stats-section" aria-label="サービスの特徴">
     <div class="container">
       <div class="stats-grid">
         <div class="stats-item">
-          <span class="stats-item__num">4+</span>
-          <span class="stats-item__label">無料ツール</span>
+          <span class="stats-item__num">24h</span>
+          <span class="stats-item__label">いつでも質問OK</span>
         </div>
         <div class="stats-item">
-          <span class="stats-item__num">3分</span>
-          <span class="stats-item__label">導入時間</span>
+          <span class="stats-item__num">1週間</span>
+          <span class="stats-item__label">最短導入</span>
         </div>
         <div class="stats-item">
-          <span class="stats-item__num">¥0</span>
-          <span class="stats-item__label">完全無料</span>
+          <span class="stats-item__num">3言語</span>
+          <span class="stats-item__label">日本語・英語・モンゴル語</span>
         </div>
       </div>
-    </div>
-  </section>
-
-  <section id="free-tools" aria-labelledby="free-tools-title">
-    <div class="container">
-      <h2 id="free-tools-title" class="section-title">無料で使えるツール</h2>
-      <p class="section-sub">登録不要・今すぐブラウザで使えます</p>
-      <div class="lp-tools-grid">
-        <article class="lp-tool-card">
-          <div class="lp-tool-card__head">
-            <h3 class="lp-tool-card__title">投稿くん</h3>
-            <span class="lp-tool-card__badge">無料</span>
-          </div>
-          <p class="lp-tool-card__desc">メニュー名・値段を入力するだけで、XとInstagram用の投稿文とハッシュタグを同時作成。</p>
-          <a class="lp-tool-card__link" href="https://hiro9215koctwcx-glitch.github.io/aitools-portal/tokokun/" target="_blank" rel="noopener noreferrer">使ってみる →</a>
-        </article>
-        <article class="lp-tool-card">
-          <div class="lp-tool-card__head">
-            <h3 class="lp-tool-card__title">お金の見える化シート</h3>
-            <span class="lp-tool-card__badge">無料</span>
-          </div>
-          <p class="lp-tool-card__desc">毎月の収入・支出を入力するだけ。利益とグラフが自動表示されます。</p>
-          <a class="lp-tool-card__link" href="https://hiro9215koctwcx-glitch.github.io/aitools-portal/app/お金の見える化シート/index.html" target="_blank" rel="noopener noreferrer">使ってみる →</a>
-        </article>
-        <article class="lp-tool-card">
-          <div class="lp-tool-card__head">
-            <h3 class="lp-tool-card__title">お客様管理シート</h3>
-            <span class="lp-tool-card__badge">無料</span>
-          </div>
-          <p class="lp-tool-card__desc">顧客情報をステータスで色分け管理。集計・次のアクションも一目でわかります。</p>
-          <a class="lp-tool-card__link" href="https://hiro9215koctwcx-glitch.github.io/aitools-portal/app/お客様管理シート/index.html" target="_blank" rel="noopener noreferrer">使ってみる →</a>
-        </article>
-        <article class="lp-tool-card">
-          <div class="lp-tool-card__head">
-            <h3 class="lp-tool-card__title">時間の見える化シート</h3>
-            <span class="lp-tool-card__badge">無料</span>
-          </div>
-          <p class="lp-tool-card__desc">週別に入力するだけで、時給換算・売上直結率・無駄時間がわかります。</p>
-          <a class="lp-tool-card__link" href="https://hiro9215koctwcx-glitch.github.io/aitools-portal/app/時間の見える化シート/index.html" target="_blank" rel="noopener noreferrer">使ってみる →</a>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section id="dual-experience" aria-labelledby="dual-experience-title">
-    <div class="container">
-      <h2 id="dual-experience-title" class="section-title">現場のストレスが、こう変わります</h2>
-      <p class="section-sub" style="margin-bottom:1.5rem;">Before → After</p>
-      <div class="before-after-wrap">
-        <div class="before-after__col before-after__col--before">
-          <h3>今まで</h3>
-          <ul>
-            <li>電話が鳴るたびに手が止まる</li>
-            <li>手書き台帳、書き間違いが不安</li>
-            <li>営業時間外は対応できない、機会を逃す</li>
-          </ul>
-        </div>
-        <div class="before-after__arrow" aria-hidden="true">→</div>
-        <div class="before-after__col before-after__col--after">
-          <h3>AIを使うと</h3>
-          <ul>
-            <li>24時間、自動で予約を受付</li>
-            <li>カレンダーで一目管理、ミスの心配なし</li>
-            <li>寝ている間も予約が入る、安心感</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="trust-shops" aria-labelledby="trust-shops-title">
-    <div class="container">
-      <h2 id="trust-shops-title" class="section-title">こんなお店で使えます</h2>
-      <p class="section-sub" style="margin-bottom:1.5rem;">&nbsp;</p>
-      <div class="trust-cards">
-        <div class="trust-card">
-          <span class="trust-card__ico" aria-hidden="true">🍽️</span>
-          <h3>飲食店</h3>
-          <p>「予約電話が減って、調理に集中できるように」</p>
-        </div>
-        <div class="trust-card">
-          <span class="trust-card__ico" aria-hidden="true">✂️</span>
-          <h3>美容院・サロン</h3>
-          <p>「ダブルブッキングがゼロになった」</p>
-        </div>
-        <div class="trust-card">
-          <span class="trust-card__ico" aria-hidden="true">💆</span>
-          <h3>整体院・マッサージ</h3>
-          <p>「営業時間外でも予約が入るようになった」</p>
-        </div>
-      </div>
-      <p class="trust-cards__foot">1日1時間削減 → 月30時間を取り戻せます</p>
     </div>
   </section>
 
@@ -1811,138 +1708,141 @@
       <p class="section-sub" style="margin-bottom:1rem;">&nbsp;</p>
       <div class="empathy-list">
         <ul>
-          <li>電話対応で作業が止まる</li>
-          <li>予約ノートの書き間違い・ダブルブッキング</li>
-          <li>営業時間外の問い合わせに対応できない</li>
-          <li>「今日何人来るっけ？」を毎朝確認している</li>
+          <li>新人が入るたびに、同じことを何度も教えている</li>
+          <li>「これどうするんでしたっけ？」が社長・ベテランに集中する</li>
+          <li>マニュアルがない、あっても古くて誰も見ない</li>
+          <li>メールや書類づくりに毎日時間がとられる</li>
+          <li>外国人スタッフに、ルールがうまく伝わらない</li>
         </ul>
       </div>
-      <p class="empathy-closing">── それ、全部AIが解決できます ──</p>
+      <p class="empathy-closing">── それ、AIアシスタントが引き受けます ──</p>
     </div>
   </section>
 
-  <section class="mid-cta" aria-label="予約デモの案内">
+  <section id="features" aria-labelledby="features-title">
     <div class="container">
-      <p class="mid-cta__lead">まずは実際に触ってみてください。</p>
-      <div class="cta-stack cta-stack--center">
-        <a class="btn btn--primary btn--primary-hero" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">予約デモを体験する（無料）</a>
-        <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="reservation-loss" aria-labelledby="reservation-loss-title">
-    <div class="container">
-      <h2 id="reservation-loss-title" class="section-title">手作業の予約管理、実はこんなに損しています</h2>
-      <p class="section-sub" style="margin-bottom:1.25rem;">&nbsp;</p>
-      <ul class="loss-list">
-        <li>1日30分の電話対応 → 月15時間のロス</li>
-        <li>ダブルブッキング1回 → 信頼と売上を同時に失う</li>
-        <li>営業時間外の問い合わせ → 他の店に流れている</li>
-      </ul>
-    </div>
-  </section>
-
-  <section id="industry-examples" class="industry-cases" aria-labelledby="industry-examples-title">
-    <div class="container">
-      <h2 id="industry-examples-title" class="section-title">あなたの業種で、こんなことができます</h2>
-      <p class="section-sub" style="margin-bottom:1.5rem;">&nbsp;</p>
-      <div class="industry-widget">
-        <input class="industry-widget__state" type="radio" name="industry-ex" id="industry-ex-1" checked>
-        <input class="industry-widget__state" type="radio" name="industry-ex" id="industry-ex-2">
-        <input class="industry-widget__state" type="radio" name="industry-ex" id="industry-ex-3">
-        <input class="industry-widget__state" type="radio" name="industry-ex" id="industry-ex-4">
-
-        <label class="industry-widget__tab industry-widget__tab--1" for="industry-ex-1">飲食店オーナー <span aria-hidden="true">🍴</span></label>
-        <div class="industry-widget__panel industry-widget__panel--1">
-          <ul class="industry-widget__list">
-            <li>予約電話、もう取り逃しません。LINEから自動で受付、3万円・1週間で稼働</li>
-            <li>常連さんへのお知らせ配信、月3時間→5分に。月1.5万円で全部おまかせ</li>
-            <li>メニュー写真の撮影＆投稿、AIが手伝います</li>
-            <li>SNS投稿文をワンタップで作成。<a href="https://hiro9215koctwcx-glitch.github.io/aitools-portal/tokokun/" target="_blank" rel="noopener noreferrer">『投稿くん』を無料で試す →</a></li>
-          </ul>
+      <h2 id="features-title" class="section-title">AIアシスタントでできること</h2>
+      <p class="section-sub" style="margin-bottom:2rem;">チャットに書くだけ。難しい操作はありません</p>
+      <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+        <div class="reason-card">
+          <span class="reason-card__num">📚</span>
+          <h3>社内資料から答える</h3>
+          <p>就業規則・マニュアル・手順書を登録するだけ。「有給は何日？」に、資料の根拠つきで答えます</p>
         </div>
-
-        <label class="industry-widget__tab industry-widget__tab--2" for="industry-ex-2">美容室オーナー <span aria-hidden="true">💇</span></label>
-        <div class="industry-widget__panel industry-widget__panel--2">
-          <ul class="industry-widget__list">
-            <li>次回予約のリマインド、お客様が喜ぶ自動配信</li>
-            <li>カルテ管理をスマホひとつで。3万円・2週間で完了</li>
-            <li>インスタ投稿ネタ、AIが毎月30本提案</li>
-          </ul>
+        <div class="reason-card">
+          <span class="reason-card__num">🙅</span>
+          <h3>知らないことは作らない</h3>
+          <p>資料にないことは「わかりません」と正直に答えます。作り話で現場が混乱しません</p>
         </div>
-
-        <label class="industry-widget__tab industry-widget__tab--3" for="industry-ex-3">個人事業主 <span aria-hidden="true">💼</span></label>
-        <div class="industry-widget__panel industry-widget__panel--3">
-          <ul class="industry-widget__list">
-            <li>請求書作成、月3時間→5分。レシート撮るだけのツール、3万円</li>
-            <li>メール返信文、AIに下書きを任せる</li>
-            <li>提案書・見積書のテンプレート、業種に合わせてカスタム制作</li>
-          </ul>
+        <div class="reason-card">
+          <span class="reason-card__num">✉️</span>
+          <h3>メール・文書を下書き</h3>
+          <p>お客様への返信、社内連絡、報告書。要点を伝えるだけで、整った文章が数秒でできます</p>
         </div>
-
-        <label class="industry-widget__tab industry-widget__tab--4" for="industry-ex-4">整体院・サロン <span aria-hidden="true">🌿</span></label>
-        <div class="industry-widget__panel industry-widget__panel--4">
-          <ul class="industry-widget__list">
-            <li>初診カウンセリングシート、AIが自動でまとめ</li>
-            <li>LINE公式の自動応答、24時間返信、3万円から</li>
-          </ul>
+        <div class="reason-card">
+          <span class="reason-card__num">🌐</span>
+          <h3>翻訳（日・英・モンゴル語）</h3>
+          <p>外国人スタッフにも母国語で説明。技能実習生・特定技能の受け入れ企業様に好評です</p>
+        </div>
+        <div class="reason-card">
+          <span class="reason-card__num">📊</span>
+          <h3>研修スライドを数分で</h3>
+          <p>社内ルールから新人研修用スライドを自動作成。PowerPointでダウンロードできます</p>
+        </div>
+        <div class="reason-card">
+          <span class="reason-card__num">🧠</span>
+          <h3>会話を覚えて育つ</h3>
+          <p>大事なやりとりを記憶して、使うほど「あなたの会社専用」の相棒になります</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 投稿くん追加 START -->
-  <!-- ツール一覧は上部 #free-tools に集約 -->
-  <!-- 投稿くん追加 END -->
-
-  <section id="reservation-free" aria-labelledby="reservation-free-title">
+  <section id="reasons" aria-labelledby="reasons-title">
     <div class="container">
-      <h2 id="reservation-free-title" class="section-title">AI予約システム、無料で導入できます</h2>
-      <p class="section-sub" style="margin-bottom:1.25rem;">&nbsp;</p>
-      <ul class="res-yes-list">
-        <li>24時間自動で予約受付</li>
-        <li>スマホだけで管理できる</li>
-        <li>ダブルブッキング・書き間違いゼロ</li>
-        <li>飲食店・美容院・整体院で使える</li>
-      </ul>
-      <p class="res-emphasis">1日1時間削減 → 月30時間を取り戻せる</p>
-      <div class="cta-stack cta-stack--center" style="margin-top:1rem;">
-        <a class="btn btn--primary btn--primary-hero" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">無料で試してみる（予約デモ）</a>
-        <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
-        <a class="btn btn--sub-cta" href="https://reservation-bot-beryl.vercel.app/admin.html" target="_blank" rel="noopener noreferrer">オーナー向け管理画面を見る</a>
-        <p class="hero-owner-note" style="text-align:center;">※予約の確認・管理ができる画面です</p>
+      <h2 id="reasons-title" class="section-title">AIツール工房が選ばれる理由</h2>
+      <p class="section-sub" style="margin-bottom:2rem;">安心してお任せいただくために</p>
+      <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+        <div class="reason-card">
+          <span class="reason-card__num">①</span>
+          <h3>専門用語ゼロ</h3>
+          <p>パソコンが苦手な方でも使えるよう、画面も説明もシンプルにしています</p>
+        </div>
+        <div class="reason-card">
+          <span class="reason-card__num">②</span>
+          <h3>小さく始められる</h3>
+          <p>お試し ¥29,800 から。効果を見てから本導入を決められます</p>
+        </div>
+        <div class="reason-card">
+          <span class="reason-card__num">③</span>
+          <h3>日本語・モンゴル語のプロが対応</h3>
+          <p>モンゴル在住の日本人が運営。外国人スタッフ向けの設定も得意です</p>
+        </div>
+        <div class="reason-card">
+          <span class="reason-card__num">④</span>
+          <h3>導入後もサポート</h3>
+          <p>使い方の説明から資料の追加まで、使いこなせるまで伴走します</p>
+        </div>
       </div>
-      <p class="res-note">※デモ用サンプルです。導入費用0円でご相談できます。</p>
     </div>
   </section>
 
-  <section id="owner-benefits" aria-labelledby="owner-benefits-title">
+  <section id="pricing" class="plan-section" aria-labelledby="pricing-title">
     <div class="container">
-      <h2 id="owner-benefits-title" class="section-title">導入後、オーナーさんに起きた変化</h2>
-      <p class="section-sub" style="margin-bottom:1.25rem;">&nbsp;</p>
-      <div class="benefit-voices">
-        <div class="benefit-voice"><span class="benefit-voice__ico" aria-hidden="true">📱</span><p>「電話が減って、料理に集中できるようになった」</p></div>
-        <div class="benefit-voice"><span class="benefit-voice__ico" aria-hidden="true">📅</span><p>「予約ミスがゼロになった」</p></div>
-        <div class="benefit-voice"><span class="benefit-voice__ico" aria-hidden="true">🌙</span><p>「寝ている間に予約が入っていた」</p></div>
+      <h2 id="pricing-title" class="section-title">料金プラン</h2>
+      <p class="section-sub" style="margin-bottom:1.75rem;">まずはお試しから。すべて税込です</p>
+      <div class="plan-grid">
+        <article class="plan-card">
+          <span class="plan-card__badge plan-card__badge--limited">10月限定・先着3社</span>
+          <p class="plan-card__label">プラン①</p>
+          <h3 class="plan-card__title">お試し導入</h3>
+          <p class="plan-card__price">¥29,800</p>
+          <p class="plan-card__price-sub">買い切り・前払い／最短1週間で納品</p>
+          <ul class="plan-card__list">
+            <li>AIアシスタント1つ（日本語）</li>
+            <li>社内資料10点まで登録</li>
+            <li>使い方オンライン説明（30分）</li>
+            <li>1か月のメールサポート</li>
+          </ul>
+          <a class="plan-card__cta" href="#診断">お試し導入を申し込む</a>
+        </article>
+        <article class="plan-card">
+          <span class="plan-card__badge plan-card__badge--popular">おすすめ</span>
+          <p class="plan-card__label">プラン②</p>
+          <h3 class="plan-card__title">スタンダード</h3>
+          <p class="plan-card__price">初期 ¥98,000</p>
+          <p class="plan-card__price-sub">＋ 月額 ¥9,800</p>
+          <ul class="plan-card__list">
+            <li>社内資料50点まで登録</li>
+            <li>メール・文書の下書き</li>
+            <li>翻訳（日・英・モンゴル語）</li>
+            <li>資料の追加・更新サポート</li>
+          </ul>
+          <a class="plan-card__cta" href="#診断">相談する</a>
+        </article>
+        <article class="plan-card">
+          <span class="plan-card__badge plan-card__badge--support">社長の右腕</span>
+          <p class="plan-card__label">プラン③</p>
+          <h3 class="plan-card__title">プレミアム</h3>
+          <p class="plan-card__price">初期 ¥198,000</p>
+          <p class="plan-card__price-sub">＋ 月額 ¥19,800</p>
+          <ul class="plan-card__list">
+            <li>スタンダードの全機能</li>
+            <li>研修スライド自動作成</li>
+            <li>会話の長期記憶・経営相談モード</li>
+            <li>月2回のオンライン改善ミーティング</li>
+          </ul>
+          <a class="plan-card__cta" href="#診断">相談する</a>
+        </article>
       </div>
-      <p class="benefit-summary">時間が増える → お客様対応の質が上がる → リピーターが増える → 売上が安定する</p>
-    </div>
-  </section>
-
-  <section class="mid-cta" aria-label="予約デモへの誘導">
-    <div class="container">
-      <div class="cta-stack cta-stack--center">
-        <a class="btn btn--primary btn--primary-hero" href="https://reservation-bot-beryl.vercel.app/index.html" target="_blank" rel="noopener noreferrer">無料で試してみる（予約デモ）</a>
-        <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
-      </div>
+      <p class="section-sub" style="margin-top:1.25rem; font-size:0.85rem;">※AIの利用料（OpenAI・Claude）は実費となります（目安：月500〜3,000円程度）。</p>
     </div>
   </section>
 
   <section id="診断" aria-labelledby="diagnosis-title">
     <div class="container">
-      <h2 id="diagnosis-title" class="section-title">あなたの業務、AIで改善できますか？</h2>
-      <p class="section-sub">3分でわかる 無料診断</p>
+      <h2 id="diagnosis-title" class="section-title">お困りごとを送る（無料デモ申込）</h2>
+      <p class="section-sub">選ぶだけ・1分で完了。24時間以内にご連絡します</p>
 
       <div class="diagnosis-box" id="diagnosis-box">
         <div class="diag-progress-wrap" id="diag-progress-wrap">
@@ -1959,10 +1859,13 @@
             <p class="step-catch" id="q1-title">STEP 1 / 5</p>
             <p class="q">業種を教えてください</p>
             <div class="option-grid" id="q1-group">
-              <label class="opt-card"><input type="radio" name="q1" value="飲食店" /><span class="label-text">飲食店</span></label>
-              <label class="opt-card"><input type="radio" name="q1" value="美容室・サロン" /><span class="label-text">美容室・サロン</span></label>
-              <label class="opt-card"><input type="radio" name="q1" value="小売店" /><span class="label-text">小売店</span></label>
-              <label class="opt-card"><input type="radio" name="q1" value="事務・サービス業" /><span class="label-text">事務・サービス業</span></label>
+              <label class="opt-card"><input type="radio" name="q1" value="製造業" /><span class="label-text">製造業</span></label>
+              <label class="opt-card"><input type="radio" name="q1" value="建設・不動産" /><span class="label-text">建設・不動産</span></label>
+              <label class="opt-card"><input type="radio" name="q1" value="介護・医療" /><span class="label-text">介護・医療</span></label>
+              <label class="opt-card"><input type="radio" name="q1" value="監理団体・登録支援機関" /><span class="label-text">監理団体・登録支援機関</span></label>
+              <label class="opt-card"><input type="radio" name="q1" value="旅行・ホテル" /><span class="label-text">旅行・ホテル</span></label>
+              <label class="opt-card"><input type="radio" name="q1" value="飲食・小売" /><span class="label-text">飲食・小売</span></label>
+              <label class="opt-card"><input type="radio" name="q1" value="士業・事務・サービス業" /><span class="label-text">士業・事務・サービス業</span></label>
               <label class="opt-card"><input type="radio" name="q1" value="その他" /><span class="label-text">その他</span></label>
             </div>
             <div class="step-nav">
@@ -1973,15 +1876,14 @@
 
           <div class="diagnosis-step" data-step="2" role="group" aria-labelledby="q2-title">
             <p class="step-catch" id="q2-title">STEP 2 / 5</p>
-            <p class="q">今、一番時間がかかっているのは？<br /><span style="font-size:0.8rem; font-weight:500; color:var(--muted);">（複数選択可）</span></p>
+            <p class="q">お困りごとは？<br /><span style="font-size:0.8rem; font-weight:500; color:var(--muted);">（複数選択可）</span></p>
             <div class="option-grid" id="q2-group">
-              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="問い合わせ対応" /><span class="label-text">問い合わせ対応</span></label>
-              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="書類作成" /><span class="label-text">書類作成</span></label>
-              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="SNS更新" /><span class="label-text">SNS更新</span></label>
-              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="顧客管理" /><span class="label-text">顧客管理</span></label>
-              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="見積もり作成" /><span class="label-text">見積もり作成</span></label>
-              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="スタッフ連絡" /><span class="label-text">スタッフ連絡</span></label>
-              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="予約管理" /><span class="label-text">予約管理</span></label>
+              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="新人教育に時間がかかる" /><span class="label-text">新人教育に時間がかかる</span></label>
+              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="同じ質問に何度も答えている" /><span class="label-text">同じ質問に何度も答えている</span></label>
+              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="マニュアルがない・古い" /><span class="label-text">マニュアルがない・古い</span></label>
+              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="メール・書類づくりに時間がかかる" /><span class="label-text">メール・書類づくりに時間がかかる</span></label>
+              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="外国人スタッフとの言葉の壁" /><span class="label-text">外国人スタッフとの言葉の壁</span></label>
+              <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="社長・ベテランに質問が集中する" /><span class="label-text">社長・ベテランに質問が集中する</span></label>
               <label class="opt-card opt-card--check"><input type="checkbox" name="q2" value="その他" /><span class="label-text">その他</span></label>
             </div>
             <div class="step-nav">
@@ -1992,11 +1894,12 @@
 
           <div class="diagnosis-step" data-step="3" role="group" aria-labelledby="q3-title">
             <p class="step-catch" id="q3-title">STEP 3 / 5</p>
-            <p class="q">AIツールを使ったことはありますか？</p>
+            <p class="q">社員数は？</p>
             <div class="option-grid" id="q3-group">
-              <label class="opt-card"><input type="radio" name="q3" value="ない" /><span class="label-text">ない</span></label>
-              <label class="opt-card"><input type="radio" name="q3" value="少し使ったことがある" /><span class="label-text">少し使ったことがある</span></label>
-              <label class="opt-card"><input type="radio" name="q3" value="使っているがうまく活用できていない" /><span class="label-text">使っているがうまく活用できていない</span></label>
+              <label class="opt-card"><input type="radio" name="q3" value="1〜5人" /><span class="label-text">1〜5人</span></label>
+              <label class="opt-card"><input type="radio" name="q3" value="6〜20人" /><span class="label-text">6〜20人</span></label>
+              <label class="opt-card"><input type="radio" name="q3" value="21〜50人" /><span class="label-text">21〜50人</span></label>
+              <label class="opt-card"><input type="radio" name="q3" value="51人以上" /><span class="label-text">51人以上</span></label>
             </div>
             <div class="step-nav">
               <button type="button" class="btn btn--ghost" data-back>戻る</button>
@@ -2006,11 +1909,12 @@
 
           <div class="diagnosis-step" data-step="4" role="group" aria-labelledby="q4-title">
             <p class="step-catch" id="q4-title">STEP 4 / 5</p>
-            <p class="q">ご希望の改善方法は？</p>
+            <p class="q">ご希望は？</p>
             <div class="option-grid" id="q4-group">
-              <label class="opt-card"><input type="radio" name="q4" value="まず診断結果だけ見たい" /><span class="label-text">まず診断結果だけ見たい</span></label>
-              <label class="opt-card"><input type="radio" name="q4" value="無料相談を希望する" /><span class="label-text">無料相談を希望する</span></label>
-              <label class="opt-card"><input type="radio" name="q4" value="具体的な見積もりが欲しい" /><span class="label-text">具体的な見積もりが欲しい</span></label>
+              <label class="opt-card"><input type="radio" name="q4" value="15分の無料デモを見たい" /><span class="label-text">15分の無料デモを見たい</span></label>
+              <label class="opt-card"><input type="radio" name="q4" value="お試し導入（¥29,800）を申し込みたい" /><span class="label-text">お試し導入（¥29,800）を申し込みたい</span></label>
+              <label class="opt-card"><input type="radio" name="q4" value="見積もりが欲しい" /><span class="label-text">見積もりが欲しい</span></label>
+              <label class="opt-card"><input type="radio" name="q4" value="まず話だけ聞きたい" /><span class="label-text">まず話だけ聞きたい</span></label>
             </div>
             <div class="step-nav">
               <button type="button" class="btn btn--ghost" data-back>戻る</button>
@@ -2022,6 +1926,10 @@
             <p class="step-catch" id="q5-title">STEP 5 / 5</p>
             <p class="q">連絡先を教えてください</p>
             <div class="input-stack">
+              <label for="company-input">会社名（任意）</label>
+              <input type="text" class="input-field" id="company-input" name="company" placeholder="株式会社〇〇" autocomplete="organization" />
+            </div>
+            <div class="input-stack">
               <label for="name-input">お名前（任意）</label>
               <input type="text" class="input-field" id="name-input" name="name" placeholder="山田 太郎" autocomplete="name" />
             </div>
@@ -2029,130 +1937,26 @@
               <label for="email-input">メールアドレス（必須）</label>
               <input type="email" class="input-field" id="email-input" name="email" placeholder="example@email.com" autocomplete="email" required />
             </div>
-            <button type="button" class="btn btn--primary btn--next" id="submit-diagnosis" style="width:100%;">診断結果を見る</button>
+            <div class="input-stack">
+              <label for="message-input">ひとことご相談（任意）</label>
+              <textarea class="input-field" id="message-input" name="message" rows="3" placeholder="例：新人向けのマニュアルをAIにしたい"></textarea>
+            </div>
+            <button type="button" class="btn btn--primary btn--next" id="submit-diagnosis" style="width:100%;">この内容で送信する</button>
             <div class="step-nav" style="margin-top:1rem; justify-content:flex-start;">
               <button type="button" class="btn btn--ghost" data-back>戻る</button>
             </div>
           </div>
         </div>
 
-        <div class="diagnosis-result" id="diagnosis-result" role="region" aria-live="polite" aria-label="診断結果">
-          <p class="result-lead">診断結果</p>
+        <div class="diagnosis-result" id="diagnosis-result" role="region" aria-live="polite" aria-label="送信結果">
+          <p class="result-lead" id="result-lead">送信しました</p>
           <p class="result-email-status" id="result-email-status" role="status" aria-live="polite" hidden></p>
-          <div class="result-outcome" id="result-outcome">
-            <p class="result-line">あなたの会社では</p>
-            <p class="result-time-em" id="result-time-em"></p>
-            <p class="result-line">ムダな作業を減らせる可能性があります</p>
-          </div>
-          <p class="result-picks-head" id="result-picks-head">特に以下の改善から始めるのがおすすめです：</p>
+          <p class="result-picks-head" id="result-picks-head">お送りいただいたお困りごと：</p>
           <ul class="result-picks" id="result-picks"></ul>
           <div class="result-cta">
-            <a class="result-cta-primary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料で改善プランを受け取る</a>
-            <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
-            <p class="result-cta-hint">あなたの会社に合った改善案を作るため、<br />3つだけ質問させてください</p>
-            <a class="result-cta-sub" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">まず話だけ聞いてみる</a>
             <p class="result-cta-note">無理な営業は一切しません。<br />小さな相談でも大丈夫です。</p>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="reasons" aria-labelledby="reasons-title">
-    <div class="container">
-      <h2 id="reasons-title" class="section-title">AIツール工房が選ばれる理由</h2>
-      <p class="section-sub" style="margin-bottom:2rem;">安心してお任せいただくために</p>
-      <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
-        <div class="reason-card">
-          <span class="reason-card__num">①</span>
-          <h3>専門用語ゼロ</h3>
-          <p>社長が&ldquo;なるほど&rdquo;と思えるまで説明します</p>
-        </div>
-        <div class="reason-card">
-          <span class="reason-card__num">②</span>
-          <h3>小さく始められる</h3>
-          <p>月3万円から。大きな初期投資は不要です</p>
-        </div>
-        <div class="reason-card">
-          <span class="reason-card__num">③</span>
-          <h3>現場に合わせてカスタマイズ</h3>
-          <p>既製品を押しつけることはしません</p>
-        </div>
-        <div class="reason-card">
-          <span class="reason-card__num">④</span>
-          <h3>導入後もサポート</h3>
-          <p>使いこなせるまで一緒に伴走します</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="cases" aria-labelledby="cases-title">
-    <div class="container">
-      <h2 id="cases-title" class="section-title">改善実績</h2>
-      <p class="section-sub" style="margin-bottom:2rem;">Before &rarr; After</p>
-      <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
-        <div class="case-card">
-          <p class="case-label">Case 1</p>
-          <h3>収支管理の自動化</h3>
-          <p class="case-before">Before: Excelで毎月3時間かけて集計</p>
-          <p class="case-after">After: ツール導入で15分に短縮</p>
-        </div>
-        <div class="case-card">
-          <p class="case-label">Case 2</p>
-          <h3>顧客管理のデジタル化</h3>
-          <p class="case-before">Before: 紙の名刺・メモで管理、探すのに時間がかかる</p>
-          <p class="case-after">After: 顧客管理ツールで即検索・履歴管理が可能に</p>
-        </div>
-        <div class="case-card">
-          <p class="case-label">Case 3</p>
-          <h3>シフト管理の効率化</h3>
-          <p class="case-before">Before: LINEとメモで調整、ミスが多発</p>
-          <p class="case-after">After: AIシフト管理ツールで自動集計・共有が簡単に</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="pricing" class="plan-section" aria-labelledby="pricing-title">
-    <div class="container">
-      <h2 id="pricing-title" class="section-title">料金プラン</h2>
-      <p class="section-sub" style="margin-bottom:1.75rem;">ご予算と目的に合わせて、小さく始められます</p>
-      <div class="plan-grid">
-        <article class="plan-card">
-          <span class="plan-card__badge plan-card__badge--limited">期間限定</span>
-          <p class="plan-card__label">プラン①</p>
-          <h3 class="plan-card__title">まず話そう（無料モニター）</h3>
-          <p class="plan-card__price">無料</p>
-          <p class="plan-card__price-sub">先着3名／2026年5月限定</p>
-          <ul class="plan-card__list">
-            <li>60分Zoom相談</li>
-            <li>業務の棚卸しシート</li>
-            <li>AI活用1stステップ提案書</li>
-          </ul>
-          <a class="plan-card__cta" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料モニターに応募する</a>
-        </article>
-        <article class="plan-card">
-          <span class="plan-card__badge plan-card__badge--popular">人気No.1</span>
-          <p class="plan-card__label">プラン②</p>
-          <h3 class="plan-card__title">1個だけ作る</h3>
-          <p class="plan-card__price">3万円〜</p>
-          <p class="plan-card__meta">納期：2週間以内</p>
-          <p class="plan-card__desc">HPまたは業務効率化ツールまたはAIチャットボットを1個制作</p>
-          <a class="plan-card__cta" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料相談する</a>
-        </article>
-        <article class="plan-card">
-          <span class="plan-card__badge plan-card__badge--support">継続サポート</span>
-          <p class="plan-card__label">プラン③</p>
-          <h3 class="plan-card__title">月イチ伴走</h3>
-          <p class="plan-card__price">月額 19,800円</p>
-          <ul class="plan-card__list">
-            <li>月2回Zoom相談</li>
-            <li>チャット相談（月5回まで）</li>
-            <li>月1回改善提案書</li>
-          </ul>
-          <a class="plan-card__cta" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">相談してみる</a>
-        </article>
       </div>
     </div>
   </section>
@@ -2162,21 +1966,13 @@
       <h2 id="about-title" class="section-title">なぜAIツール工房を作ったのか</h2>
       <div class="intro-block intro-block--with-photo" style="margin-top:1.5rem;">
         <div class="intro-block__figure">
-          <img
-            class="intro-block__img"
-            src="../profile.png"
-            width="200"
-            height="200"
-            alt="プロフィール写真"
-            loading="lazy"
-            decoding="async"
-          />
+          <img class="intro-block__img" src="../profile.png" width="200" height="200" alt="プロフィール写真" loading="lazy" decoding="async" />
         </div>
         <div class="intro-block__text">
-          <p>多くの会社は毎日忙しく、<br />『改善したいけど手が回らない』<br />という悩みを抱えています。</p>
-          <p>私がやりたいのは、<br />AIそのものを売ることではありません。<br />人の時間を増やすことです。</p>
-          <p>システムを押しつけるのではなく、<br />『困ったときに相談できる人』として<br />そばにいたいと思っています。</p>
-          <p>規模は関係ありません。<br />会社も、個人事業主も、<br />AIで大きく変われると、本気で信じています。</p>
+          <p>多くの会社では、大事な知恵が<br />社長やベテランの頭の中にしかありません。</p>
+          <p>だから新人が来るたびに同じことを教え、<br />忙しい人ほど時間がなくなっていきます。</p>
+          <p>その知恵をAIに覚えさせれば、<br />誰でも、いつでも、同じ答えにたどり着けます。</p>
+          <p>私がやりたいのは、AIを売ることではなく、<br />人の時間を増やすことです。<br />モンゴル在住の日本人として、言葉の壁を越えるお手伝いもします。</p>
         </div>
       </div>
     </div>
@@ -2189,23 +1985,23 @@
       <div class="faq-list">
         <div class="faq-item">
           <button type="button" class="faq-q" aria-expanded="false">IT知識がゼロでも大丈夫ですか？</button>
-          <div class="faq-a">むしろそういった方のためのサービスです。専門用語は使いません。</div>
+          <div class="faq-a">大丈夫です。チャットに文字を書くだけで使えます。使い方もオンラインでご説明します。</div>
         </div>
         <div class="faq-item">
-          <button type="button" class="faq-q" aria-expanded="false">相談だけでも大丈夫ですか？</button>
-          <div class="faq-a">もちろんです。&ldquo;何から始めればいいかわからない&rdquo;という相談が一番多いです。</div>
+          <button type="button" class="faq-q" aria-expanded="false">社内の資料が外に漏れませんか？</button>
+          <div class="faq-a">ログインした社員だけが使える仕組みです。登録する資料はご相談のうえ、必要なものだけに絞ります。</div>
         </div>
         <div class="faq-item">
-          <button type="button" class="faq-q" aria-expanded="false">料金はいつ発生しますか？</button>
-          <div class="faq-a">お見積もりをご確認いただき、ご納得いただいてからです。</div>
+          <button type="button" class="faq-q" aria-expanded="false">お試し導入のあと、必ず本契約が必要ですか？</button>
+          <div class="faq-a">いいえ。お試しだけで終わっても大丈夫です。効果を見てからご判断ください。</div>
+        </div>
+        <div class="faq-item">
+          <button type="button" class="faq-q" aria-expanded="false">支払い方法は？</button>
+          <div class="faq-a">銀行振込でお願いしています。お試し導入は前払い、本導入は初期費用のお振込み確認後に作業を始めます。</div>
         </div>
         <div class="faq-item">
           <button type="button" class="faq-q" aria-expanded="false">どこに住んでいても依頼できますか？</button>
           <div class="faq-a">全国どこでもオンライン・メールで対応します。</div>
-        </div>
-        <div class="faq-item">
-          <button type="button" class="faq-q" aria-expanded="false">小さな仕事でも受けてもらえますか？</button>
-          <div class="faq-a">大歓迎です。小さな改善の積み重ねが大きな変化につながります。</div>
         </div>
       </div>
     </div>
@@ -2213,41 +2009,11 @@
 
   <section class="final-cta" aria-labelledby="final-cta-title">
     <div class="container">
-      <h2 id="final-cta-title" class="section-title">まず、使ってみてください。</h2>
-      <p class="section-sub">登録不要・無料・3分で使える。AIが苦手でも大丈夫です。</p>
+      <h2 id="final-cta-title" class="section-title">まずは15分、見てみてください。</h2>
+      <p class="section-sub">あなたの会社の資料で、AIが答える様子を目の前でお見せします。</p>
       <div class="btn-row">
-        <a class="btn btn--cta-green" href="#free-tools">無料ツールを見る</a>
-        <a class="btn btn--cta-outline" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">有料サービスを相談する</a>
-      </div>
-    </div>
-  </section>
-
-  <section id="ai-school" class="ai-school" aria-labelledby="ai-school-title">
-    <div class="container">
-      <h2 id="ai-school-title" class="section-title">AIって、実は難しくない。</h2>
-      <p class="program-body">はじめてでも大丈夫。<br />一緒にやりながら、仕事をラクにしていきます。</p>
-      <p class="program-section-label">AI活用 はじめの一歩プログラム（全7回）</p>
-      <ul class="program-first-list">
-        <li>わからないことは、すぐ聞ける1対1サポート</li>
-        <li>「明日から使える」実務直結の内容だけ</li>
-        <li>7回終わるころには、自分でツールが作れるように</li>
-      </ul>
-      <p class="program-closing">&ldquo;AIって難しそう&rdquo;が、&ldquo;これなら私でもできる&rdquo;に変わります。</p>
-    </div>
-  </section>
-
-  <section id="school-follow-cta" class="school-follow-cta" aria-labelledby="school-follow-cta-title">
-    <div class="container">
-      <h2 id="school-follow-cta-title" class="section-title">無料相談で、こんなことがわかります</h2>
-      <ul class="res-yes-list" style="margin-bottom:1.25rem;">
-        <li>あなたの業務のどこにムダがあるか</li>
-        <li>AIでどこまで改善できるか</li>
-        <li>導入費用はいくらか（まず相談は無料）</li>
-      </ul>
-      <p class="consult-sub">売り込みはしません。まず現状を一緒に整理します。</p>
-      <div class="cta-stack cta-stack--center" style="margin-top:1.5rem;">
-        <a class="btn btn--primary" href="https://hiro9215koctwcx-glitch.github.io/hearing-sheet/" target="_blank" rel="noopener noreferrer">無料相談を申し込む</a>
-        <p class="reassurance-text">※登録不要・クレカ不要・1分で体験できます</p>
+        <a class="btn btn--cta-green" href="#診断">無料デモを申し込む</a>
+        <a class="btn btn--cta-outline" href="#pricing">料金を見る</a>
       </div>
     </div>
   </section>
@@ -2258,6 +2024,7 @@
 
   <script>
     (function () {
+      var NOTIFY_EMAIL = 'hiro.9215koctwcx@gmail.com';
       var current = 1;
       var maxStep = 5;
       var q2Labels = [];
@@ -2266,35 +2033,20 @@
       var progressWrap = document.getElementById('diag-progress-wrap');
       var formWrap = document.getElementById('diagnosis-form-wrap');
       var resultEl = document.getElementById('diagnosis-result');
-      var resultTimeEl = document.getElementById('result-time-em');
+      var resultLead = document.getElementById('result-lead');
       var resultPicks = document.getElementById('result-picks');
       var picksHead = document.getElementById('result-picks-head');
       var emailInput = document.getElementById('email-input');
       var nameInput = document.getElementById('name-input');
+      var companyInput = document.getElementById('company-input');
+      var messageInput = document.getElementById('message-input');
       var submitBtn = document.getElementById('submit-diagnosis');
       var resultEmailStatus = document.getElementById('result-email-status');
-      var defaultSubmitLabel = '診断結果を見る';
-      var supaClient = (function initSupa() {
-        try {
-          if (typeof supabase !== 'undefined' && typeof supabase.createClient === 'function') {
-            return supabase.createClient(
-              'https://qasetyuetdsnodhajgcv.supabase.co',
-              'sb_publishable_hKF8FDCjbpWoAy_v_Zur5Q_7fkullOa'
-            );
-          }
-        } catch (e) {
-          console.error('Supabase init failed', e);
-        }
-        return null;
-      })();
+      var defaultSubmitLabel = 'この内容で送信する';
 
       function setProgress(n) {
-        if (stepTextEl) {
-          stepTextEl.textContent = 'STEP ' + n + ' / 5';
-        }
-        if (progressBar) {
-          progressBar.style.width = (n / 5) * 100 + '%';
-        }
+        if (stepTextEl) stepTextEl.textContent = 'STEP ' + n + ' / 5';
+        if (progressBar) progressBar.style.width = (n / 5) * 100 + '%';
       }
 
       function showStep(n) {
@@ -2305,23 +2057,14 @@
         setProgress(n);
       }
 
-      function q2CountChecked() {
-        return document.querySelectorAll('#q2-group input[name="q2"]:checked').length;
-      }
-
       function syncNextRadio(stepNum, nextId) {
         var step = document.querySelector('.diagnosis-step[data-step="' + stepNum + '"]');
         if (!step) return;
         var nextBtn = document.getElementById(nextId);
         var grid = step.querySelector('.option-grid');
         if (!grid || !nextBtn) return;
-        function update() {
-          var checked = grid.querySelector('input:checked');
-          nextBtn.disabled = !checked;
-        }
-        grid.querySelectorAll('input').forEach(function (input) {
-          input.addEventListener('change', update);
-        });
+        function update() { nextBtn.disabled = !grid.querySelector('input:checked'); }
+        grid.querySelectorAll('input').forEach(function (input) { input.addEventListener('change', update); });
         update();
         nextBtn.addEventListener('click', function () {
           if (nextBtn.disabled) return;
@@ -2329,24 +2072,24 @@
         });
       }
 
+      function readQ2() {
+        q2Labels = Array.prototype.map.call(
+          document.querySelectorAll('#q2-group input[name="q2"]:checked'),
+          function (el) { return el.value; }
+        );
+        return q2Labels;
+      }
+
       function syncQ2() {
         var nextBtn = document.getElementById('next-2');
-        if (!nextBtn) return;
         var grid = document.getElementById('q2-group');
-        if (!grid) return;
-        function update() {
-          nextBtn.disabled = q2CountChecked() < 1;
-        }
-        grid.querySelectorAll('input[name="q2"]').forEach(function (input) {
-          input.addEventListener('change', update);
-        });
+        if (!nextBtn || !grid) return;
+        function update() { nextBtn.disabled = readQ2().length < 1; }
+        grid.querySelectorAll('input[name="q2"]').forEach(function (input) { input.addEventListener('change', update); });
         update();
         nextBtn.addEventListener('click', function () {
           if (nextBtn.disabled) return;
-          q2Labels = Array.prototype.map.call(
-            document.querySelectorAll('#q2-group input[name="q2"]:checked'),
-            function (el) { return el.value; }
-          );
+          readQ2();
           showStep(3);
         });
       }
@@ -2356,36 +2099,28 @@
       syncNextRadio(3, 'next-3');
       syncNextRadio(4, 'next-4');
 
-      function getDiagnosisResultForEmail(n) {
-        if (n >= 5) {
-          return '多くの業務にムダが発生しています。改善することで毎月20時間以上、時間を生み出せる可能性があります。';
-        }
-        if (n >= 3) {
-          return '複数の業務を改善することで、毎月10〜20時間ほど時間を生み出せる可能性があります。';
-        }
-        return '業務の一部を改善することで、毎月5〜10時間ほど時間を生み出せる可能性があります。';
+      function val(name) {
+        var el = document.querySelector('input[name="' + name + '"]:checked');
+        return el ? el.value : '';
       }
 
-      function applyResultContent() {
-        var n = q2Labels.length;
-        if (n <= 0) {
-          q2Labels = Array.prototype.map.call(
-            document.querySelectorAll('#q2-group input[name="q2"]:checked'),
-            function (el) { return el.value; }
-          );
-          n = q2Labels.length;
-        }
-        var timePhrase;
-        if (n >= 5) {
-          timePhrase = '毎月20時間以上';
-        } else if (n >= 3) {
-          timePhrase = '毎月10〜20時間ほど';
-        } else {
-          timePhrase = '毎月5〜10時間ほど';
-        }
-        if (resultTimeEl) {
-          resultTimeEl.textContent = timePhrase;
-        }
+      function buildSummary(d) {
+        return [
+          '【AIツール工房】LPから新しいお問い合わせ',
+          '',
+          '業種：' + d.industry,
+          'お困りごと：' + d.problems,
+          '社員数：' + d.size,
+          'ご希望：' + d.wish,
+          '',
+          '会社名：' + (d.company || '（未入力）'),
+          'お名前：' + (d.name || '（未入力）'),
+          'メール：' + d.email,
+          'ひとこと：' + (d.message || '（なし）')
+        ].join('\n');
+      }
+
+      function showResult(ok, mailtoHref) {
         if (resultPicks) {
           resultPicks.innerHTML = '';
           q2Labels.forEach(function (label) {
@@ -2394,110 +2129,81 @@
             resultPicks.appendChild(li);
           });
         }
-        if (picksHead) {
-          picksHead.style.display = q2Labels.length ? 'block' : 'none';
+        if (picksHead) picksHead.style.display = q2Labels.length ? 'block' : 'none';
+        if (resultEmailStatus) {
+          resultEmailStatus.removeAttribute('hidden');
+          resultEmailStatus.classList.add('is-visible');
+          if (ok) {
+            resultEmailStatus.classList.remove('is-error');
+            resultEmailStatus.textContent = 'ありがとうございます！内容を受け取りました。24時間以内にご連絡します。';
+          } else {
+            if (resultLead) resultLead.textContent = 'もう一歩です';
+            resultEmailStatus.classList.add('is-error');
+            resultEmailStatus.innerHTML = '';
+            resultEmailStatus.appendChild(document.createTextNode('自動送信がうまくいきませんでした。お手数ですが、下のボタンからメールでお送りください。'));
+            var a = document.createElement('a');
+            a.href = mailtoHref;
+            a.className = 'btn btn--primary';
+            a.style.display = 'inline-block';
+            a.style.marginTop = '0.75rem';
+            a.textContent = 'メールで送る';
+            resultEmailStatus.appendChild(document.createElement('br'));
+            resultEmailStatus.appendChild(a);
+          }
         }
-        if (resultPicks) {
-          resultPicks.style.display = q2Labels.length ? 'block' : 'none';
-        }
-      }
-
-      function showResultView() {
         formWrap.classList.add('is-hidden');
-        if (progressWrap) {
-          progressWrap.classList.add('is-hidden');
-        }
+        if (progressWrap) progressWrap.classList.add('is-hidden');
         resultEl.classList.add('is-visible');
         resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-
-      function setEmailStatusSuccess() {
-        if (!resultEmailStatus) return;
-        resultEmailStatus.textContent = 'ありがとうございます！診断結果を24時間以内にメールでお送りします。';
-        resultEmailStatus.classList.add('is-visible');
-        resultEmailStatus.classList.remove('is-error');
-        resultEmailStatus.removeAttribute('hidden');
-      }
-
-      function setEmailStatusError() {
-        if (!resultEmailStatus) return;
-        resultEmailStatus.textContent = '送信に失敗しました。もう一度お試しください。';
-        resultEmailStatus.classList.add('is-visible', 'is-error');
-        resultEmailStatus.removeAttribute('hidden');
       }
 
       submitBtn.addEventListener('click', function () {
         var email = emailInput ? emailInput.value.trim() : '';
         var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email) {
-          alert('メールアドレスを入力してください。');
+        if (!email || !re.test(email)) {
+          alert('メールアドレスをご確認ください。');
           if (emailInput) emailInput.focus();
           return;
         }
-        if (!re.test(email)) {
-          alert('メールアドレスの形式をご確認ください。');
-          if (emailInput) emailInput.focus();
-          return;
-        }
-        var n = q2Labels.length;
-        if (n <= 0) {
-          q2Labels = Array.prototype.map.call(
-            document.querySelectorAll('#q2-group input[name="q2"]:checked'),
-            function (el) { return el.value; }
-          );
-          n = q2Labels.length;
-        }
-        var nameTrim = nameInput ? nameInput.value.trim() : '';
-        var toName = nameTrim ? nameTrim + '様' : 'お客様';
-        var resultText = getDiagnosisResultForEmail(n);
-        var q1Checked = document.querySelector('input[name="q1"]:checked');
-        var industryVal = q1Checked ? q1Checked.value : '';
-        if (supaClient) {
-          supaClient
-            .from('diagnoses')
-            .insert({
-              industry: industryVal,
-              tasks: q2Labels.join(','),
-              email: email,
-              name: nameTrim,
-              result: resultText
-            })
-            .then(function (res) {
-              if (res && res.error) {
-                console.error('Supabase save failed', res.error);
-              }
-            })
-            .catch(function (err) {
-              console.error('Supabase save failed', err);
-            });
-        }
-        var templateParams = {
-          to_name: toName,
-          to_email: email,
-          diagnosis_result: resultText
+        readQ2();
+        var d = {
+          industry: val('q1'),
+          problems: q2Labels.join('、'),
+          size: val('q3'),
+          wish: val('q4'),
+          company: companyInput ? companyInput.value.trim() : '',
+          name: nameInput ? nameInput.value.trim() : '',
+          email: email,
+          message: messageInput ? messageInput.value.trim() : ''
         };
-
-        if (typeof emailjs === 'undefined' || !emailjs.send) {
-          applyResultContent();
-          setEmailStatusError();
-          showResultView();
-          return;
-        }
+        var summary = buildSummary(d);
+        var subject = '【AIツール工房】お問い合わせ：' + (d.company || d.name || d.email) + '（' + d.wish + '）';
+        var mailtoHref = 'mailto:' + NOTIFY_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(summary);
 
         submitBtn.textContent = '送信中...';
         submitBtn.disabled = true;
 
-        emailjs.send('service_c5okgq5', 'template_p5ohlro', templateParams)
-          .then(function () {
-            applyResultContent();
-            setEmailStatusSuccess();
-            showResultView();
+        fetch('https://formsubmit.co/ajax/' + NOTIFY_EMAIL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            _subject: subject,
+            _replyto: d.email,
+            _template: 'box',
+            _captcha: 'false',
+            '業種': d.industry,
+            'お困りごと': d.problems,
+            '社員数': d.size,
+            'ご希望': d.wish,
+            '会社名': d.company,
+            'お名前': d.name,
+            'メール': d.email,
+            'ひとこと': d.message
           })
-          .catch(function () {
-            applyResultContent();
-            setEmailStatusError();
-            showResultView();
-          })
+        })
+          .then(function (res) { return res.json().catch(function () { return {}; }).then(function (j) { return res.ok && String(j.success) !== 'false'; }); })
+          .then(function (ok) { showResult(ok, mailtoHref); })
+          .catch(function () { showResult(false, mailtoHref); })
           .finally(function () {
             submitBtn.textContent = defaultSubmitLabel;
             submitBtn.disabled = false;
@@ -2505,9 +2211,7 @@
       });
 
       document.querySelectorAll('[data-back]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          if (current > 1) showStep(current - 1);
-        });
+        btn.addEventListener('click', function () { if (current > 1) showStep(current - 1); });
       });
 
       setProgress(1);
@@ -2536,9 +2240,7 @@
         e.preventDefault();
         e.stopPropagation();
         document.documentElement.classList.add('lp-banner-dismissed');
-        try {
-          sessionStorage.setItem('lpTopBannerDismissed', '1');
-        } catch (err) {}
+        try { sessionStorage.setItem('lpTopBannerDismissed', '1'); } catch (err) {}
       });
     })();
   </script>
