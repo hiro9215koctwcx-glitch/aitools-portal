@@ -1649,6 +1649,15 @@
   <style>
     textarea.input-field { width:100%; resize:vertical; font-family:inherit; }
     #features .reason-card__num { font-size:1.6rem; }
+    .trial-box { max-width:1100px; margin:0 auto 1.5rem; background:linear-gradient(135deg,#E1F5EE 0%,#fff 100%); border:2px solid var(--green); border-radius:var(--radius-lg); padding:1.5rem; text-align:center; box-shadow:var(--shadow); }
+    .trial-box__title { font-size:1.2rem; margin:0.25rem 0 0.5rem; color:var(--dark); }
+    .trial-box__price { color:var(--green-dark); font-size:1.6rem; margin-left:0.35rem; }
+    .trial-box__unit { font-size:0.85rem; color:var(--muted); font-weight:500; }
+    .trial-box__desc { color:var(--text); margin:0 auto 0.5rem; max-width:640px; line-height:1.7; }
+    .trial-box__note { font-weight:700; color:var(--green-dark); margin:0 0 1rem; }
+    .trial-box__cta { display:inline-block; max-width:320px; width:100%; }
+    .price-notes { max-width:1100px; margin:1.25rem auto 0; font-size:0.85rem; color:var(--muted); line-height:1.7; }
+    .price-notes p { margin:0.2rem 0; }
   </style>
 </head>
 <body>
@@ -1771,7 +1780,7 @@
         <div class="reason-card">
           <span class="reason-card__num">②</span>
           <h3>小さく始められる</h3>
-          <p>お試し ¥29,800 から。効果を見てから本導入を決められます</p>
+          <p>お試し ¥29,800 から。本導入に進めば、お試し費用は初期費用から差し引きます</p>
         </div>
         <div class="reason-card">
           <span class="reason-card__num">③</span>
@@ -1791,32 +1800,42 @@
     <div class="container">
       <h2 id="pricing-title" class="section-title">料金プラン</h2>
       <p class="section-sub" style="margin-bottom:1.75rem;">まずはお試しから。すべて税込です</p>
+
+      <div class="trial-box">
+        <span class="plan-card__badge plan-card__badge--limited" style="position:static; display:inline-block; margin-bottom:0.5rem;">10月限定・先着3社</span>
+        <h3 class="trial-box__title">まずはお試し導入 <span class="trial-box__price">¥29,800</span><span class="trial-box__unit">（買い切り・前払い）</span></h3>
+        <p class="trial-box__desc">あなたの会社の資料10点を登録したAIアシスタントを、最短1週間でお届けします。使い方のオンライン説明（30分）と1か月のメールサポート付き。</p>
+        <p class="trial-box__note">🎁 本導入に進む場合、お試し費用 ¥29,800 は初期費用から差し引きます</p>
+        <a class="plan-card__cta trial-box__cta" href="#診断">お試し導入を申し込む</a>
+      </div>
+
       <div class="plan-grid">
         <article class="plan-card">
-          <span class="plan-card__badge plan-card__badge--limited">10月限定・先着3社</span>
+          <span class="plan-card__badge plan-card__badge--support">まずはここから</span>
           <p class="plan-card__label">プラン①</p>
-          <h3 class="plan-card__title">お試し導入</h3>
-          <p class="plan-card__price">¥29,800</p>
-          <p class="plan-card__price-sub">買い切り・前払い／最短1週間で納品</p>
+          <h3 class="plan-card__title">ベーシック</h3>
+          <p class="plan-card__price">月額 ¥14,800</p>
+          <p class="plan-card__price-sub">初期費用 ¥49,800</p>
           <ul class="plan-card__list">
-            <li>AIアシスタント1つ（日本語）</li>
-            <li>社内資料10点まで登録</li>
-            <li>使い方オンライン説明（30分）</li>
-            <li>1か月のメールサポート</li>
+            <li>社内資料から質問に答えるAI</li>
+            <li>社内資料20点まで登録</li>
+            <li>資料の追加・更新（月1時間まで）</li>
+            <li>メールサポート</li>
           </ul>
-          <a class="plan-card__cta" href="#診断">お試し導入を申し込む</a>
+          <a class="plan-card__cta" href="#診断">相談する</a>
         </article>
         <article class="plan-card">
           <span class="plan-card__badge plan-card__badge--popular">おすすめ</span>
           <p class="plan-card__label">プラン②</p>
           <h3 class="plan-card__title">スタンダード</h3>
-          <p class="plan-card__price">初期 ¥98,000</p>
-          <p class="plan-card__price-sub">＋ 月額 ¥9,800</p>
+          <p class="plan-card__price">月額 ¥29,800</p>
+          <p class="plan-card__price-sub">初期費用 ¥98,000</p>
           <ul class="plan-card__list">
+            <li>ベーシックの全機能</li>
             <li>社内資料50点まで登録</li>
             <li>メール・文書の下書き</li>
             <li>翻訳（日・英・モンゴル語）</li>
-            <li>資料の追加・更新サポート</li>
+            <li>資料の追加・更新（月2時間まで）</li>
           </ul>
           <a class="plan-card__cta" href="#診断">相談する</a>
         </article>
@@ -1824,18 +1843,23 @@
           <span class="plan-card__badge plan-card__badge--support">社長の右腕</span>
           <p class="plan-card__label">プラン③</p>
           <h3 class="plan-card__title">プレミアム</h3>
-          <p class="plan-card__price">初期 ¥198,000</p>
-          <p class="plan-card__price-sub">＋ 月額 ¥19,800</p>
+          <p class="plan-card__price">月額 ¥49,800</p>
+          <p class="plan-card__price-sub">初期費用 ¥148,000</p>
           <ul class="plan-card__list">
             <li>スタンダードの全機能</li>
             <li>研修スライド自動作成</li>
             <li>会話の長期記憶・経営相談モード</li>
             <li>月2回のオンライン改善ミーティング</li>
+            <li>作業サポート（月5時間まで）</li>
           </ul>
           <a class="plan-card__cta" href="#診断">相談する</a>
         </article>
       </div>
-      <p class="section-sub" style="margin-top:1.25rem; font-size:0.85rem;">※AIの利用料（OpenAI・Claude）は実費となります（目安：月500〜3,000円程度）。</p>
+      <div class="price-notes">
+        <p>※AIの利用料（OpenAI・Claude）は、お客様のアカウントでの実費となります。アカウントの設定は導入時に代行します（目安：少人数なら月1,000円前後〜。使う人数と回数で変わります）。</p>
+        <p>※各プランの作業時間を超えた場合は、1時間 ¥5,000 で承ります。</p>
+        <p>※お支払いは銀行振込です。初期費用のお振込みを確認してから作業を始めます。</p>
+      </div>
     </div>
   </section>
 
@@ -1997,7 +2021,7 @@
         </div>
         <div class="faq-item">
           <button type="button" class="faq-q" aria-expanded="false">支払い方法は？</button>
-          <div class="faq-a">銀行振込でお願いしています。お試し導入は前払い、本導入は初期費用のお振込み確認後に作業を始めます。</div>
+          <div class="faq-a">銀行振込でお願いしています。お試し導入は前払い、本導入は初期費用のお振込み確認後に作業を始めます。お試しから本導入に進む場合、お試し費用は初期費用から差し引きます。</div>
         </div>
         <div class="faq-item">
           <button type="button" class="faq-q" aria-expanded="false">どこに住んでいても依頼できますか？</button>
