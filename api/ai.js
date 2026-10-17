@@ -13,7 +13,7 @@
  *   OPENAI_API_KEY             OpenAI のキー
  *   AITK_COMPANIES             使ってよい会社コード（カンマ区切り）。demo-basic,demo-standard,demo-premium は常に許可
  *   SUPABASE_SERVICE_ROLE_KEY  （任意）使用量の記録用。未設定なら記録しない
- *   AITK_ALLOWED_ORIGINS       （任意）許可するサイト。未設定なら https://aitools-portal.vercel.app
+ *   AITK_ALLOWED_ORIGINS       （任意）追加で許可するサイト（独自ドメインなど）。aitools-portal / tushig-mn-pod の vercel.app は常に許可
  */
 const SUPABASE_URL = "https://obulszmlixpokgewrcli.supabase.co";
 
@@ -32,11 +32,16 @@ const TARGETS = {
   },
 };
 
-const DEMO_CODES = ["demo-basic", "demo-standard", "demo-premium"];
+const DEMO_CODES = [
+  "demo-basic", "demo-standard", "demo-premium",          // 日本語版デモ
+  "mn-demo-basic", "mn-demo-standard", "mn-demo-premium", // モンゴル語版デモ
+];
+// 自分のサイト（本番・プレビュー）だけ許可
+const ORIGIN_RE = /^https:\/\/(aitools-portal|tushig-mn-pod)(-[a-z0-9-]+)?\.vercel\.app$/;
 const MAX_TOKENS_CAP = 4096;
 
 function allowedOrigins() {
-  return (process.env.AITK_ALLOWED_ORIGINS || "https://aitools-portal.vercel.app")
+  return (process.env.AITK_ALLOWED_ORIGINS || "")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
@@ -55,7 +60,7 @@ async function logUsage(row) {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!key) {
     console.error("SUPABASE_SERVICE_ROLE_KEY is not set");
-    return;
+    return "nokey";
   }
   try {
     const r = await fetch(SUPABASE_URL + "/rest/v1/ai_usage", {
@@ -67,17 +72,24 @@ async function logUsage(row) {
       ),
       body: JSON.stringify(row),
     });
-    if (!r.ok) console.error("ai_usage insert failed", r.status, await r.text());
+    if (!r.ok) {
+      const msg = (await r.text()).slice(0, 120);
+      console.error("ai_usage insert failed", r.status, msg);
+      return "err" + r.status + ":" + msg.replace(/[^\x20-\x7e]/g, "");
+    }
+    return "ok";
   } catch (e) {
     console.error("ai_usage insert error", e && e.message);
+    return "exception";
   }
 }
 
 module.exports = async function handler(req, res) {
   const origin = req.headers.origin || "";
-  const okOrigin = allowedOrigins().indexOf(origin) !== -1;
+  const okOrigin = ORIGIN_RE.test(origin) || allowedOrigins().indexOf(origin) !== -1;
   if (okOrigin) {
     res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Expose-Headers", "x-aitk-usage");
     res.setHeader("Vary", "Origin");
   }
   if (req.method === "OPTIONS") {
@@ -152,7 +164,7 @@ module.exports = async function handler(req, res) {
         const u = data.usage || {};
         usage.input_tokens = u.input_tokens || u.prompt_tokens || 0;
         usage.output_tokens = u.output_tokens || u.completion_tokens || 0;
-        await logUsage(usage);
+        res.setHeader("x-aitk-usage", String(await logUsage(usage)));
       } catch (e) {}
     }
     res.status(upstream.status);
