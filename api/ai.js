@@ -53,20 +53,23 @@ function allowedCompanies() {
 
 async function logUsage(row) {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!key) return;
+  if (!key) {
+    console.error("SUPABASE_SERVICE_ROLE_KEY is not set");
+    return;
+  }
   try {
-    await fetch(SUPABASE_URL + "/rest/v1/ai_usage", {
+    const r = await fetch(SUPABASE_URL + "/rest/v1/ai_usage", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: key,
-        Authorization: "Bearer " + key,
-        Prefer: "return=minimal",
-      },
+      headers: Object.assign(
+        { "Content-Type": "application/json", apikey: key, Prefer: "return=minimal" },
+        // 新しい sb_secret_ キーは apikey ヘッダーだけで使う（JWT形式の古いキーのみ Authorization も付ける）
+        key.indexOf("sb_secret_") === 0 ? {} : { Authorization: "Bearer " + key }
+      ),
       body: JSON.stringify(row),
     });
+    if (!r.ok) console.error("ai_usage insert failed", r.status, await r.text());
   } catch (e) {
-    /* 記録に失敗しても回答は止めない */
+    console.error("ai_usage insert error", e && e.message);
   }
 }
 
@@ -193,8 +196,9 @@ module.exports = async function handler(req, res) {
   } catch (e) {
     /* 途中で切れた場合もここで終了 */
   }
-  res.end();
+  // Vercelは返信後に処理を止めることがあるため、記録してから終了する
   await logUsage(usage);
+  res.end();
 };
 
 module.exports.config = { maxDuration: 60 };
