@@ -2053,10 +2053,14 @@
       if (planBadge) {
         planBadge.textContent = PLAN === "basic" ? "Basic" : PLAN === "standard" ? "Standard" : "Premium";
       }
-      if (PLAN === "basic") {
-        var planSub = document.querySelector(".center-head .sub");
-        if (planSub) planSub.textContent = "会社専用AIワークスペース";
+      var DEMO_COMPANY = { basic: "株式会社さくら工務店", standard: "みなと物流株式会社", premium: "株式会社あおばケア" }[PLAN];
+      var DEMO_PREFIX = "【" + DEMO_COMPANY + "】";
+      function demoName(n) {
+        n = String(n || "");
+        return n.indexOf(DEMO_PREFIX) === 0 ? n : DEMO_PREFIX + n;
       }
+      var planSub = document.querySelector(".center-head .sub");
+      if (planSub) planSub.textContent = "会社専用AIワークスペース（デモ：" + DEMO_COMPANY + "）";
       var abilityList = document.getElementById("abilityList");
       if (abilityList && chatInput) {
         var abilities = [
@@ -2234,6 +2238,7 @@
         }
         return (
           SYSTEM_PROMPT +
+          " あなたは「" + DEMO_COMPANY + "」専用のAIアシスタントです（デモ用の架空の会社）。資料名の先頭の【" + DEMO_COMPANY + "】は会社名の印なので、回答では省いてかまいません。" +
           extra +
           " 【参考資料】に「動画:」で始まる情報があり、質問に関係する場合は、回答の最後に「🎬 詳しくは動画でご覧ください：[タイトル](リンク)」とリンクを必ず書きます。"
         );
@@ -4496,6 +4501,7 @@
             body: JSON.stringify({
               query_embedding: vectorLiteral(queryEmbedding),
               match_count: TOP_K,
+              name_prefix: DEMO_PREFIX,
             }),
           });
           var body = null;
@@ -5696,7 +5702,9 @@
           while (offset < 20000) {
             var res = await fetch(
               access.url +
-                "/rest/v1/document_chunks?select=document_name&order=document_name.asc&limit=1000&offset=" +
+                "/rest/v1/document_chunks?select=document_name&document_name=like." +
+                encodeURIComponent(DEMO_PREFIX + "*") +
+                "&order=document_name.asc&limit=1000&offset=" +
                 offset,
               {
                 headers: listHeaders,
@@ -5955,7 +5963,7 @@
         var res = await fetch(
           access.url +
             "/rest/v1/document_chunks?select=document_name&document_name=eq." +
-            encodeURIComponent(name) +
+            encodeURIComponent(demoName(name)) +
             "&limit=1",
           { headers: headers }
         );
@@ -5974,7 +5982,17 @@
         if (docDropText) docDropText.textContent = text;
       }
 
+      if (new URLSearchParams(location.search).get("admin") === "1") {
+        window.aitkImportText = async function (text, name) {
+          var k = (openaiApiKeyInput.value || "").trim();
+          if (!k) return "no-openai-key";
+          var o = await storeDocumentText(text, name, k);
+          try { refreshSharedDocuments(); } catch (e) {}
+          return o && o.status;
+        };
+      }
       async function storeDocumentText(text, name, openaiKey, onChunkProgress, onSaveProgress) {
+        name = demoName(name);
         var extracted = String(text || "").trim();
         if (!extracted) {
           throw new Error("空の回答が返ってきました");

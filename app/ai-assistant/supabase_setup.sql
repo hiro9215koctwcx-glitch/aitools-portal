@@ -54,3 +54,18 @@ create policy "demo all memories" on public.memories
 grant select, insert, update, delete on public.document_chunks, public.memories to anon, authenticated;
 grant usage, select on all sequences in schema public to anon, authenticated;
 grant execute on function public.match_document_chunks(vector, int), public.match_memories(vector, int) to anon, authenticated;
+
+-- 追加：プラン別デモ会社で資料を分ける（資料名の先頭で絞り込み）
+drop function if exists public.match_document_chunks(vector, int);
+create or replace function public.match_document_chunks(query_embedding vector(1536), match_count int default 5, name_prefix text default null)
+returns table (id bigint, document_name text, chunk_index int, content text, similarity float)
+language sql stable as $$
+  select c.id, c.document_name, c.chunk_index, c.content,
+         1 - (c.embedding <=> query_embedding) as similarity
+  from public.document_chunks c
+  where c.embedding is not null
+    and (name_prefix is null or left(c.document_name, length(name_prefix)) = name_prefix)
+  order by c.embedding <=> query_embedding
+  limit match_count;
+$$;
+grant execute on function public.match_document_chunks(vector, int, text) to anon, authenticated;
