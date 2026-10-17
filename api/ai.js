@@ -57,7 +57,7 @@ function allowedCompanies() {
 }
 
 async function logUsage(row) {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const key = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
   if (!key) {
     console.error("SUPABASE_SERVICE_ROLE_KEY is not set");
     return "nokey";
