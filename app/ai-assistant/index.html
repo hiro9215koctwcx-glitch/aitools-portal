@@ -1816,11 +1816,11 @@
           <input type="password" id="openaiApiKey" placeholder="sk-…" autocomplete="off" spellcheck="false" />
         </div>
         <button type="button" class="btn" id="clearOpenaiApiKeyBtn">キーを削除</button>
-        <div class="conn-field">
+        <div class="conn-field" style="display:none">
           <label for="fbPageUrl">FacebookページのURL</label>
           <input type="url" id="fbPageUrl" placeholder="https://www.facebook.com/..." autocomplete="off" spellcheck="false" style="width:100%;padding:0.65rem 0.75rem;font-family:var(--font);font-size:0.85rem;color:var(--text);background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius-sm);outline:none;" />
         </div>
-        <button type="button" class="btn" id="saveFbPageUrlBtn">保存</button>
+        <button type="button" class="btn" id="saveFbPageUrlBtn" style="display:none">保存</button>
         <p class="conn-note">キーはこのパソコンのブラウザ（localStorage）にだけ保存され、外部サーバーには送られません（AIのAPIへ直接送信されます）。「キーを削除」ボタンでいつでも削除できます。</p>
       </div>
     </aside>
@@ -2068,7 +2068,7 @@
           { icon: "🌐", name: "翻訳", example: "「いつもお世話になっております」を英語に翻訳して", plan: "standard" },
           { icon: "✉️", name: "メール作成 → Gmailで準備", example: "田中さんに明日の打ち合わせについてメールを書いて", plan: "standard" },
           { icon: "📝", name: "文章の整理・要約", example: "次の文章を要約して：", plan: "standard" },
-          { icon: "📣", name: "SNS投稿", example: "新サービスについてのSNS投稿を書いて", plan: "standard" },
+          { icon: "📣", name: "SNS投稿 → LINE・X・Instagramで準備", example: "新サービスについてのSNS投稿を書いて", plan: "standard" },
           { icon: "💡", name: "アドバイス・アイデア", example: "新人を早く育てるアイデアを3つ出して", plan: "premium" },
           { icon: "📊", name: "スライド作成", example: "新人の最初の1週間の研修スライドを作って", plan: "premium" },
           { icon: "🧠", name: "長期メモリ", note: "「この会話を記憶」ボタンで大事な会話を記憶します", plan: "premium" }
@@ -4159,27 +4159,47 @@
             }).catch(function () {});
           })
         );
-        var gmailBtn = makeButton("📧 Gmailで準備", function () {
-          openGmailPrep(replyText, copyWithFallback);
-        });
-        actions.appendChild(gmailBtn);
-        var facebookBtn = makeButton("📘 Facebookで準備", function () {
-          openFacebookPrep(replyText, copyWithFallback);
-        });
-        actions.appendChild(facebookBtn);
-        if (!planAtLeast("standard")) {
-          gmailBtn.classList.add("is-locked");
-          gmailBtn.disabled = true;
-          gmailBtn.title = "スタンダードで利用可能";
-          facebookBtn.classList.add("is-locked");
-          facebookBtn.disabled = true;
-          facebookBtn.title = "スタンダードで利用可能";
-          var planNote = document.createElement("span");
-          planNote.className = "lock-note";
-          planNote.textContent = "🔒 スタンダードで利用可能";
-          actions.appendChild(planNote);
+        // ベーシックは「資料への質問」専用なので、送信準備ボタンは出さない（コピーのみ）
+        if (planAtLeast("standard")) {
+          actions.appendChild(makeButton("📧 Gmailで準備", function () {
+            openGmailPrep(replyText, copyWithFallback);
+          }));
+          actions.appendChild(makeButton("💬 LINEで送る", function () {
+            openLinePrep(replyText, copyWithFallback);
+          }));
+          actions.appendChild(makeButton("𝕏 Xで準備", function () {
+            openXPrep(replyText, copyWithFallback);
+          }));
+          actions.appendChild(makeButton("📷 Instagramで準備", function () {
+            openInstagramPrep(replyText, copyWithFallback);
+          }));
         }
         el.appendChild(actions);
+      }
+
+      /* ===== LINE / X / Instagram — 画面を開くだけで、自動送信はしない ===== */
+      function snsText(replyText) {
+        return toPlainText(replyText).replace(/^\s+|\s+$/g, "");
+      }
+      function openLinePrep(replyText, copier) {
+        var text = snsText(replyText);
+        copier(text).catch(function () {});
+        var shareText = text.length > 900 ? text.slice(0, 900) + "…" : text;
+        window.open("https://line.me/R/share?text=" + encodeURIComponent(shareText), "_blank", "noopener");
+        showToast("LINEを開きました。送る相手・グループを選んでください（全文はコピー済みです）", 3500);
+      }
+      function openXPrep(replyText, copier) {
+        var text = snsText(replyText);
+        copier(text).catch(function () {});
+        // Xは日本語で約140文字まで。長い場合は空で開き、貼り付けて調整してもらう
+        var url = "https://x.com/intent/post" + (text.length <= 140 ? "?text=" + encodeURIComponent(text) : "");
+        window.open(url, "_blank", "noopener");
+        showToast(text.length <= 140 ? "Xの投稿画面を開きました。内容を確認して投稿してください" : "コピーしました。Xは140文字までなので、貼り付けて短くしてから投稿してください", 4000);
+      }
+      function openInstagramPrep(replyText, copier) {
+        copier(snsText(replyText)).catch(function () {});
+        window.open("https://www.instagram.com/", "_blank", "noopener");
+        showToast("コピーしました。Instagramで「＋（作成）」→ 画像を選び、キャプションに貼り付けてください", 4500);
       }
 
       /* ===== 送信準備（Gmail / Facebook）— 自動送信はしない ===== */
