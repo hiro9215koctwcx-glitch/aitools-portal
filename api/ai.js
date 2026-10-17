@@ -75,7 +75,10 @@ async function logUsage(row) {
     if (!r.ok) {
       const msg = (await r.text()).slice(0, 120);
       console.error("ai_usage insert failed", r.status, msg);
-      return "err" + r.status + ":" + msg.replace(/[^\x20-\x7e]/g, "");
+      // キーの「形」だけ返す（中身は返さない）
+      const kind = key.indexOf("sb_secret_") === 0 ? "secret" : key.indexOf("sb_publishable_") === 0 ? "publishable" : key.indexOf("eyJ") === 0 ? "jwt" : "other";
+      const shape = kind + "/len" + key.length + (/[^\x21-\x7e]/.test(key) ? "/has-odd-chars" : "");
+      return "err" + r.status + "[" + shape + "]:" + msg.replace(/[^\x20-\x7e]/g, "");
     }
     return "ok";
   } catch (e) {
