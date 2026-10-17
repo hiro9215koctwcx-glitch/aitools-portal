@@ -2258,6 +2258,7 @@
         SLIDE_JSON_INSTRUCTION;
 
       function saveApiKey() {
+        if (apiKeyInput.value === "server-managed") return;
         var key = (apiKeyInput.value || "").trim();
         if (key) {
           localStorage.setItem(STORAGE_KEY, key);
@@ -6779,6 +6780,46 @@
       }
 
       restoreStoredSettings();
+
+      /* ===== サーバー中継モード：APIキーはサーバー（/api/ai）だけが持つ ===== */
+      (function enableServerAI() {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(STORAGE_OPENAI_KEY);
+        } catch (e) {}
+        apiKeyInput.value = "server-managed";
+        openaiApiKeyInput.value = "server-managed";
+        ["apiKey", "openaiApiKey"].forEach(function (id) {
+          var el = document.getElementById(id);
+          var f = el && el.closest(".conn-field");
+          if (f) f.style.display = "none";
+        });
+        ["clearApiKeyBtn", "clearOpenaiApiKeyBtn"].forEach(function (id) {
+          var b = document.getElementById(id);
+          if (b) b.style.display = "none";
+        });
+        var note = document.querySelector(".conn-note");
+        if (note) note.textContent = "AIの接続はサーバー側で管理しています。キーの入力は不要です。";
+        var company = (new URLSearchParams(location.search).get("c") || "demo-" + PLAN).trim();
+        var nativeFetch = window.fetch.bind(window);
+        window.fetch = function (input, init) {
+          var url = typeof input === "string" ? input : (input && input.url) || "";
+          var m = url.match(/^https:\/\/api\.(anthropic|openai)\.com(\/v1\/[a-z\/]+)/);
+          if (!m) return nativeFetch(input, init);
+          init = Object.assign({}, init || {});
+          var src = init.headers || {};
+          var h = {};
+          Object.keys(src).forEach(function (k) {
+            var lk = k.toLowerCase();
+            if (lk === "x-api-key" || lk === "authorization" || lk === "anthropic-dangerous-direct-browser-access") return;
+            h[k] = src[k];
+          });
+          h["x-aitk-target"] = m[1] + ":" + m[2];
+          h["x-aitk-company"] = company;
+          init.headers = h;
+          return nativeFetch("/api/ai", init);
+        };
+      })();
       restoreTrainingVideos();
       renderVideoList();
       bindVideoUi();
