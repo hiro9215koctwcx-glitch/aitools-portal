@@ -2294,9 +2294,10 @@
           ) {
             slideThemeSelect.value = savedSlideTheme;
           }
-          var savedSbUrl = localStorage.getItem(STORAGE_SUPABASE_URL);
+          /* 日本語版デモ：保存がなければデモ用データベースに自動接続 */
+          var savedSbUrl = localStorage.getItem(STORAGE_SUPABASE_URL) || "https://obulszmlixpokgewrcli.supabase.co";
           if (savedSbUrl && sbUrlInput) sbUrlInput.value = savedSbUrl;
-          var savedSbKey = localStorage.getItem(STORAGE_SUPABASE_ANON_KEY);
+          var savedSbKey = localStorage.getItem(STORAGE_SUPABASE_ANON_KEY) || "sb_publishable_ixgg1IiziADIn-zatvElLA_lUvmI2mz";
           if (savedSbKey && sbAnonKeyInput) sbAnonKeyInput.value = savedSbKey;
         } catch (e) {
           /* localStorage unavailable */
