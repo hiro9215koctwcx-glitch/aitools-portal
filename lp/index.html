@@ -1658,12 +1658,38 @@
     .trial-box__cta { display:inline-block; max-width:320px; width:100%; }
     .price-notes { max-width:1100px; margin:1.25rem auto 0; font-size:0.85rem; color:var(--muted); line-height:1.7; }
     .price-notes p { margin:0.2rem 0; }
+
+    /* Personal course (1:1) */
+    #course { scroll-margin-top: 80px; background:#f4fbf8; }
+    .course-wrap { max-width: 960px; margin: 0 auto; }
+    .course-eyebrow { display:inline-block; background:var(--brand-teal); color:#fff; font-size:.75rem; font-weight:700; padding:.35em .8em; border-radius:6px; margin-bottom:.6rem; }
+    .course-card { background:#fff; border:2px solid rgba(2,128,144,.22); border-radius:var(--radius-lg); padding:1.6rem 1.4rem; box-shadow:0 10px 36px rgba(26,60,94,.09); margin-bottom:1.25rem; }
+    .course-price { display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; align-items:baseline; margin:.2rem 0 1rem; }
+    .course-price strong { font-size:1.9rem; color:var(--brand-navy); }
+    .course-points { list-style:none; padding:0; margin:0 0 1rem; display:grid; gap:.45rem; }
+    .course-points li::before { content:"✓ "; color:var(--brand-teal); font-weight:700; }
+    .course-steps { display:grid; grid-template-columns:repeat(2,1fr); gap:.5rem 1.2rem; padding-left:1.2rem; margin:0; }
+    @media (max-width:700px){ .course-steps { grid-template-columns:1fr; } }
+    .course-apply h3 { margin:0 0 .5rem; color:var(--brand-navy); }
+    .course-apply textarea, .course-apply input { width:100%; box-sizing:border-box; border:1px solid #9fb3c8; border-radius:10px; padding:.8rem; font:inherit; font-size:.92rem; line-height:1.8; background:#f7f9fb; }
+    .course-apply textarea { min-height:15rem; }
+    .course-apply label { display:block; font-weight:700; font-size:.88rem; margin:.8rem 0 .3rem; }
+    .course-btns { display:flex; flex-wrap:wrap; gap:.6rem; margin-top:1rem; }
+    .course-btn { display:inline-block; padding:.85em 1.3em; border-radius:999px; font-weight:700; text-decoration:none; border:2px solid var(--brand-teal); cursor:pointer; font-size:.95rem; font-family:inherit; }
+    .course-btn--mail { background:var(--brand-teal); color:#fff; }
+    .course-btn--x { background:#0D1F2D; border-color:#0D1F2D; color:#fff; }
+    .course-btn:hover { text-decoration:none; opacity:.9; }
+    .course-btn[disabled] { opacity:.5; cursor:default; }
+    .course-msg { margin-top:.8rem; font-weight:700; }
+    .course-note { font-size:.82rem; color:#5b6b7a; margin-top:.8rem; }
+    .header-sub { margin-right:.8rem; font-weight:700; color:var(--brand-navy); font-size:.9rem; }
+    @media (max-width:520px){ .header-sub { display:none; } }
   </style>
 </head>
 <body>
   <div id="top-promo-banner" class="top-promo-banner" role="region" aria-label="キャンペーン告知">
-    <a class="top-promo-banner__link" href="#診断">
-      <span class="top-promo-banner__text">🔥 10月限定｜お試し導入 ¥29,800 先着3社 → 無料デモを申し込む</span>
+    <a class="top-promo-banner__link" href="#course">
+      <span class="top-promo-banner__text">🎓 個人の方へ｜AIマンツーマン講座 受付中 → 詳しく見る</span>
     </a>
     <button type="button" class="top-promo-banner__close" aria-label="バナーを閉じる">&times;</button>
   </div>
@@ -1671,7 +1697,7 @@
   <header class="site-header">
     <div class="container site-header__inner">
       <a class="logo" href="#">AIツール工房</a>
-      <a class="header-cta" href="#診断">無料デモ申込</a>
+      <nav><a class="header-sub" href="#course">個人向け講座</a><a class="header-cta" href="#診断">無料デモ申込</a></nav>
     </div>
   </header>
 
@@ -1862,6 +1888,72 @@
       </div>
     </div>
   </section>
+
+  <section id="course" aria-labelledby="course-title">
+    <div class="container course-wrap">
+      <span class="course-eyebrow">個人の方へ</span>
+      <h2 id="course-title" class="section-title">AIマンツーマン講座</h2>
+      <p class="section-sub" style="margin-bottom:1.5rem;">「AIを使ってみたいけど、何から始めればいいかわからない」方のための、1対1のオンライン講座です。講師もエンジニアではないところからAIを学びました。</p>
+      <div class="course-card">
+        <div class="course-price"><strong>¥36,000</strong><span>90分×8回（合計12時間）／オンライン（ビデオ通話）</span></div>
+        <ul class="course-points">
+          <li>1対1なので、どんな質問も遠慮なくできます</li>
+          <li>例題はすべて「あなたの実際のお仕事」に合わせます</li>
+          <li>パソコンが苦手な方でも大丈夫です（主にClaudeを使います）</li>
+          <li>受講期間中は、メッセージでいつでも質問できます</li>
+        </ul>
+        <ol class="course-steps">
+          <li>聞き取り・準備／頼み方の基本</li>
+          <li>仕事の連絡文・文章づくり</li>
+          <li>資料の要約／企画書の下書き</li>
+          <li>表・データの整理</li>
+          <li>仕事の棚卸し／テンプレート作り</li>
+          <li>毎回説明しなくていい仕組みづくり</li>
+          <li>安全な使い方／応用</li>
+          <li>総仕上げ・これからの計画</li>
+        </ol>
+      </div>
+      <div class="course-card course-apply">
+        <h3>お申し込み・ご相談（無料）</h3>
+        <p>下の項目にわかる範囲で書いて、メールで送るか、XのDMで送ってください。すべて埋まっていなくても大丈夫です。24時間以内にお返事します。</p>
+        <label for="course-text">送っていただきたい内容</label>
+        <textarea id="course-text">1. お名前（ニックネーム可）：
+2. お仕事（業種・職種）：
+3. AIの経験（使ったことがない／少し使った／よく使う）：
+4. AIで楽にしたい作業・困っていること：
+5. ご希望の曜日・時間帯（日本時間）：
+6. お使いのパソコン（Windows／Mac）：
+7. ご質問など（任意）：</textarea>
+        <label for="course-email">お返事用のメールアドレス（メールで送る場合）</label>
+        <input type="email" id="course-email" placeholder="example@example.com" autocomplete="email">
+        <div class="course-btns">
+          <button type="button" class="course-btn course-btn--mail" id="course-send">✉ メールで送る</button>
+          <a class="course-btn course-btn--x" id="course-x" href="https://x.com/hiro_ai_tools" target="_blank" rel="noopener">𝕏 XのDMで送る（@hiro_ai_tools）</a>
+        </div>
+        <p class="course-msg" id="course-msg" role="status"></p>
+        <p class="course-note">※XのDMで送る場合：ボタンを押すと内容がコピーされます。開いたページの「メッセージ」から貼り付けて送ってください。<br>※お支払いは銀行振込（前払い）です。日程が決まってから、お振込み先をご案内します。<br>※会社の機密情報や個人情報は書かないでください。</p>
+      </div>
+    </div>
+  </section>
+  <script>
+  (function(){
+    var ta=document.getElementById('course-text'), em=document.getElementById('course-email'), msg=document.getElementById('course-msg'), btn=document.getElementById('course-send');
+    function copy(){ try{ navigator.clipboard.writeText(ta.value); return true; }catch(e){ return false; } }
+    document.getElementById('course-x').addEventListener('click', function(){ copy(); msg.textContent='内容をコピーしました。XのDMに貼り付けて送ってください。'; });
+    btn.addEventListener('click', function(){
+      var mail=em.value.trim();
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ msg.textContent='お返事用のメールアドレスを入力してください。'; em.focus(); return; }
+      btn.disabled=true; btn.textContent='送信中...';
+      fetch('https://formsubmit.co/ajax/77430af0fbdbb48b88f66244b4e49a48', {
+        method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body: JSON.stringify({ _subject:'【AIマンツーマン講座】申し込み希望', _replyto:mail, _template:'box', _captcha:'false', 'メール':mail, '内容':ta.value })
+      }).then(function(r){ return r.ok; }).then(function(ok){
+        msg.textContent = ok ? '送信しました。24時間以内にお返事します。' : '送信できませんでした。お手数ですが、XのDMでお送りください。';
+      }).catch(function(){ msg.textContent='送信できませんでした。お手数ですが、XのDMでお送りください。'; })
+      .finally(function(){ btn.disabled=false; btn.textContent='✉ メールで送る'; });
+    });
+  })();
+  </script>
 
   <section id="診断" aria-labelledby="diagnosis-title">
     <div class="container">
