@@ -2789,7 +2789,7 @@
           method: "POST",
           headers: headers,
           body: JSON.stringify({
-            model: "claude-sonnet-4-5",
+            model: "claude-haiku-5-5",
             max_tokens: 4096,
             stream: true,
             system: planSystemPrompt() + "\n今日の日付： " + getTodayLabel() + ".",
@@ -3284,7 +3284,7 @@
               "anthropic-dangerous-direct-browser-access": "true",
             },
             body: JSON.stringify({
-              model: "claude-sonnet-4-5",
+              model: "claude-sonnet-5-5",
               max_tokens: 4096,
               system: system,
               messages: [{ role: "user", content: userContent }],
@@ -4638,7 +4638,7 @@
             "anthropic-dangerous-direct-browser-access": "true",
           },
           body: JSON.stringify({
-            model: "claude-sonnet-4-5",
+            model: "claude-haiku-5-5",
             max_tokens: 500,
             system:
               "あなたは会話のメモを書きます。あとで思い出すために使います。3〜5行で簡潔に日本語で書いてください。前置きや説明はなしで、要約だけを返してください。",

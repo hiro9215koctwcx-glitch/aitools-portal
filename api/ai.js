@@ -20,7 +20,7 @@ const SUPABASE_URL = "https://obulszmlixpokgewrcli.supabase.co";
 const TARGETS = {
   "anthropic:/v1/messages": {
     url: "https://api.anthropic.com/v1/messages",
-    models: ["claude-sonnet-4-5", "claude-haiku-4-5"],
+    models: ["claude-sonnet-5-5", "claude-haiku-5-5"],
   },
   "openai:/v1/chat/completions": {
     url: "https://api.openai.com/v1/chat/completions",

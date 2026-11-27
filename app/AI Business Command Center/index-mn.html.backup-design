@@ -1,0 +1,3896 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Түшиг AI туслах</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-deep: #0a0c10;
+      --bg-panel: #12151c;
+      --bg-elevated: #181c26;
+      --bg-input: #0e1118;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-strong: rgba(120, 160, 255, 0.22);
+      --text: #e8eaef;
+      --text-muted: #8b92a5;
+      --accent: #5b8cff;
+      --accent-soft: rgba(91, 140, 255, 0.14);
+      --accent-glow: rgba(91, 140, 255, 0.45);
+      --success: #3dd68c;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --font: "DM Sans", system-ui, sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, monospace;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font);
+      background: var(--bg-deep);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-image:
+        radial-gradient(ellipse 120% 80% at 50% -20%, rgba(91, 140, 255, 0.12), transparent),
+        radial-gradient(ellipse 80% 50% at 100% 50%, rgba(61, 214, 140, 0.04), transparent);
+    }
+
+    .app {
+      display: flex;
+      height: 100%;
+      max-width: 1920px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .col {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+      border-right: 1px solid var(--border);
+      background: var(--bg-panel);
+    }
+
+    .col:last-child {
+      border-right: none;
+    }
+
+    .col--left {
+      flex: 0 0 20%;
+      max-width: 20%;
+      min-width: 180px;
+      overflow-y: auto;
+    }
+
+    .col--center {
+      flex: 0 0 50%;
+      max-width: 50%;
+      min-width: 280px;
+      background: linear-gradient(180deg, #0f1218 0%, var(--bg-panel) 32%);
+    }
+
+    .col--right {
+      flex: 0 0 30%;
+      max-width: 30%;
+      min-width: 240px;
+      overflow-y: auto;
+    }
+
+    .panel-header {
+      padding: 1.25rem 1.25rem 0.75rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .kb-list {
+      flex: 1;
+      padding: 0 0.75rem 1rem;
+      overflow-y: auto;
+    }
+
+    .kb-item {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.65rem 0.75rem;
+      margin-bottom: 0.35rem;
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 0.9rem;
+      cursor: default;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .kb-item:hover {
+      background: var(--accent-soft);
+      color: #fff;
+    }
+
+    .kb-item svg {
+      flex-shrink: 0;
+      opacity: 0.85;
+    }
+
+    .col-footer {
+      padding: 0.75rem 1rem 1.25rem;
+      margin-top: auto;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.7rem 1rem;
+      font-family: var(--font);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition:
+        border-color 0.25s,
+        box-shadow 0.25s,
+        background 0.25s,
+        transform 0.15s;
+    }
+
+    .btn:hover {
+      border-color: var(--border-strong);
+      box-shadow:
+        0 0 0 1px rgba(91, 140, 255, 0.15),
+        0 0 24px var(--accent-glow),
+        0 4px 16px rgba(0, 0, 0, 0.35);
+      background: linear-gradient(180deg, #1e2433 0%, var(--bg-elevated) 100%);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn--primary {
+      background: linear-gradient(180deg, rgba(91, 140, 255, 0.25) 0%, rgba(91, 140, 255, 0.08) 100%);
+      border-color: rgba(91, 140, 255, 0.35);
+    }
+
+    .btn--primary:hover {
+      background: linear-gradient(180deg, rgba(91, 140, 255, 0.35) 0%, rgba(91, 140, 255, 0.12) 100%);
+    }
+
+    .center-head {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #5b8cff 0%, #3d5a99 50%, #2a3f6b 100%);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 4px 20px rgba(91, 140, 255, 0.35);
+    }
+
+    .logo svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .center-head h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .center-head .sub {
+      margin: 0.15rem 0 0;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .chat-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      padding: 1rem 1.25rem 1.25rem;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      overflow-anchor: none;
+      padding: 0.5rem 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .msg {
+      max-width: 92%;
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius);
+      font-size: 0.925rem;
+      line-height: 1.55;
+    }
+
+    .msg--assistant {
+      align-self: flex-start;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .msg--assistant > :first-child {
+      margin-top: 0;
+    }
+
+    .msg--assistant > :last-child {
+      margin-bottom: 0;
+    }
+
+    .msg--assistant p,
+    .msg--assistant ul,
+    .msg--assistant ol,
+    .msg--assistant pre,
+    .msg--assistant blockquote {
+      margin: 0.45rem 0;
+    }
+
+    .msg--assistant h1,
+    .msg--assistant h2,
+    .msg--assistant h3,
+    .msg--assistant h4 {
+      margin: 0.65rem 0 0.35rem;
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+
+    .msg--assistant ul,
+    .msg--assistant ol {
+      padding-left: 1.2rem;
+    }
+
+    .msg--assistant li + li {
+      margin-top: 0.2rem;
+    }
+
+    .msg--assistant strong {
+      font-weight: 700;
+    }
+
+    .msg--assistant code {
+      font-family: var(--mono);
+      font-size: 0.86em;
+    }
+
+    .msg--assistant a {
+      color: var(--accent);
+    }
+
+    .msg-sources {
+      margin-top: 0.55rem;
+      font-size: 0.72rem;
+      line-height: 1.4;
+      color: var(--text-muted);
+    }
+
+    .msg--user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, rgba(91, 140, 255, 0.2) 0%, rgba(91, 140, 255, 0.08) 100%);
+      border: 1px solid rgba(91, 140, 255, 0.25);
+    }
+
+    .composer {
+      display: flex;
+      gap: 0.65rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+    }
+
+    .composer textarea {
+      flex: 1;
+      min-height: 2.75rem;
+      max-height: 12rem;
+      padding: 0.75rem 1rem;
+      font-family: var(--font);
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: var(--text);
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      outline: none;
+      resize: vertical;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .composer textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .composer textarea:focus {
+      border-color: rgba(91, 140, 255, 0.45);
+      box-shadow: 0 0 0 3px rgba(91, 140, 255, 0.12);
+    }
+
+    .composer .btn {
+      width: auto;
+      min-width: 96px;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
+
+    .composer-tools {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.35rem;
+      flex-shrink: 0;
+    }
+
+    .btn--mic {
+      min-width: 2.75rem;
+      width: 2.75rem;
+      padding: 0.5rem;
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+
+    #fixTextBtn {
+      width: auto;
+      font-size: 0.72rem;
+      white-space: nowrap;
+    }
+
+    .btn--mic.is-recording {
+      background: linear-gradient(180deg, rgba(232, 93, 93, 0.35) 0%, rgba(232, 93, 93, 0.12) 100%);
+      border-color: rgba(232, 93, 93, 0.55);
+      box-shadow: 0 0 0 1px rgba(232, 93, 93, 0.2), 0 0 20px rgba(232, 93, 93, 0.35);
+      animation: mic-pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes mic-pulse {
+      0%, 100% { box-shadow: 0 0 0 1px rgba(232, 93, 93, 0.2), 0 0 12px rgba(232, 93, 93, 0.25); }
+      50% { box-shadow: 0 0 0 1px rgba(232, 93, 93, 0.35), 0 0 22px rgba(232, 93, 93, 0.5); }
+    }
+
+    .speech-lang {
+      width: 100%;
+      min-width: 4.5rem;
+      padding: 0.25rem 0.35rem;
+      font-family: var(--font);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .speech-lang:focus {
+      border-color: rgba(91, 140, 255, 0.45);
+    }
+
+    .btn--attach {
+      min-width: 2.75rem;
+      width: 2.75rem;
+      padding: 0.5rem;
+      font-size: 1.05rem;
+      line-height: 1;
+    }
+
+    .attach-preview {
+      display: none;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.65rem 0 0.15rem;
+    }
+
+    .attach-preview.is-visible {
+      display: flex;
+    }
+
+    .attach-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      max-width: 100%;
+      padding: 0.4rem 0.5rem 0.4rem 0.45rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .attach-chip__thumb {
+      width: 36px;
+      height: 36px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: var(--bg-input);
+      flex-shrink: 0;
+    }
+
+    .attach-chip__icon {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 6px;
+      background: var(--bg-input);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .attach-chip__meta {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .attach-chip__label {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .attach-chip__name {
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 12rem;
+    }
+
+    .attach-chip__remove {
+      flex-shrink: 0;
+      width: 1.5rem;
+      height: 1.5rem;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.95rem;
+      line-height: 1;
+    }
+
+    .attach-chip__remove:hover {
+      color: #fff;
+      background: rgba(232, 93, 93, 0.2);
+    }
+
+    .composer-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.6rem;
+    }
+
+    .composer-actions .btn {
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.5rem 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .conn-panel {
+      padding: 0 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .conn-field label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .conn-field select,
+    .conn-field input[type="password"] {
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      font-family: var(--font);
+      font-size: 0.85rem;
+      color: var(--text);
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .conn-field select:focus,
+    .conn-field input[type="password"]:focus {
+      border-color: rgba(91, 140, 255, 0.45);
+      box-shadow: 0 0 0 3px rgba(91, 140, 255, 0.12);
+    }
+
+    .conn-field select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238b92a5' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      padding-right: 2rem;
+    }
+
+    .conn-note {
+      margin: 0;
+      font-size: 0.7rem;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+
+    .kb-hint {
+      padding: 0.5rem 0.75rem 1rem;
+      font-size: 0.78rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    .actions-head {
+      padding: 1.25rem 1.25rem 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+      padding: 0 1rem 1rem;
+    }
+
+    .action-grid .btn {
+      font-size: 0.8rem;
+      padding: 0.65rem 0.5rem;
+      text-align: center;
+      line-height: 1.35;
+      min-height: 3.25rem;
+    }
+
+    .recent-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      border-top: 1px solid var(--border);
+      padding: 1rem 1rem 1.25rem;
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .recent-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .recent-list {
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .recent-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.65rem 0.75rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+    }
+
+    .recent-item .task {
+      color: var(--text);
+      line-height: 1.4;
+    }
+
+    .recent-item time {
+      flex-shrink: 0;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      padding: 0.75rem 1.5rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 24px rgba(91, 140, 255, 0.2);
+      z-index: 1000;
+      opacity: 0;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s;
+      pointer-events: none;
+    }
+
+    .toast.visible {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .kb-list--compact {
+      flex: 0 0 auto;
+      padding-bottom: 1.25rem;
+    }
+
+    .kb-item.is-active {
+      background: var(--accent-soft);
+      color: #fff;
+      border: 1px solid rgba(91, 140, 255, 0.25);
+    }
+
+    .view-tabs {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.65rem 1.25rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .view-tab {
+      padding: 0.55rem 1rem 0.7rem;
+      font-family: var(--font);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .view-tab:hover {
+      color: var(--text);
+    }
+
+    .view-tab.is-active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .video-wrap {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      min-height: 0;
+      padding: 1rem 1.25rem 1.25rem;
+    }
+
+    .video-wrap.is-visible {
+      display: flex;
+    }
+
+    #docsSide {
+      flex: 1;
+      max-width: none;
+    }
+
+    .doc-ref {
+      display: none;
+      flex-direction: column;
+      gap: 0.35rem;
+      padding: 0.45rem 0 0.1rem;
+    }
+
+    .doc-ref.is-visible {
+      display: flex;
+    }
+
+    .doc-ref__title {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    .doc-ref__list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.85rem;
+    }
+
+    .doc-ref__item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .doc-ref__item input {
+      accent-color: var(--accent);
+    }
+
+    .chat-wrap.is-hidden {
+      display: none;
+    }
+
+    .video-layout {
+      flex: 1;
+      display: flex;
+      gap: 1rem;
+      min-height: 0;
+    }
+
+    .video-side {
+      flex: 0 0 38%;
+      max-width: 280px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      gap: 0.65rem;
+    }
+
+    .video-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .video-add-form {
+      display: none;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .video-add-form.is-open {
+      display: flex;
+    }
+
+    .video-add-form label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+
+    .video-add-form input {
+      width: 100%;
+      padding: 0.55rem 0.65rem;
+      font-family: var(--font);
+      font-size: 0.82rem;
+      color: var(--text);
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      outline: none;
+    }
+
+    .video-add-form input:focus {
+      border-color: rgba(91, 140, 255, 0.45);
+      box-shadow: 0 0 0 3px rgba(91, 140, 255, 0.12);
+    }
+
+    .doc-drop {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-top: 0.35rem;
+      padding: 0.75rem;
+      border: 1.5px dashed var(--border-strong);
+      border-radius: var(--radius-sm);
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .doc-drop.is-dragover {
+      position: relative;
+      z-index: 10000;
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .doc-drop__text {
+      margin: 0;
+      font-size: 0.75rem;
+      line-height: 1.4;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .video-add-actions {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .video-add-actions .btn {
+      flex: 1;
+      padding: 0.5rem 0.65rem;
+      font-size: 0.78rem;
+    }
+
+    .video-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .video-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 0.5rem 0.55rem 0.7rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .video-item:hover {
+      background: var(--accent-soft);
+      border-color: rgba(91, 140, 255, 0.25);
+    }
+
+    .video-item.is-selected {
+      border-color: rgba(91, 140, 255, 0.4);
+      background: var(--accent-soft);
+      box-shadow: 0 0 0 1px rgba(91, 140, 255, 0.15);
+    }
+
+    .video-item__title {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.82rem;
+      line-height: 1.35;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .video-item__chunks {
+      flex-shrink: 0;
+      font-size: 0.68rem;
+      line-height: 1.2;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .video-item__delete {
+      flex-shrink: 0;
+      width: 1.6rem;
+      height: 1.6rem;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .video-item__delete:hover {
+      color: #fff;
+      background: rgba(232, 93, 93, 0.25);
+    }
+
+    .video-empty-list {
+      padding: 1rem 0.5rem;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .video-player-frame {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      min-height: 220px;
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .video-player-frame iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .video-player-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      background: var(--bg-input);
+    }
+
+    .video-player-placeholder.is-hidden {
+      display: none;
+    }
+
+    .video-playing-title {
+      margin: 0 0 0.65rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+      min-height: 1.4em;
+    }
+
+    @media (max-width: 900px) {
+      html, body {
+        height: auto;
+        overflow: auto;
+      }
+
+      .app {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+      }
+
+      .col--left,
+      .col--center,
+      .col--right {
+        flex: 1 1 auto;
+        max-width: 100%;
+        width: 100%;
+        min-width: unset;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        overflow: visible;
+      }
+
+      .col--center {
+        order: -1;
+        min-height: 70vh;
+        height: 70vh;
+        max-height: 70vh;
+        overflow: hidden;
+      }
+
+      .action-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .video-layout {
+        flex-direction: column;
+      }
+
+      .video-side {
+        flex: 0 0 auto;
+        max-width: 100%;
+        max-height: 40vh;
+      }
+
+      .video-player-frame {
+        min-height: 240px;
+        aspect-ratio: 16 / 9;
+        flex: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .action-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .center-head {
+        flex-wrap: wrap;
+      }
+
+      .composer {
+        flex-direction: column;
+      }
+
+      .composer .btn {
+        width: 100%;
+      }
+
+      .composer-tools {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .btn--mic {
+        width: auto;
+        min-width: 2.75rem;
+      }
+
+      .speech-lang {
+        width: auto;
+        flex: 1;
+      }
+    }
+
+    .drop-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(10, 12, 16, 0.85);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      border: 3px dashed var(--accent);
+      transition: opacity 0.15s;
+    }
+
+    .drop-overlay.is-active {
+      display: flex;
+    }
+
+    .drop-overlay__inner {
+      padding: 2rem 3rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+                  0 0 40px var(--accent-glow);
+    }
+
+    .drop-overlay__icon {
+      font-size: 3rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .drop-overlay__text {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 0 0 0.35rem;
+    }
+
+    .drop-overlay__sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .sb-test {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      padding: 0.75rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .sb-test__title {
+      margin: 0;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .sb-test label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+
+    .sb-test input {
+      width: 100%;
+      padding: 0.55rem 0.65rem;
+      font-family: var(--font);
+      font-size: 0.82rem;
+      color: var(--text);
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      outline: none;
+    }
+
+    .sb-test input:focus {
+      border-color: rgba(91, 140, 255, 0.45);
+      box-shadow: 0 0 0 3px rgba(91, 140, 255, 0.12);
+    }
+
+    .sb-test__result {
+      margin: 0;
+      padding: 0.55rem 0.65rem;
+      font-family: var(--font);
+      font-size: 0.75rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text);
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .sb-test .btn {
+      align-self: flex-start;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <div class="drop-overlay" id="dropOverlay" aria-hidden="true">
+    <div class="drop-overlay__inner">
+      <div class="drop-overlay__icon">📥</div>
+      <p class="drop-overlay__text">Энд унагаж хавсаргах</p>
+      <p class="drop-overlay__sub">PDF / PNG / JPG дэмжинэ</p>
+    </div>
+  </div>
+  <div class="app">
+    <aside class="col col--left">
+      <div class="panel-header">AI холболт</div>
+      <div class="conn-panel">
+        <div class="conn-field">
+          <label for="aiProvider">AI сонголт (Claude / ChatGPT)</label>
+          <select id="aiProvider">
+            <option value="claude">Claude</option>
+            <option value="openai">ChatGPT</option>
+          </select>
+        </div>
+        <div class="conn-field">
+          <label for="apiKey">Claude API түлхүүр</label>
+          <input type="password" id="apiKey" placeholder="sk-ant-…" autocomplete="off" spellcheck="false" />
+        </div>
+        <button type="button" class="btn" id="clearApiKeyBtn">Түлхүүр устгах</button>
+        <div class="conn-field">
+          <label for="openaiApiKey">OpenAI API түлхүүр</label>
+          <input type="password" id="openaiApiKey" placeholder="sk-…" autocomplete="off" spellcheck="false" />
+        </div>
+        <button type="button" class="btn" id="clearOpenaiApiKeyBtn">Түлхүүр устгах</button>
+        <p class="conn-note">Түлхүүр зөвхөн энэ компьютерийн хөтчид (localStorage) хадгалагдана, гадны серверт илгээгдэхгүй (шууд AI-ийн API руу илгээгдэнэ). «Түлхүүр устгах» товчоор устгаж болно.</p>
+      </div>
+      <div class="panel-header">Ажлын талбар</div>
+      <p class="kb-hint">Монголын компанийн ажилтан, үйлчлүүлэгчдэд зориулсан AI ажлын талбар. Монгол, Япон, Англи хэлний орчуулга, олон нийтийн сүлжээ, имэйл, бичвэр цэгцлэхэд ашиглана.</p>
+      <div class="kb-list">
+        <div class="kb-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M3 7.5C3 6.11929 4.11929 5 5.5 5H9.08579C9.351 5 9.60536 5.10536 9.79289 5.29289L12 7.5H18.5C19.8807 7.5 21 8.61929 21 10V17.5C21 18.8807 19.8807 20 18.5 20H5.5C4.11929 20 3 18.8807 3 17.5V7.5Z" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          Орчуулга (Япон ↔ Монгол)
+        </div>
+        <div class="kb-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M3 7.5C3 6.11929 4.11929 5 5.5 5H9.08579C9.351 5 9.60536 5.10536 9.79289 5.29289L12 7.5H18.5C19.8807 7.5 21 8.61929 21 10V17.5C21 18.8807 19.8807 20 18.5 20H5.5C4.11929 20 3 18.8807 3 17.5V7.5Z" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          SNS, имэйлийн ноорог
+        </div>
+        <div class="kb-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M3 7.5C3 6.11929 4.11929 5 5.5 5H9.08579C9.351 5 9.60536 5.10536 9.79289 5.29289L12 7.5H18.5C19.8807 7.5 21 8.61929 21 10V17.5C21 18.8807 19.8807 20 18.5 20H5.5C4.11929 20 3 18.8807 3 17.5V7.5Z" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          Бичвэр цэгцлэх, найруулах
+        </div>
+      </div>
+      <div class="panel-header">Сургалтын видео</div>
+      <p class="kb-hint">YouTube линкийг нэр өгч хадгалаад, энэ дэлгэц дээр тоглуулж болно.</p>
+      <div class="kb-list kb-list--compact">
+        <div class="kb-item is-clickable" id="openVideosNav" role="button" tabindex="0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M4 7.5C4 6.11929 5.11929 5 6.5 5H17.5C18.8807 5 20 6.11929 20 7.5V16.5C20 17.8807 18.8807 19 17.5 19H6.5C5.11929 19 4 17.8807 4 16.5V7.5Z" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10 9.5L15 12L10 14.5V9.5Z" fill="currentColor"/>
+          </svg>
+          Сургалтын видео нээх
+        </div>
+      </div>
+    </aside>
+
+    <main class="col col--center">
+      <header class="center-head">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 4L4 8V16L12 20L20 16V8L12 4Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M12 12L20 8M12 12V20M12 12L4 8" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Түшиг AI туслах</h1>
+          <p class="sub">Компанийн AI ажлын талбар (Монгол · Япон · Англи)</p>
+        </div>
+      </header>
+
+      <div class="view-tabs" role="tablist" aria-label="Дэлгэц солих">
+        <button type="button" class="view-tab is-active" id="tabChat" role="tab" aria-selected="true" data-view="chat">Чат</button>
+        <button type="button" class="view-tab" id="tabVideos" role="tab" aria-selected="false" data-view="videos">Сургалтын видео</button>
+        <button type="button" class="view-tab" id="tabDocuments" role="tab" aria-selected="false" data-view="documents">Баримт санах ой</button>
+      </div>
+
+      <div class="chat-wrap" id="chatView">
+        <div class="messages" id="messages">
+          <div class="msg msg--assistant">Танд юугаар туслах вэ? Монгол, Япон, Англи — аль ч хэлээр асууж болно.</div>
+        </div>
+        <div class="doc-ref" id="docRefPanel">
+          <div class="doc-ref__title" id="docRefStatus"></div>
+        </div>
+        <div class="attach-preview" id="attachPreview" aria-live="polite"></div>
+        <div class="composer">
+          <textarea id="chatInput" placeholder="Мессеж бичих… (товчлолын дараа эх бичвэрээ нааж болно)" autocomplete="off" rows="2"></textarea>
+          <div class="composer-tools">
+            <button type="button" class="btn btn--attach" id="attachBtn" title="Файл хавсаргах" aria-label="Файл хавсаргах">📎</button>
+            <button type="button" class="btn btn--mic" id="micBtn" title="Дуугаар оруулах" aria-label="Дуугаар оруулах" aria-pressed="false">🎤</button>
+            <button type="button" class="btn btn--mic" id="fixTextBtn" title="Дууны оруулалтын алдааг засах" aria-label="Дууны оруулалтын алдааг засах">✨Засах</button>
+            <select id="speechLang" class="speech-lang" title="Дуу таних хэл" aria-label="Дуу таних хэл">
+              <option value="mn-MN" selected>Монгол</option>
+              <option value="ja-JP">Япон</option>
+              <option value="en-US">Англи</option>
+            </select>
+          </div>
+          <button type="button" class="btn btn--primary js-send-chat" id="sendChatBtn">Илгээх</button>
+        </div>
+        <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" multiple hidden />
+        <div class="composer-actions">
+          <button type="button" class="btn" id="clearChatBtn">Шинэ яриа (түүх цэвэрлэх)</button>
+        </div>
+      </div>
+
+      <div class="video-wrap" id="videoView" aria-hidden="true">
+        <div class="video-layout">
+          <div class="video-side">
+            <button type="button" class="btn btn--primary" id="addVideoToggleBtn">＋Видео нэмэх</button>
+            <form class="video-add-form" id="addVideoForm" autocomplete="off">
+              <div>
+                <label for="videoTitleInput">Харагдах нэр</label>
+                <input type="text" id="videoTitleInput" placeholder="жишээ: 1. Үйлчилгээний үндэс" maxlength="120" />
+              </div>
+              <div>
+                <label for="videoUrlInput">YouTube линк</label>
+                <input type="url" id="videoUrlInput" placeholder="https://www.youtube.com/watch?v=…" />
+              </div>
+              <div class="video-add-actions">
+                <button type="submit" class="btn btn--primary">Нэмэх</button>
+                <button type="button" class="btn" id="addVideoCancelBtn">Болих</button>
+              </div>
+            </form>
+            <div class="video-list" id="videoList" aria-label="Сургалтын видеоны жагсаалт"></div>
+          </div>
+          <div class="video-main">
+            <p class="video-playing-title" id="videoPlayingTitle"></p>
+            <div class="video-player-frame">
+              <div class="video-player-placeholder" id="videoPlaceholder">Жагсаалтаас видео сонгоход энд тоглоно</div>
+              <iframe
+                id="videoPlayer"
+                title="Сургалтын видео тоглуулагч"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                referrerpolicy="strict-origin-when-cross-origin"
+                hidden
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="video-wrap" id="docsView" aria-hidden="true">
+        <div class="video-layout">
+          <div class="video-side" id="docsSide">
+            <div class="sb-test" id="sbTestPanel">
+              <p class="sb-test__title">Хуваалцсан тавиурын холболтын шалгалт (Supabase)</p>
+              <p class="conn-note">URL болон anon түлхүүр зөвхөн энэ компьютерийн хөтчид хадгалагдана. Баримт өөрөө хуваалцсан тавиурт хадгалагдаж, асуултын хариуг ч тэндээс бүтээнэ.</p>
+              <label for="sbUrl">Төслийн URL</label>
+              <input type="url" id="sbUrl" placeholder="https://xxxx.supabase.co" autocomplete="off" spellcheck="false" />
+              <label for="sbAnonKey">anon түлхүүр (нийтэд зориулсан)</label>
+              <input type="password" id="sbAnonKey" placeholder="eyJ… эсвэл sb_publishable_…" autocomplete="off" spellcheck="false" />
+              <button type="button" class="btn btn--primary" id="sbTestBtn">1 бичлэг хадгалаад унших</button>
+              <div class="sb-test__result" id="sbTestResult" hidden></div>
+            </div>
+            <button type="button" class="btn btn--primary" id="addDocToggleBtn">＋Баримт бүртгэх</button>
+            <form class="video-add-form" id="addDocForm" autocomplete="off">
+              <div>
+                <label for="docNameInput">Баримтын нэр</label>
+                <input type="text" id="docNameInput" placeholder="Хоосон бол файлын нэр" maxlength="120" />
+              </div>
+              <div>
+                <label for="docFileInput">PDF файл</label>
+                <div class="doc-drop" id="docDropZone">
+                  <p class="doc-drop__text" id="docDropText">PDF-ээ энд чирж оруулна уу</p>
+                  <input type="file" id="docFileInput" accept=".pdf,application/pdf" multiple />
+                </div>
+              </div>
+              <div class="video-add-actions">
+                <button type="submit" class="btn btn--primary" id="addDocSubmitBtn">Бүртгэх</button>
+                <button type="button" class="btn" id="addDocCancelBtn">Болих</button>
+              </div>
+            </form>
+            <div class="video-list" id="documentList" aria-label="Баримтын жагсаалт"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <aside class="col col--right">
+      <div class="actions-head">Нэг товшилтын үйлдэл</div>
+      <div class="action-grid" id="actionGrid">
+        <button type="button" class="btn js-shortcut" data-prompt="Энэ бичвэрийг Монгол хэл рүү орчуулна уу.&#10;&#10;">Энэ бичвэрийг Монгол руу орчуулах</button>
+        <button type="button" class="btn js-shortcut" data-prompt="Энэ бичвэрийг Япон хэл рүү орчуулна уу.&#10;&#10;">Энэ бичвэрийг Япон руу орчуулах</button>
+        <button type="button" class="btn js-shortcut" data-prompt="Энэ бичвэрийг Англи хэл рүү орчуулна уу.&#10;&#10;">Энэ бичвэрийг Англи руу орчуулах</button>
+        <button type="button" class="btn js-shortcut" data-prompt="Дараах агуулгад тулгуурлан Facebook пост бичнэ үү. Найрсаг, товч байдлаар.&#10;&#10;">Facebook пост бичих</button>
+        <button type="button" class="btn js-shortcut" data-prompt="Дараах имэйл (эсвэл нөхцөл байдал)-д хариу бичиж өгнө үү. Эелдэг, товч.&#10;&#10;">Имэйлд хариу бичих</button>
+        <button type="button" class="btn js-shortcut" data-prompt="Дараах имэйлийг засаж өгнө үү. Алдаа, эвгүй хэллэгийг засаж, эелдэг ойлгомжтой болгоно уу. Их зассан хэсгийг яагаад зассанаа товч тайлбарлана уу. Эх бичвэрийн хэл (Япон, Монгол, Англи) дээр нь засна уу:&#10;&#10;">Имэйл засах</button>
+        <button type="button" class="btn js-shortcut" data-prompt="Энэ бичвэрийг ойлгомжтой болгож засна уу. Утгыг нь өөрчлөхгүйгээр, уншихад амархан болгоно уу.&#10;&#10;">Ойлгомжтой болгох</button>
+        <button type="button" class="btn js-shortcut" data-prompt="Энэ бичвэрийн гол санааг цэгцтэй жагсааж өгнө үү.&#10;&#10;">Гол санааг жагсаах</button>
+      </div>
+
+      <div class="recent-section">
+        <div class="recent-title">Сүүлд ашигласан товчлол</div>
+        <div class="recent-list" id="recentList">
+          <div class="recent-item">
+            <span class="task">Одоогоор байхгүй</span>
+            <time>—</time>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      var toast = document.getElementById("toast");
+      var hideTimer;
+      var messagesEl = document.getElementById("messages");
+      var chatInput = document.getElementById("chatInput");
+      var sendBtn = document.getElementById("sendChatBtn");
+      var clearBtn = document.getElementById("clearChatBtn");
+      var apiKeyInput = document.getElementById("apiKey");
+      var clearApiKeyBtn = document.getElementById("clearApiKeyBtn");
+      var openaiApiKeyInput = document.getElementById("openaiApiKey");
+      var clearOpenaiApiKeyBtn = document.getElementById("clearOpenaiApiKeyBtn");
+      var aiProvider = document.getElementById("aiProvider");
+      var recentList = document.getElementById("recentList");
+      var micBtn = document.getElementById("micBtn");
+      var fixTextBtn = document.getElementById("fixTextBtn");
+      var speechLang = document.getElementById("speechLang");
+      var attachBtn = document.getElementById("attachBtn");
+      var fileInput = document.getElementById("fileInput");
+      var attachPreview = document.getElementById("attachPreview");
+      var lastKeyWasEnter = false;
+      var isListening = false;
+      var recognition = null;
+      var speechBaseText = "";
+      var speechResultCount = 0;
+      var speechIgnoreBefore = 0;
+      var attachments = [];
+      var attachIdSeq = 1;
+      var MAX_ATTACHMENTS = 5;
+      var MAX_FILE_BYTES = 20 * 1024 * 1024;
+
+      var STORAGE_KEY = "abcc_api_key";
+      var STORAGE_OPENAI_KEY = "openai_api_key";
+      var STORAGE_PROVIDER = "abcc_ai_provider";
+      var STORAGE_SPEECH_LANG = "abcc_speech_lang";
+      var STORAGE_VIDEOS = "abcc_training_videos";
+      var STORAGE_SUPABASE_URL = "abcc_supabase_url";
+      var STORAGE_SUPABASE_ANON_KEY = "abcc_supabase_anon_key";
+
+      var chatView = document.getElementById("chatView");
+      var videoView = document.getElementById("videoView");
+      var docsView = document.getElementById("docsView");
+      var tabChat = document.getElementById("tabChat");
+      var tabVideos = document.getElementById("tabVideos");
+      var tabDocuments = document.getElementById("tabDocuments");
+      var openVideosNav = document.getElementById("openVideosNav");
+      var videoListEl = document.getElementById("videoList");
+      var addVideoToggleBtn = document.getElementById("addVideoToggleBtn");
+      var addVideoForm = document.getElementById("addVideoForm");
+      var addVideoCancelBtn = document.getElementById("addVideoCancelBtn");
+      var videoTitleInput = document.getElementById("videoTitleInput");
+      var videoUrlInput = document.getElementById("videoUrlInput");
+      var videoPlayer = document.getElementById("videoPlayer");
+      var videoPlaceholder = document.getElementById("videoPlaceholder");
+      var videoPlayingTitle = document.getElementById("videoPlayingTitle");
+      var trainingVideos = [];
+      var selectedVideoId = null;
+      var videoIdSeq = 1;
+
+      var documentListEl = document.getElementById("documentList");
+      var docRefPanel = document.getElementById("docRefPanel");
+      var docRefList = document.getElementById("docRefList");
+      var addDocToggleBtn = document.getElementById("addDocToggleBtn");
+      var addDocForm = document.getElementById("addDocForm");
+      var addDocCancelBtn = document.getElementById("addDocCancelBtn");
+      var addDocSubmitBtn = document.getElementById("addDocSubmitBtn");
+      var docNameInput = document.getElementById("docNameInput");
+      var docFileInput = document.getElementById("docFileInput");
+      var docDropZone = document.getElementById("docDropZone");
+      var docDropText = document.getElementById("docDropText");
+      var sbUrlInput = document.getElementById("sbUrl");
+      var sbAnonKeyInput = document.getElementById("sbAnonKey");
+      var sbTestBtn = document.getElementById("sbTestBtn");
+      var sbTestResult = document.getElementById("sbTestResult");
+      var docRegistering = false;
+      var sharedDocuments = [];
+      var sharedListNote = "";
+      var MAX_DOC_CHARS = 20000;
+      var TOP_K = 5;
+      var BATCH_SIZE = 20;
+      var DOC_EXTRACT_PROMPT =
+        "Энэ PDF-ийн агуулгыг дараа нь лавлаж, хайхад ашиглахаар аль болох үнэн зөв, бүрэн эхээр нь текст болгоно уу. Хүснэгтийг ойлгомжтой хэлбэрээр, гарчиг, баганын нэрийг үлдээнэ үү. Оршил, тайлбар, хураангуй хэрэггүй. Зөвхөн эх бичвэрийг буцаана уу.";
+
+      var WELCOME =
+        "Танд юугаар туслах вэ? Монгол, Япон, Англи — аль ч хэлээр асууж болно.";
+
+      var chatHistory = [];
+
+      var SYSTEM_PROMPT =
+        "Та бол Монголын компанийн ажилтан болон үйлчлүүлэгчдэд тусалдаг AI туслах юм. " +
+        "Компанийн материал хайх, асуултад хариулах, орчуулга, бичиг баримт, имэйл, олон нийтийн сүлжээний пост бичихэд тусална. " +
+        "Орчуулахыг тусгайлан хүсээгүй бол Монгол хэлээр хариулна уу. " +
+        "Хариултаа жагсаалт, тод үсэг, мөр шилжүүлгийг ашиглан уншихад амархан, байгалийн хэллэгээр бичнэ үү.";
+
+      function saveApiKey() {
+        var key = (apiKeyInput.value || "").trim();
+        if (key) {
+          localStorage.setItem(STORAGE_KEY, key);
+        } else {
+          localStorage.removeItem(STORAGE_KEY);
+        }
+        var openaiKey = (openaiApiKeyInput.value || "").trim();
+        if (openaiKey) {
+          localStorage.setItem(STORAGE_OPENAI_KEY, openaiKey);
+        } else {
+          localStorage.removeItem(STORAGE_OPENAI_KEY);
+        }
+      }
+
+      function restoreStoredSettings() {
+        try {
+          var savedKey = localStorage.getItem(STORAGE_KEY);
+          if (savedKey) {
+            apiKeyInput.value = savedKey;
+          }
+          var savedOpenaiKey = localStorage.getItem(STORAGE_OPENAI_KEY);
+          if (savedOpenaiKey) {
+            openaiApiKeyInput.value = savedOpenaiKey;
+          }
+          var savedProvider = localStorage.getItem(STORAGE_PROVIDER);
+          if (savedProvider === "claude" || savedProvider === "openai") {
+            aiProvider.value = savedProvider;
+          }
+          var savedLang = localStorage.getItem(STORAGE_SPEECH_LANG);
+          if (savedLang === "ja-JP" || savedLang === "mn-MN" || savedLang === "en-US") {
+            speechLang.value = savedLang;
+          }
+          var savedSbUrl = localStorage.getItem(STORAGE_SUPABASE_URL);
+          if (savedSbUrl && sbUrlInput) sbUrlInput.value = savedSbUrl;
+          var savedSbKey = localStorage.getItem(STORAGE_SUPABASE_ANON_KEY);
+          if (savedSbKey && sbAnonKeyInput) sbAnonKeyInput.value = savedSbKey;
+        } catch (e) {
+          /* localStorage unavailable */
+        }
+      }
+
+      function clearStoredApiKey() {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (e) {
+          /* ignore */
+        }
+        apiKeyInput.value = "";
+        showToast("Claude API түлхүүрийг устгалаа");
+        apiKeyInput.focus();
+      }
+
+      function clearStoredOpenaiApiKey() {
+        try {
+          localStorage.removeItem(STORAGE_OPENAI_KEY);
+        } catch (e) {
+          /* ignore */
+        }
+        openaiApiKeyInput.value = "";
+        showToast("OpenAI API түлхүүрийг устгалаа");
+        openaiApiKeyInput.focus();
+      }
+
+      function showToast(message) {
+        toast.textContent = message || "";
+        toast.classList.add("visible");
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(function () {
+          toast.classList.remove("visible");
+        }, 2200);
+      }
+
+      function appendMessage(role, text) {
+        var div = document.createElement("div");
+        div.className = "msg msg--" + role;
+        div.textContent = text;
+        messagesEl.appendChild(div);
+        scrollMessages();
+        return div;
+      }
+
+      function renderAssistantMarkdown(el, text) {
+        if (!el) return;
+        var source = text || "";
+        try {
+          if (window.marked && typeof marked.parse === "function") {
+            el.innerHTML = marked.parse(source);
+            return;
+          }
+        } catch (e) {
+          /* Хөрвүүлж чадахгүй бол эх бичвэрээ харуулна */
+        }
+        el.textContent = source;
+      }
+
+      function scrollMessages() {
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+        requestAnimationFrame(function () {
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        });
+      }
+
+      function renderWelcome() {
+        messagesEl.innerHTML = "";
+        appendMessage("assistant", WELCOME);
+      }
+
+      function formatTime(d) {
+        var h = String(d.getHours()).padStart(2, "0");
+        var m = String(d.getMinutes()).padStart(2, "0");
+        return h + ":" + m;
+      }
+
+      function pushRecent(label) {
+        var empty = recentList.querySelector(".recent-item");
+        if (empty && empty.querySelector(".task") && empty.querySelector(".task").textContent === "Одоогоор байхгүй") {
+          recentList.innerHTML = "";
+        }
+        var item = document.createElement("div");
+        item.className = "recent-item";
+        var now = new Date();
+        item.innerHTML =
+          '<span class="task"></span><time></time>';
+        item.querySelector(".task").textContent = label;
+        var t = item.querySelector("time");
+        t.dateTime = now.toISOString();
+        t.textContent = formatTime(now);
+        recentList.insertBefore(item, recentList.firstChild);
+        while (recentList.children.length > 6) {
+          recentList.removeChild(recentList.lastChild);
+        }
+      }
+
+      function insertNewlineAtCursor(el) {
+        var start = el.selectionStart;
+        var end = el.selectionEnd;
+        var val = el.value;
+        el.value = val.slice(0, start) + "\n" + val.slice(end);
+        el.selectionStart = el.selectionEnd = start + 1;
+      }
+
+      function getApiMessagesForOpenAI() {
+        return [
+          {
+            role: "system",
+            content:
+              SYSTEM_PROMPT + "\nӨнөөдрийн огноо: " + getTodayLabel() + ".",
+          },
+        ].concat(chatHistory);
+      }
+
+      function classifyFile(file) {
+        var name = (file.name || "").toLowerCase();
+        var type = (file.type || "").toLowerCase();
+        if (
+          type === "application/pdf" ||
+          name.endsWith(".pdf")
+        ) {
+          return { kind: "pdf", mediaType: "application/pdf" };
+        }
+        if (
+          type === "image/png" ||
+          name.endsWith(".png")
+        ) {
+          return { kind: "image", mediaType: "image/png" };
+        }
+        if (
+          type === "image/jpeg" ||
+          name.endsWith(".jpg") ||
+          name.endsWith(".jpeg")
+        ) {
+          return { kind: "image", mediaType: "image/jpeg" };
+        }
+        if (
+          name.endsWith(".docx") ||
+          name.endsWith(".pptx") ||
+          name.endsWith(".xlsx") ||
+          type.indexOf("officedocument") >= 0 ||
+          type === "application/vnd.ms-excel" ||
+          type === "application/msword" ||
+          type === "application/vnd.ms-powerpoint"
+        ) {
+          return { kind: "office" };
+        }
+        return { kind: "unsupported" };
+      }
+
+      function readFileAsDataUrl(file) {
+        return new Promise(function (resolve, reject) {
+          var reader = new FileReader();
+          reader.onload = function () {
+            resolve(String(reader.result || ""));
+          };
+          reader.onerror = function () {
+            reject(new Error("Файл уншиж чадсангүй"));
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function stripDataUrl(dataUrl) {
+        var idx = dataUrl.indexOf(",");
+        return idx >= 0 ? dataUrl.slice(idx + 1) : dataUrl;
+      }
+
+      function renderAttachments() {
+        attachPreview.innerHTML = "";
+        if (!attachments.length) {
+          attachPreview.classList.remove("is-visible");
+          return;
+        }
+        attachPreview.classList.add("is-visible");
+        attachments.forEach(function (item) {
+          var chip = document.createElement("div");
+          chip.className = "attach-chip";
+          chip.dataset.id = String(item.id);
+
+          if (item.kind === "image" && item.dataUrl) {
+            var img = document.createElement("img");
+            img.className = "attach-chip__thumb";
+            img.src = item.dataUrl;
+            img.alt = item.name;
+            chip.appendChild(img);
+          } else {
+            var icon = document.createElement("div");
+            icon.className = "attach-chip__icon";
+            icon.textContent = "PDF";
+            chip.appendChild(icon);
+          }
+
+          var meta = document.createElement("div");
+          meta.className = "attach-chip__meta";
+          var label = document.createElement("div");
+          label.className = "attach-chip__label";
+          label.textContent = "Хавсаргасан";
+          var name = document.createElement("div");
+          name.className = "attach-chip__name";
+          name.textContent = item.name;
+          name.title = item.name;
+          meta.appendChild(label);
+          meta.appendChild(name);
+          chip.appendChild(meta);
+
+          var removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.className = "attach-chip__remove";
+          removeBtn.setAttribute("aria-label", item.name + "-г устгах");
+          removeBtn.textContent = "×";
+          removeBtn.addEventListener("click", function () {
+            removeAttachment(item.id);
+          });
+          chip.appendChild(removeBtn);
+          attachPreview.appendChild(chip);
+        });
+      }
+
+      function removeAttachment(id) {
+        attachments = attachments.filter(function (a) {
+          return a.id !== id;
+        });
+        renderAttachments();
+      }
+
+      function clearAttachments() {
+        attachments = [];
+        renderAttachments();
+        if (fileInput) fileInput.value = "";
+      }
+
+      async function addFilesFromList(fileList) {
+        var files = Array.prototype.slice.call(fileList || []);
+        if (!files.length) return;
+
+        for (var i = 0; i < files.length; i++) {
+          if (attachments.length >= MAX_ATTACHMENTS) {
+            showToast("Хамгийн ихдээ " + MAX_ATTACHMENTS + " файл хавсаргана");
+            break;
+          }
+          var file = files[i];
+          var info = classifyFile(file);
+          if (info.kind === "office") {
+            showToast("Word, PowerPoint файлыг эхлээд PDF болгож хадгалаад оруулна уу");
+            continue;
+          }
+          if (info.kind === "unsupported") {
+            showToast("Дэмжигдэх формат: PDF / PNG / JPG");
+            continue;
+          }
+          if (file.size > MAX_FILE_BYTES) {
+            showToast("Файл хэт том байна (20MB хүртэл)");
+            continue;
+          }
+          try {
+            var dataUrl = await readFileAsDataUrl(file);
+            attachments.push({
+              id: attachIdSeq++,
+              name: file.name || "file",
+              kind: info.kind,
+              mediaType: info.mediaType,
+              base64: stripDataUrl(dataUrl),
+              dataUrl: dataUrl,
+            });
+          } catch (e) {
+            showToast("Файл уншиж чадсангүй");
+          }
+        }
+        renderAttachments();
+      }
+
+      (function bindDragAndDrop() {
+        var overlay = document.getElementById("dropOverlay");
+        if (!overlay) return;
+
+        var dragDepth = 0;
+
+        function showOverlay() {
+          overlay.classList.add("is-active");
+          overlay.setAttribute("aria-hidden", "false");
+        }
+
+        function hideOverlay() {
+          overlay.classList.remove("is-active");
+          overlay.setAttribute("aria-hidden", "true");
+          dragDepth = 0;
+        }
+
+        function isFileDrag(e) {
+          if (!e.dataTransfer) return false;
+          var types = e.dataTransfer.types;
+          if (!types) return false;
+          for (var i = 0; i < types.length; i++) {
+            if (types[i] === "Files") return true;
+          }
+          return false;
+        }
+
+        window.addEventListener("dragenter", function (e) {
+          if (!isFileDrag(e)) return;
+          e.preventDefault();
+          dragDepth++;
+          showOverlay();
+        });
+
+        window.addEventListener("dragover", function (e) {
+          if (!isFileDrag(e)) return;
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "copy";
+        });
+
+        window.addEventListener("dragleave", function (e) {
+          if (!isFileDrag(e)) return;
+          dragDepth--;
+          if (dragDepth <= 0) hideOverlay();
+        });
+
+        window.addEventListener("drop", function (e) {
+          if (!isFileDrag(e)) return;
+          e.preventDefault();
+          hideOverlay();
+          var files = e.dataTransfer.files;
+          if (files && files.length) {
+            addFilesFromList(files);
+          }
+        });
+
+        window.addEventListener("blur", hideOverlay);
+      })();
+
+      function buildClaudeUserContent(text, files) {
+        var blocks = [];
+        (files || []).forEach(function (f) {
+          if (f.kind === "pdf") {
+            blocks.push({
+              type: "document",
+              source: {
+                type: "base64",
+                media_type: "application/pdf",
+                data: f.base64,
+              },
+            });
+          } else if (f.kind === "image") {
+            blocks.push({
+              type: "image",
+              source: {
+                type: "base64",
+                media_type: f.mediaType,
+                data: f.base64,
+              },
+            });
+          }
+        });
+        var prompt =
+          text ||
+          (files && files.length
+            ? "Хавсаргасан файлын агуулгыг харж, гол санааг товч хэлж өгнө үү."
+            : "");
+        if (prompt) {
+          blocks.push({ type: "text", text: prompt });
+        }
+        return blocks;
+      }
+
+      function buildOpenAIUserContent(text, files) {
+        var parts = [];
+        var prompt =
+          text ||
+          (files && files.length
+            ? "Хавсаргасан файлын агуулгыг харж, гол санааг товч хэлж өгнө үү."
+            : "");
+        if (prompt) {
+          parts.push({ type: "text", text: prompt });
+        }
+        (files || []).forEach(function (f) {
+          if (f.kind === "image") {
+            parts.push({
+              type: "image_url",
+              image_url: {
+                url: "data:" + f.mediaType + ";base64," + f.base64,
+              },
+            });
+          }
+        });
+        return parts;
+      }
+
+      function formatUserDisplay(text, files) {
+        var lines = [];
+        if (text) lines.push(text);
+        (files || []).forEach(function (f) {
+          lines.push("Хавсралт: " + f.name);
+        });
+        return lines.join("\n") || "(Хавсаргасан файл)";
+      }
+
+      function getTodayLabel() {
+        return new Date().toLocaleDateString("mn-MN", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          weekday: "long",
+        });
+      }
+
+      async function parseErrorBody(res) {
+        var raw = await res.text().catch(function () {
+          return "";
+        });
+        try {
+          var data = JSON.parse(raw);
+          return (
+            (data.error && (data.error.message || data.error.type || data.error.code)) ||
+            data.message ||
+            res.statusText ||
+            "API error"
+          );
+        } catch (e) {
+          return raw || res.statusText || "API error";
+        }
+      }
+
+      async function readSSEStream(res, onDataLine) {
+        if (!res.body || !res.body.getReader) {
+          throw new Error("Энэ орчинд шууд дамжуулалт (streaming) дэмжигдэхгүй байна");
+        }
+        var reader = res.body.getReader();
+        var decoder = new TextDecoder();
+        var buffer = "";
+        while (true) {
+          var chunk = await reader.read();
+          if (chunk.done) break;
+          buffer += decoder.decode(chunk.value, { stream: true });
+          var lines = buffer.split(/\r?\n/);
+          buffer = lines.pop();
+          for (var i = 0; i < lines.length; i++) {
+            var line = lines[i];
+            if (!line || line.charAt(0) === ":") continue;
+            if (line.indexOf("data:") === 0) {
+              var payload = line.slice(5);
+              if (payload.charAt(0) === " ") payload = payload.slice(1);
+              if (payload === "[DONE]") continue;
+              onDataLine(payload);
+            }
+          }
+        }
+        if (buffer) {
+          if (buffer.indexOf("data:") === 0) {
+            var rest = buffer.slice(5);
+            if (rest.charAt(0) === " ") rest = rest.slice(1);
+            if (rest && rest !== "[DONE]") onDataLine(rest);
+          }
+        }
+      }
+
+      async function callClaudeStream(apiKey, userMessages, onDelta) {
+        var hasPdf = (userMessages || []).some(function (m) {
+          return (
+            Array.isArray(m.content) &&
+            m.content.some(function (b) {
+              return b && b.type === "document";
+            })
+          );
+        });
+        var headers = {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        };
+        if (hasPdf) {
+          headers["anthropic-beta"] = "pdfs-2024-09-25";
+        }
+        var res = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({
+            model: "claude-sonnet-4-5",
+            max_tokens: 4096,
+            stream: true,
+            system: SYSTEM_PROMPT + "\nӨнөөдрийн огноо: " + getTodayLabel() + ".",
+            messages: userMessages,
+          }),
+        });
+        if (!res.ok) {
+          throw new Error(String(await parseErrorBody(res)));
+        }
+        var full = "";
+        await readSSEStream(res, function (payload) {
+          var data;
+          try {
+            data = JSON.parse(payload);
+          } catch (e) {
+            return;
+          }
+          if (data.type === "error") {
+            var errMsg =
+              (data.error && (data.error.message || data.error.type)) ||
+              "Claude stream error";
+            throw new Error(String(errMsg));
+          }
+          if (
+            data.type === "content_block_delta" &&
+            data.delta &&
+            data.delta.type === "text_delta" &&
+            typeof data.delta.text === "string"
+          ) {
+            full += data.delta.text;
+            onDelta(data.delta.text, full);
+          }
+        });
+        return full;
+      }
+
+      async function callOpenAIStream(apiKey, messages, onDelta) {
+        var res = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + apiKey,
+          },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            stream: true,
+            messages: messages,
+          }),
+        });
+        if (!res.ok) {
+          throw new Error(String(await parseErrorBody(res)));
+        }
+        var full = "";
+        await readSSEStream(res, function (payload) {
+          var data;
+          try {
+            data = JSON.parse(payload);
+          } catch (e) {
+            return;
+          }
+          if (data.error) {
+            throw new Error(
+              String(data.error.message || data.error.code || "OpenAI stream error")
+            );
+          }
+          var delta =
+            data.choices &&
+            data.choices[0] &&
+            data.choices[0].delta &&
+            data.choices[0].delta.content;
+          if (typeof delta === "string" && delta) {
+            full += delta;
+            onDelta(delta, full);
+          }
+        });
+        return full;
+      }
+
+      var FIX_SPEECH_PROMPT =
+        "Дараах бичвэр дуугаар оруулсан тул алдаа, буруу хөрвүүлэлт байж болно. Агуулгаас нь зөв засаж, байгалийн уншигдахуйц болгоно уу. Утгыг нь бүү өөрчил. Нэмэлт тайлбаргүйгээр зөвхөн зассан бичвэрийг буцаана уу.";
+
+      async function fixSpeechText() {
+        var text = (chatInput.value || "").trim();
+        if (!text) {
+          showToast("Засах бичвэр алга");
+          return;
+        }
+
+        var provider = aiProvider.value;
+        var key =
+          provider === "openai"
+            ? (openaiApiKeyInput.value || "").trim()
+            : (apiKeyInput.value || "").trim();
+        if (!key) {
+          if (provider === "openai") {
+            showToast("OpenAI API түлхүүрээ оруулна уу");
+            openaiApiKeyInput.focus();
+          } else {
+            showToast("Claude API түлхүүрээ оруулна уу");
+            apiKeyInput.focus();
+          }
+          return;
+        }
+
+        saveApiKey();
+
+        var originalLabel = fixTextBtn.textContent;
+        fixTextBtn.disabled = true;
+        fixTextBtn.textContent = "Засаж байна…";
+        try {
+          var reply;
+          var userContent = FIX_SPEECH_PROMPT + "\n\n" + text;
+          if (provider === "claude") {
+            reply = await callClaudeStream(
+              key,
+              [{ role: "user", content: userContent }],
+              function () {}
+            );
+          } else {
+            reply = await callOpenAIStream(
+              key,
+              [
+                { role: "system", content: FIX_SPEECH_PROMPT },
+                { role: "user", content: text },
+              ],
+              function () {}
+            );
+          }
+          reply = (reply || "").trim();
+          if (!reply) {
+            throw new Error("Хоосон хариу ирлээ");
+          }
+          chatInput.value = reply;
+          chatInput.focus();
+        } catch (e) {
+          var msg = e && e.message ? e.message : "Холболт амжилтгүй боллоо";
+          showToast(msg);
+        } finally {
+          fixTextBtn.disabled = false;
+          fixTextBtn.textContent = originalLabel;
+        }
+      }
+
+      async function sendChat() {
+        var text = (chatInput.value || "").trim();
+        var filesNow = attachments.slice();
+        if (!text && !filesNow.length) return;
+
+        var provider = aiProvider.value;
+        var key =
+          provider === "openai"
+            ? (openaiApiKeyInput.value || "").trim()
+            : (apiKeyInput.value || "").trim();
+        if (!key) {
+          if (provider === "openai") {
+            showToast("OpenAI API түлхүүрээ оруулна уу");
+            openaiApiKeyInput.focus();
+          } else {
+            showToast("Claude API түлхүүрээ оруулна уу");
+            apiKeyInput.focus();
+          }
+          return;
+        }
+
+        if (provider === "openai") {
+          var hasPdf = filesNow.some(function (f) {
+            return f.kind === "pdf";
+          });
+          if (hasPdf) {
+            showToast("PDF-ийг Claude-аар уншуулна уу");
+            return;
+          }
+        }
+
+        if (sendBtn.disabled) return;
+        sendBtn.disabled = true;
+        var docContext = text
+          ? await prepareSharedQuestionContext(text)
+          : { context: "", sources: [] };
+        if (!docContext) {
+          sendBtn.disabled = false;
+          return;
+        }
+
+        saveApiKey();
+
+        var displayText = formatUserDisplay(text, filesNow);
+        var docsBlock = docContext.context;
+        var apiText = docsBlock
+          ? docsBlock + (text ? "\n\n" + text : "")
+          : text;
+        chatInput.value = "";
+        lastKeyWasEnter = false;
+        speechBaseText = "";
+        speechIgnoreBefore = speechResultCount;
+        clearAttachments();
+
+        appendMessage("user", displayText);
+        var priorHistory = chatHistory.slice();
+        chatHistory.push({ role: "user", content: displayText });
+
+        var assistantEl = appendMessage("assistant", "");
+        try {
+          var reply;
+          function onDelta(_chunk, full) {
+            renderAssistantMarkdown(assistantEl, full);
+            scrollMessages();
+          }
+          if (provider === "claude") {
+            var claudeMessages = priorHistory.concat([
+              { role: "user", content: buildClaudeUserContent(apiText, filesNow) },
+            ]);
+            reply = await callClaudeStream(key, claudeMessages, onDelta);
+          } else {
+            var openaiUserContent =
+              filesNow.length > 0
+                ? buildOpenAIUserContent(apiText, filesNow)
+                : apiText;
+            var openaiMessages = [
+              {
+                role: "system",
+                content:
+                  SYSTEM_PROMPT +
+                  "\nӨнөөдрийн огноо: " +
+                  getTodayLabel() +
+                  ".",
+              },
+            ].concat(priorHistory);
+            openaiMessages.push({
+              role: "user",
+              content: openaiUserContent,
+            });
+            reply = await callOpenAIStream(key, openaiMessages, onDelta);
+          }
+          if (!reply) {
+            throw new Error("Хоосон хариу ирлээ");
+          }
+          renderAssistantMarkdown(assistantEl, reply);
+          appendDocSources(assistantEl, docContext.sources);
+          scrollMessages();
+          chatHistory.push({ role: "assistant", content: reply });
+        } catch (e) {
+          var msg = e && e.message ? e.message : "Холболт амжилтгүй боллоо";
+          if (
+            /Failed to fetch|NetworkError|CORS/i.test(msg) &&
+            aiProvider.value === "openai"
+          ) {
+            msg =
+              "ChatGPT (OpenAI) хөтчөөс шууд дуудахад заримдаа хаагддаг. Claude руу шилжих эсвэл сүлжээ / CORS-оо шалгана уу.";
+          }
+          if (assistantEl) {
+            assistantEl.textContent = "Алдаа: " + msg;
+            scrollMessages();
+          } else {
+            appendMessage("assistant", "Алдаа: " + msg);
+          }
+          chatHistory.pop();
+        } finally {
+          sendBtn.disabled = false;
+          chatInput.focus();
+        }
+      }
+
+      function clearChat() {
+        chatHistory = [];
+        clearAttachments();
+        renderWelcome();
+        showToast("Ярианы түүхийг цэвэрлэлээ");
+      }
+
+      function setListeningUI(on) {
+        isListening = on;
+        micBtn.classList.toggle("is-recording", on);
+        micBtn.setAttribute("aria-pressed", on ? "true" : "false");
+        micBtn.title = on ? "Бичлэг зогсоох" : "Дуугаар оруулах";
+      }
+
+      function softSpeechError() {
+        setListeningUI(false);
+        recognition = null;
+        showToast("Дуугаар оруулах боломжгүй байна");
+      }
+
+      function getSpeechRecognitionCtor() {
+        return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+      }
+
+      function stopSpeech() {
+        if (recognition) {
+          try {
+            recognition.onend = null;
+            recognition.stop();
+          } catch (e) {
+            /* ignore */
+          }
+          recognition = null;
+        }
+        setListeningUI(false);
+      }
+
+      function startSpeech() {
+        var Ctor = getSpeechRecognitionCtor();
+        if (!Ctor) {
+          softSpeechError();
+          return;
+        }
+
+        speechIgnoreBefore = 0;
+        speechResultCount = 0;
+        speechBaseText = chatInput.value || "";
+        if (speechBaseText && !/\s$/.test(speechBaseText)) {
+          speechBaseText += " ";
+        }
+
+        try {
+          recognition = new Ctor();
+          recognition.lang = speechLang.value || "ja-JP";
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.maxAlternatives = 1;
+
+          recognition.onresult = function (event) {
+            var interim = "";
+            var heardNew = false;
+            for (var i = event.resultIndex; i < event.results.length; i++) {
+              if (i < speechIgnoreBefore) continue;
+              var t = event.results[i][0].transcript;
+              heardNew = true;
+              if (event.results[i].isFinal) {
+                speechBaseText += t;
+              } else {
+                interim += t;
+              }
+            }
+            if (event.results && event.results.length > speechResultCount) {
+              speechResultCount = event.results.length;
+            }
+            if (!heardNew) return;
+            chatInput.value = speechBaseText + interim;
+            chatInput.scrollTop = chatInput.scrollHeight;
+          };
+
+          recognition.onerror = function (event) {
+            var code = event && event.error ? event.error : "";
+            if (code === "aborted" || code === "no-speech") {
+              return;
+            }
+            softSpeechError();
+          };
+
+          recognition.onend = function () {
+            if (isListening) {
+              setListeningUI(false);
+              recognition = null;
+            }
+          };
+
+          recognition.start();
+          setListeningUI(true);
+        } catch (e) {
+          softSpeechError();
+        }
+      }
+
+      function toggleSpeech() {
+        if (isListening) {
+          stopSpeech();
+        } else {
+          startSpeech();
+        }
+      }
+
+      document.querySelectorAll(".js-shortcut").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          var prompt = btn.getAttribute("data-prompt") || "";
+          chatInput.value = prompt;
+          chatInput.focus();
+          var len = chatInput.value.length;
+          chatInput.setSelectionRange(len, len);
+          pushRecent(btn.textContent.trim());
+          showToast("Доор нь бичвэрээ оруулаад илгээнэ үү");
+        });
+      });
+
+      clearBtn.addEventListener("click", clearChat);
+      clearApiKeyBtn.addEventListener("click", clearStoredApiKey);
+      clearOpenaiApiKeyBtn.addEventListener("click", clearStoredOpenaiApiKey);
+      attachBtn.addEventListener("click", function () {
+        fileInput.click();
+      });
+      fileInput.addEventListener("change", function () {
+        addFilesFromList(fileInput.files);
+        fileInput.value = "";
+      });
+      micBtn.addEventListener("click", toggleSpeech);
+      fixTextBtn.addEventListener("click", fixSpeechText);
+      speechLang.addEventListener("change", function () {
+        try {
+          localStorage.setItem(STORAGE_SPEECH_LANG, speechLang.value);
+        } catch (e) {
+          /* ignore */
+        }
+        if (isListening) {
+          stopSpeech();
+          startSpeech();
+        }
+      });
+      apiKeyInput.addEventListener("change", saveApiKey);
+      apiKeyInput.addEventListener("blur", saveApiKey);
+      openaiApiKeyInput.addEventListener("change", saveApiKey);
+      openaiApiKeyInput.addEventListener("blur", saveApiKey);
+      aiProvider.addEventListener("change", function () {
+        try {
+          localStorage.setItem(STORAGE_PROVIDER, aiProvider.value);
+        } catch (e) {
+          /* ignore */
+        }
+      });
+      sendBtn.addEventListener("click", sendChat);
+      chatInput.addEventListener("keydown", function (e) {
+        if (e.isComposing) return;
+        if (e.key !== "Enter") {
+          lastKeyWasEnter = false;
+          return;
+        }
+        if (e.shiftKey) {
+          lastKeyWasEnter = false;
+          return;
+        }
+        e.preventDefault();
+        if (lastKeyWasEnter) {
+          lastKeyWasEnter = false;
+          sendChat();
+        } else {
+          insertNewlineAtCursor(chatInput);
+          lastKeyWasEnter = true;
+        }
+      });
+
+      function extractYoutubeId(rawUrl) {
+        var input = (rawUrl || "").trim();
+        if (!input) return null;
+        try {
+          if (!/^https?:\/\//i.test(input)) {
+            input = "https://" + input;
+          }
+          var u = new URL(input);
+          var host = (u.hostname || "").replace(/^www\./, "").toLowerCase();
+          if (host === "youtu.be") {
+            var shortId = (u.pathname || "").replace(/^\//, "").split("/")[0];
+            return shortId && /^[\w-]{11}$/.test(shortId) ? shortId : null;
+          }
+          if (host === "youtube.com" || host === "m.youtube.com" || host === "music.youtube.com") {
+            var path = u.pathname || "";
+            if (path.indexOf("/embed/") === 0 || path.indexOf("/shorts/") === 0 || path.indexOf("/live/") === 0) {
+              var parts = path.split("/").filter(Boolean);
+              var fromPath = parts[1] || "";
+              return /^[\w-]{11}$/.test(fromPath) ? fromPath : null;
+            }
+            var v = u.searchParams.get("v");
+            return v && /^[\w-]{11}$/.test(v) ? v : null;
+          }
+        } catch (err) {
+          return null;
+        }
+        return null;
+      }
+
+      function toEmbedUrl(videoId) {
+        return "https://www.youtube.com/embed/" + videoId;
+      }
+
+      function loadTrainingVideos() {
+        try {
+          var raw = localStorage.getItem(STORAGE_VIDEOS);
+          if (!raw) return [];
+          var parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) return [];
+          return parsed
+            .filter(function (item) {
+              return item && typeof item.title === "string" && typeof item.url === "string";
+            })
+            .map(function (item, index) {
+              var id = item.id != null ? String(item.id) : "v" + (index + 1);
+              var num = parseInt(String(id).replace(/\D/g, ""), 10);
+              if (!isNaN(num) && num >= videoIdSeq) videoIdSeq = num + 1;
+              return {
+                id: id,
+                title: item.title,
+                url: item.url,
+                videoId: item.videoId || extractYoutubeId(item.url) || ""
+              };
+            })
+            .filter(function (item) {
+              return item.videoId;
+            });
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveTrainingVideos() {
+        try {
+          localStorage.setItem(
+            STORAGE_VIDEOS,
+            JSON.stringify(
+              trainingVideos.map(function (v) {
+                return {
+                  id: v.id,
+                  title: v.title,
+                  url: v.url,
+                  videoId: v.videoId
+                };
+              })
+            )
+          );
+        } catch (e) {
+          /* ignore */
+        }
+      }
+
+      function restoreTrainingVideos() {
+        trainingVideos = loadTrainingVideos();
+      }
+
+      function setView(viewName) {
+        var isVideos = viewName === "videos";
+        var isDocuments = viewName === "documents";
+        var isChat = viewName === "chat" || (!isVideos && !isDocuments);
+        chatView.classList.toggle("is-hidden", !isChat);
+        videoView.classList.toggle("is-visible", isVideos);
+        videoView.setAttribute("aria-hidden", isVideos ? "false" : "true");
+        if (docsView) {
+          docsView.classList.toggle("is-visible", isDocuments);
+          docsView.setAttribute("aria-hidden", isDocuments ? "false" : "true");
+        }
+        tabChat.classList.toggle("is-active", isChat);
+        tabVideos.classList.toggle("is-active", isVideos);
+        if (tabDocuments) {
+          tabDocuments.classList.toggle("is-active", isDocuments);
+          tabDocuments.setAttribute("aria-selected", isDocuments ? "true" : "false");
+        }
+        tabChat.setAttribute("aria-selected", isChat ? "true" : "false");
+        tabVideos.setAttribute("aria-selected", isVideos ? "true" : "false");
+        if (openVideosNav) {
+          openVideosNav.classList.toggle("is-active", isVideos);
+        }
+        if (!isVideos) {
+          stopVideoPlayback();
+        }
+      }
+
+      function stopVideoPlayback() {
+        videoPlayer.src = "";
+        videoPlayer.hidden = true;
+        videoPlaceholder.classList.remove("is-hidden");
+        videoPlayingTitle.textContent = "";
+        selectedVideoId = null;
+        renderVideoList();
+      }
+
+      function playVideo(video) {
+        if (!video || !video.videoId) return;
+        selectedVideoId = video.id;
+        videoPlayingTitle.textContent = video.title;
+        videoPlaceholder.classList.add("is-hidden");
+        videoPlayer.hidden = false;
+        videoPlayer.src = toEmbedUrl(video.videoId);
+        renderVideoList();
+      }
+
+      function renderVideoList() {
+        videoListEl.innerHTML = "";
+        if (!trainingVideos.length) {
+          var empty = document.createElement("div");
+          empty.className = "video-empty-list";
+          empty.textContent = "Одоогоор видео алга. «＋Видео нэмэх»-ээс бүртгэнэ үү.";
+          videoListEl.appendChild(empty);
+          return;
+        }
+        trainingVideos.forEach(function (video) {
+          var row = document.createElement("div");
+          row.className = "video-item" + (video.id === selectedVideoId ? " is-selected" : "");
+          row.setAttribute("role", "button");
+          row.tabIndex = 0;
+          row.dataset.id = video.id;
+
+          var title = document.createElement("span");
+          title.className = "video-item__title";
+          title.textContent = video.title;
+          title.title = video.title;
+
+          var del = document.createElement("button");
+          del.type = "button";
+          del.className = "video-item__delete";
+          del.setAttribute("aria-label", "Устгах: " + video.title);
+          del.title = "Устгах";
+          del.textContent = "×";
+
+          del.addEventListener("click", function (e) {
+            e.stopPropagation();
+            deleteVideo(video.id);
+          });
+          row.addEventListener("click", function () {
+            playVideo(video);
+          });
+          row.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              playVideo(video);
+            }
+          });
+
+          row.appendChild(title);
+          row.appendChild(del);
+          videoListEl.appendChild(row);
+        });
+      }
+
+      function openAddForm() {
+        addVideoForm.classList.add("is-open");
+        videoTitleInput.focus();
+      }
+
+      function closeAddForm() {
+        addVideoForm.classList.remove("is-open");
+        addVideoForm.reset();
+      }
+
+      function addVideo(title, url) {
+        var trimmedTitle = (title || "").trim();
+        var trimmedUrl = (url || "").trim();
+        if (!trimmedTitle) {
+          showToast("Нэрээ оруулна уу");
+          return false;
+        }
+        var videoId = extractYoutubeId(trimmedUrl);
+        if (!videoId) {
+          showToast("Зөв YouTube линк оруулна уу");
+          return false;
+        }
+        var item = {
+          id: "v" + videoIdSeq++,
+          title: trimmedTitle,
+          url: trimmedUrl,
+          videoId: videoId
+        };
+        trainingVideos.push(item);
+        saveTrainingVideos();
+        renderVideoList();
+        playVideo(item);
+        return true;
+      }
+
+      function deleteVideo(id) {
+        trainingVideos = trainingVideos.filter(function (v) {
+          return v.id !== id;
+        });
+        saveTrainingVideos();
+        if (selectedVideoId === id) {
+          stopVideoPlayback();
+        } else {
+          renderVideoList();
+        }
+        showToast("Видео устгалаа");
+      }
+
+      function rememberSource(names, name) {
+        if (name && names.indexOf(name) < 0) names.push(name);
+      }
+
+      function appendDocSources(el, sources) {
+        if (!el || !sources || !sources.length) return;
+        var line = document.createElement("div");
+        line.className = "msg-sources";
+        line.textContent = "Ашигласан баримт: " + sources.join(", ");
+        el.appendChild(line);
+      }
+
+      function sharedSearchErrorText(status, body) {
+        var message = "";
+        if (body && typeof body.message === "string") message = body.message;
+        if (
+          status === 404 &&
+          (/could not find the function/i.test(message) ||
+            /match_document_chunks/i.test(message))
+        ) {
+          return "Хуваалцсан тавиурын хайлтын функц хараахан алга. Заасан SQL-ээ ажиллуулна уу.";
+        }
+        return supabaseErrorText(status, body);
+      }
+
+      async function prepareSharedQuestionContext(question) {
+        var openaiKey = (openaiApiKeyInput.value || "").trim();
+        if (!openaiKey) {
+          showToast("Хуваалцсан тавиураас хайхад OpenAI API түлхүүр хэрэгтэй");
+          openaiApiKeyInput.focus();
+          return null;
+        }
+        var url = supabaseProjectUrl();
+        var key = (sbAnonKeyInput && sbAnonKeyInput.value
+          ? sbAnonKeyInput.value
+          : ""
+        ).trim();
+        if (!url || !key) {
+          showToast("Хуваалцсан тавиурын төслийн URL болон anon түлхүүрээ оруулна уу");
+          return null;
+        }
+        if (!/^https:\/\/.+/i.test(url)) {
+          showToast("Төслийн URL нь https://-ээр эхэлсэн хаяг байх ёстой.");
+          return null;
+        }
+        if (isSecretSupabaseKey(key)) {
+          if (sbAnonKeyInput) sbAnonKeyInput.value = "";
+          saveSupabaseSettings();
+          showToast(
+            "Энэ нууц түлхүүр байна. anon түлхүүр (эсвэл publishable түлхүүр) ашиглана уу."
+          );
+          return null;
+        }
+        var queryEmbedding;
+        try {
+          queryEmbedding = await fetchChunkEmbedding(openaiKey, question);
+        } catch (e) {
+          console.error("Асуултыг векторжуулж чадсангүй", e);
+          showToast("Асуултыг векторжуулж чадсангүй");
+          return null;
+        }
+        if (!queryEmbedding || queryEmbedding.length !== 1536) {
+          console.error("Асуултын векторын урт 1536 биш байна", queryEmbedding && queryEmbedding.length);
+          showToast("Асуултын векторыг баталгаажуулж чадсангүй");
+          return null;
+        }
+        try {
+          var res = await fetch(url + "/rest/v1/rpc/match_document_chunks", {
+            method: "POST",
+            headers: {
+              apikey: key,
+              Authorization: "Bearer " + key,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              query_embedding: vectorLiteral(queryEmbedding),
+              match_count: TOP_K,
+            }),
+          });
+          var body = null;
+          try {
+            body = await res.json();
+          } catch (parseErr) {
+            body = null;
+          }
+          if (!res.ok) {
+            console.error("Хуваалцсан тавиурын хайлт амжилтгүй боллоо", res.status, body);
+            showToast(sharedSearchErrorText(res.status, body));
+            return null;
+          }
+          var rows = Array.isArray(body) ? body : [];
+          var blocks = [];
+          var sources = [];
+          rows.forEach(function (row) {
+            if (!row || typeof row.content !== "string" || !row.content) return;
+            var name = row.document_name || "Баримт";
+            blocks.push("【Лавлах баримт: " + name + "】\n" + row.content);
+            rememberSource(sources, name);
+          });
+          if (!blocks.length) {
+            showToast("Хуваалцсан тавиураас ойролцоо баримт олдсонгүй");
+          }
+          return { context: blocks.join("\n\n"), sources: sources };
+        } catch (e) {
+          console.error("Хуваалцсан тавиурын хайлт амжилтгүй боллоо", e);
+          showToast("Хуваалцсан тавиурт холбогдож чадсангүй");
+          return null;
+        }
+      }
+
+      function renderDocRefList() {
+        if (!docRefPanel) return;
+        var statusEl = document.getElementById("docRefStatus");
+        if (!sharedDocuments.length) {
+          docRefPanel.classList.remove("is-visible");
+          if (statusEl) statusEl.textContent = "";
+          return;
+        }
+        docRefPanel.classList.add("is-visible");
+        if (statusEl) {
+          statusEl.textContent =
+            "Одоо " + sharedDocuments.length + " баримт ашиглаж байна";
+        }
+      }
+
+      function renderDocumentList() {
+        if (!documentListEl) return;
+        documentListEl.innerHTML = "";
+        if (!sharedDocuments.length) {
+          var empty = document.createElement("div");
+          empty.className = "video-empty-list";
+          empty.textContent =
+            sharedListNote ||
+            "Одоогоор баримт алга. «＋Баримт бүртгэх»-ээс PDF бүртгэнэ үү.";
+          documentListEl.appendChild(empty);
+          return;
+        }
+        sharedDocuments.forEach(function (doc) {
+          var row = document.createElement("div");
+          row.className = "video-item";
+          row.dataset.id = doc.name;
+
+          var title = document.createElement("span");
+          title.className = "video-item__title";
+          title.textContent = doc.name;
+          title.title = doc.name;
+
+          var chunksLabel = document.createElement("span");
+          chunksLabel.className = "video-item__chunks";
+          chunksLabel.textContent = doc.chunkCount + " хэсэг";
+
+          var del = document.createElement("button");
+          del.type = "button";
+          del.className = "video-item__delete";
+          del.setAttribute("aria-label", "Устгах: " + doc.name);
+          del.title = "Устгах";
+          del.textContent = "×";
+          del.addEventListener("click", function (e) {
+            e.stopPropagation();
+            deleteSharedDocument(doc.name);
+          });
+
+          row.appendChild(title);
+          row.appendChild(chunksLabel);
+          row.appendChild(del);
+          documentListEl.appendChild(row);
+        });
+      }
+
+      function takeChunkOverlap(text) {
+        var trimmed = String(text || "").trim();
+        var overlapLen = 100;
+        if (trimmed.length <= overlapLen) return "";
+        var cut = trimmed.length - overlapLen;
+        var snapped = cut;
+        var limit = Math.min(trimmed.length - 1, cut + 30);
+        for (var i = cut; i <= limit; i++) {
+          var ch = trimmed.charAt(i);
+          if (
+            ch === "\n" ||
+            ch === "。" ||
+            ch === "！" ||
+            ch === "？" ||
+            ch === "." ||
+            ch === "!" ||
+            ch === "?"
+          ) {
+            snapped = i + 1;
+            break;
+          }
+        }
+        var overlap = trimmed.slice(snapped).trim();
+        if (!overlap || overlap.length < 40) {
+          overlap = trimmed.slice(trimmed.length - overlapLen).trim();
+        }
+        return overlap;
+      }
+
+      function splitOversizedText(text, maxLen) {
+        var sentences = [];
+        var buf = "";
+        for (var i = 0; i < text.length; i++) {
+          var ch = text.charAt(i);
+          buf += ch;
+          if ("。！？.!?".indexOf(ch) >= 0) {
+            sentences.push(buf);
+            buf = "";
+          }
+        }
+        if (buf) sentences.push(buf);
+
+        var pieces = [];
+        var current = "";
+
+        function pushHard(value) {
+          var start = 0;
+          while (start < value.length) {
+            if (value.length - start <= maxLen) {
+              pieces.push(value.slice(start));
+              break;
+            }
+            var end = start + maxLen;
+            var cut = end;
+            var windowStart = start + Math.min(500, maxLen - 1);
+            for (var k = end - 1; k >= windowStart; k--) {
+              var c = value.charAt(k);
+              if ("、，, \n。".indexOf(c) >= 0) {
+                cut = k + 1;
+                break;
+              }
+            }
+            if (cut <= start) cut = end;
+            pieces.push(value.slice(start, cut));
+            start = cut;
+          }
+        }
+
+        sentences.forEach(function (sentence) {
+          if (sentence.length > maxLen) {
+            if (current) {
+              pieces.push(current);
+              current = "";
+            }
+            pushHard(sentence);
+            return;
+          }
+          if (!current) {
+            current = sentence;
+            return;
+          }
+          if ((current + sentence).length <= maxLen) {
+            current += sentence;
+          } else {
+            pieces.push(current);
+            current = sentence;
+          }
+        });
+        if (current) pieces.push(current);
+        return pieces;
+      }
+
+      function splitDocumentChunks(text) {
+        var source = String(text || "").replace(/\r\n/g, "\n").trim();
+        if (!source) return [];
+        var maxChunk = 800;
+        var unitMax = 660;
+        if (source.length <= maxChunk) return [source];
+
+        var units = [];
+        source.split(/\n+/).forEach(function (paragraph) {
+          var part = paragraph.trim();
+          if (!part) return;
+          if (part.length <= unitMax) {
+            units.push(part);
+          } else {
+            splitOversizedText(part, unitMax).forEach(function (piece) {
+              if (piece) units.push(piece);
+            });
+          }
+        });
+        if (!units.length) return [source];
+
+        var chunks = [];
+        var current = "";
+        units.forEach(function (unit) {
+          if (!current) {
+            current = unit;
+            return;
+          }
+          var next = current + "\n" + unit;
+          if (next.length <= maxChunk) {
+            current = next;
+            return;
+          }
+          chunks.push(current.trim());
+          var overlap = takeChunkOverlap(current);
+          current = overlap ? overlap + "\n" + unit : unit;
+          if (current.length > maxChunk) current = unit;
+        });
+        if (current.trim()) chunks.push(current.trim());
+        return chunks;
+      }
+
+      function readSupabaseAccess() {
+        var url = supabaseProjectUrl();
+        var key = (sbAnonKeyInput && sbAnonKeyInput.value
+          ? sbAnonKeyInput.value
+          : ""
+        ).trim();
+        if (!url || !key) {
+          return {
+            error: "Хуваалцсан тавиурын төслийн URL болон anon түлхүүрээ оруулна уу",
+          };
+        }
+        if (!/^https:\/\/.+/i.test(url)) {
+          return {
+            error: "Төслийн URL нь https://-ээр эхэлсэн хаяг байх ёстой.",
+          };
+        }
+        if (isSecretSupabaseKey(key)) {
+          if (sbAnonKeyInput) sbAnonKeyInput.value = "";
+          saveSupabaseSettings();
+          return {
+            error:
+              "Энэ нууц түлхүүр байна. anon түлхүүр (эсвэл publishable түлхүүр) ашиглана уу.",
+          };
+        }
+        return { url: url, key: key };
+      }
+
+      function postgrestEq(value) {
+        return encodeURIComponent('"' + String(value).replace(/"/g, '""') + '"');
+      }
+
+      async function refreshSharedDocuments() {
+        var access = readSupabaseAccess();
+        if (!access.url) {
+          sharedDocuments = [];
+          sharedListNote =
+            "Хуваалцсан тавиурын URL болон anon түлхүүр оруулбал баримт харагдана.";
+          renderDocumentList();
+          renderDocRefList();
+          return;
+        }
+        try {
+          var names = [];
+          var offset = 0;
+          while (offset < 20000) {
+            var res = await fetch(
+              access.url +
+                "/rest/v1/document_chunks?select=document_name&order=document_name.asc&limit=1000&offset=" +
+                offset,
+              {
+                headers: {
+                  apikey: access.key,
+                  Authorization: "Bearer " + access.key,
+                },
+              }
+            );
+            var body = null;
+            try {
+              body = await res.json();
+            } catch (parseErr) {
+              body = null;
+            }
+            if (!res.ok) {
+              console.error("Хуваалцсан тавиурын жагсаалт авч чадсангүй", res.status, body);
+              sharedDocuments = [];
+              sharedListNote = supabaseErrorText(res.status, body);
+              renderDocumentList();
+              renderDocRefList();
+              return;
+            }
+            var rows = Array.isArray(body) ? body : [];
+            rows.forEach(function (row) {
+              if (row && row.document_name) names.push(String(row.document_name));
+            });
+            if (rows.length < 1000) break;
+            offset += 1000;
+          }
+          var counts = {};
+          var order = [];
+          names.forEach(function (name) {
+            if (!counts[name]) {
+              counts[name] = 0;
+              order.push(name);
+            }
+            counts[name]++;
+          });
+          sharedDocuments = order.map(function (name) {
+            return { name: name, chunkCount: counts[name] };
+          });
+          sharedListNote = "";
+          renderDocumentList();
+          renderDocRefList();
+        } catch (e) {
+          console.error("Хуваалцсан тавиурын жагсаалт авч чадсангүй", e);
+          sharedDocuments = [];
+          sharedListNote = "Хуваалцсан тавиурт холбогдож чадсангүй";
+          renderDocumentList();
+          renderDocRefList();
+        }
+      }
+
+      async function deleteSharedDocument(name) {
+        var access = readSupabaseAccess();
+        if (!access.url) {
+          showToast(access.error);
+          return;
+        }
+        try {
+          var res = await fetch(
+            access.url +
+              "/rest/v1/document_chunks?document_name=eq." +
+              postgrestEq(name),
+            {
+              method: "DELETE",
+              headers: {
+                apikey: access.key,
+                Authorization: "Bearer " + access.key,
+                Prefer: "return=representation",
+              },
+            }
+          );
+          var body = null;
+          try {
+            body = await res.json();
+          } catch (parseErr) {
+            body = null;
+          }
+          if (!res.ok) {
+            console.error("Баримт устгаж чадсангүй", name, res.status, body);
+            var message = body && typeof body.message === "string" ? body.message : "";
+            if (
+              /row-level security/i.test(message) ||
+              /permission denied/i.test(message)
+            ) {
+              showToast("Устгахыг зөвшөөрөөгүй. Устгахыг зөвшөөрсөн SQL-ээ ажиллуулна уу.");
+            } else {
+              showToast(supabaseErrorText(res.status, body));
+            }
+            return;
+          }
+          if (!Array.isArray(body) || !body.length) {
+            showToast("Устгах баримт олдсонгүй");
+            await refreshSharedDocuments();
+            return;
+          }
+          showToast("Баримтыг устгалаа");
+          await refreshSharedDocuments();
+        } catch (e) {
+          console.error("Баримт устгаж чадсангүй", name, e);
+          showToast("Хуваалцсан тавиурт холбогдож чадсангүй");
+        }
+      }
+
+      function openAddDocForm() {
+        addDocForm.classList.add("is-open");
+        docNameInput.focus();
+      }
+
+      function closeAddDocForm() {
+        addDocForm.classList.remove("is-open");
+        addDocForm.reset();
+      }
+
+      async function fetchChunkEmbedding(apiKey, text) {
+        var res = await fetch("https://api.openai.com/v1/embeddings", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + apiKey,
+          },
+          body: JSON.stringify({
+            model: "text-embedding-3-small",
+            input: text,
+          }),
+        });
+        if (!res.ok) {
+          throw new Error(String(await parseErrorBody(res)));
+        }
+        var data = await res.json();
+        var embedding =
+          data && data.data && data.data[0] && data.data[0].embedding;
+        if (!Array.isArray(embedding) || !embedding.length) {
+          throw new Error("Вектор буцаж ирсэнгүй");
+        }
+        return embedding;
+      }
+
+      async function fetchChunkEmbeddingBatch(apiKey, texts) {
+        var res = await fetch("https://api.openai.com/v1/embeddings", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + apiKey,
+          },
+          body: JSON.stringify({
+            model: "text-embedding-3-small",
+            input: texts,
+          }),
+        });
+        if (!res.ok) {
+          throw new Error(String(await parseErrorBody(res)));
+        }
+        var data = await res.json();
+        var rows = data && data.data;
+        if (!Array.isArray(rows)) {
+          throw new Error("Вектор буцаж ирсэнгүй");
+        }
+        var embeddings = new Array(texts.length);
+        for (var i = 0; i < rows.length; i++) {
+          var row = rows[i];
+          var index = row && typeof row.index === "number" ? row.index : i;
+          var embedding = row && row.embedding;
+          if (
+            index < 0 ||
+            index >= texts.length ||
+            embeddings[index] ||
+            !Array.isArray(embedding) ||
+            !embedding.length
+          ) {
+            throw new Error("Векторын дарааллыг баталгаажуулж чадсангүй");
+          }
+          embeddings[index] = embedding;
+        }
+        for (var j = 0; j < embeddings.length; j++) {
+          if (!embeddings[j]) {
+            throw new Error("Вектор буцаж ирсэнгүй");
+          }
+        }
+        return embeddings;
+      }
+
+      async function embedDocumentChunks(chunkTexts, apiKey, onProgress) {
+        var chunks = [];
+        var failures = [];
+        for (var i = 0; i < chunkTexts.length; i++) {
+          chunks.push({ text: chunkTexts[i] });
+        }
+        var size = BATCH_SIZE > 0 ? BATCH_SIZE : 20;
+        for (var start = 0; start < chunkTexts.length; start += size) {
+          var end = Math.min(start + size, chunkTexts.length);
+          var batch = chunkTexts.slice(start, end);
+          if (onProgress) onProgress(end, chunkTexts.length);
+          try {
+            var embeddings = await fetchChunkEmbeddingBatch(apiKey, batch);
+            for (var k = 0; k < embeddings.length; k++) {
+              chunks[start + k].embedding = embeddings[k];
+            }
+          } catch (e) {
+            console.error(
+              "Хэсэг " + (start + 1) + "–" + end + "-ийн векторжуулалт амжилтгүй",
+              e
+            );
+            for (var n = start; n < end; n++) {
+              failures.push(n + 1);
+            }
+          }
+        }
+        return { chunks: chunks, failures: failures };
+      }
+
+      function collectPdfFiles(fileList) {
+        var pdfs = [];
+        var other = 0;
+        var oversized = 0;
+        for (var i = 0; i < fileList.length; i++) {
+          var file = fileList[i];
+          if (!file) continue;
+          if (classifyFile(file).kind !== "pdf") {
+            other++;
+            continue;
+          }
+          if (file.size > MAX_FILE_BYTES) {
+            oversized++;
+            continue;
+          }
+          pdfs.push(file);
+        }
+        return { pdfs: pdfs, other: other, oversized: oversized };
+      }
+
+      function nameForDocumentFile(file, typedName, total) {
+        if (total === 1 && typedName) return typedName;
+        var raw = (file && file.name) || "";
+        var base = raw.replace(/\.[^./\\]+$/, "").trim();
+        if (!base) base = "Баримт";
+        if (base.length > 120) base = base.slice(0, 120);
+        return base;
+      }
+
+      function setDocRegisterProgress(text) {
+        addDocSubmitBtn.textContent = text;
+        if (docDropText) docDropText.textContent = text;
+      }
+
+      async function storeExtractedDocument(file, name, key, openaiKey, onChunkProgress) {
+        var dataUrl = await readFileAsDataUrl(file);
+        var fileObj = {
+          id: attachIdSeq++,
+          name: file.name || "file.pdf",
+          kind: "pdf",
+          mediaType: "application/pdf",
+          base64: stripDataUrl(dataUrl),
+          dataUrl: dataUrl,
+        };
+        var extracted = await callClaudeStream(
+          key,
+          [
+            {
+              role: "user",
+              content: buildClaudeUserContent(DOC_EXTRACT_PROMPT, [fileObj]),
+            },
+          ],
+          function () {}
+        );
+        extracted = (extracted || "").trim();
+        if (!extracted) {
+          throw new Error("Хоосон хариу ирлээ");
+        }
+        if (extracted.length > MAX_DOC_CHARS) {
+          showToast(
+            "Бичвэр хэт урт байна (нэг баримтад ойролцоогоор " + MAX_DOC_CHARS + " тэмдэгт)"
+          );
+          return { status: "rejected", quiet: true };
+        }
+        var chunkTexts = splitDocumentChunks(extracted);
+        var embedded = await embedDocumentChunks(
+          chunkTexts,
+          openaiKey,
+          onChunkProgress
+        );
+        var ready = [];
+        embedded.chunks.forEach(function (chunk, index) {
+          if (!chunk || typeof chunk.text !== "string" || !chunk.text) return;
+          if (!Array.isArray(chunk.embedding) || chunk.embedding.length !== 1536) return;
+          var embeddingOk = chunk.embedding.every(function (n) {
+            return typeof n === "number" && isFinite(n);
+          });
+          if (!embeddingOk) return;
+          ready.push({
+            document_name: name,
+            chunk_index: index,
+            content: chunk.text,
+            embedding: chunk.embedding,
+          });
+        });
+        if (!ready.length) {
+          console.error("Векторжуулалт амжилтгүй боллоо", name, embedded.failures);
+          showToast("Векторжуулалт амжилтгүй боллоо");
+          return { status: "rejected", quiet: true };
+        }
+        var access = readSupabaseAccess();
+        if (!access.url) {
+          showToast(access.error);
+          return { status: "rejected", quiet: true };
+        }
+        var savedChunks = 0;
+        var insertFailed = 0;
+        var firstError = "";
+        for (var c = 0; c < ready.length; c++) {
+          setDocRegisterProgress(
+            "Хадгалж байна… (" + (c + 1) + "/" + ready.length + " хэсэг)"
+          );
+          var row = ready[c];
+          try {
+            var postRes = await fetch(access.url + "/rest/v1/document_chunks", {
+              method: "POST",
+              headers: {
+                apikey: access.key,
+                Authorization: "Bearer " + access.key,
+                "Content-Type": "application/json",
+                Prefer: "return=minimal",
+              },
+              body: JSON.stringify({
+                document_name: row.document_name,
+                chunk_index: row.chunk_index,
+                content: row.content,
+                embedding: vectorLiteral(row.embedding),
+              }),
+            });
+            if (!postRes.ok) {
+              var postBody = null;
+              try {
+                postBody = await postRes.json();
+              } catch (parseErr) {
+                postBody = null;
+              }
+              insertFailed++;
+              if (!firstError) firstError = supabaseErrorText(postRes.status, postBody);
+              console.error(
+                "Хэсгийг хадгалж чадсангүй",
+                row.document_name,
+                row.chunk_index,
+                postRes.status,
+                postBody
+              );
+              if (
+                postRes.status === 401 ||
+                postRes.status === 403 ||
+                postRes.status === 404
+              ) {
+                break;
+              }
+              continue;
+            }
+            savedChunks++;
+          } catch (saveErr) {
+            insertFailed++;
+            if (!firstError) firstError = "Хуваалцсан тавиурт холбогдож чадсангүй";
+            console.error(
+              "Хэсгийг хадгалж чадсангүй",
+              row.document_name,
+              row.chunk_index,
+              saveErr
+            );
+          }
+        }
+        if (!savedChunks) {
+          return { status: "rejected", error: firstError };
+        }
+        if (insertFailed || embedded.failures.length) {
+          return { status: "partial", error: firstError };
+        }
+        return { status: "saved" };
+      }
+
+      async function registerDocuments(fileList) {
+        if (docRegistering) return false;
+        var incoming = fileList ? Array.prototype.slice.call(fileList) : [];
+        if (!incoming.length) {
+          showToast("PDF файл сонгоно уу");
+          return false;
+        }
+        var split = collectPdfFiles(incoming);
+        if (!split.pdfs.length) {
+          if (split.other) showToast("Зөвхөн PDF дэмжинэ");
+          else if (split.oversized) {
+            showToast("Файл хэт том байна (20MB хүртэл)");
+          } else {
+            showToast("PDF файл сонгоно уу");
+          }
+          return false;
+        }
+        if (split.other) showToast("Зөвхөн PDF дэмжинэ");
+        else if (split.oversized) showToast("Файл хэт том байна (20MB хүртэл)");
+
+        var key = (apiKeyInput.value || "").trim();
+        if (!key) {
+          showToast("Claude API түлхүүрээ оруулна уу");
+          apiKeyInput.focus();
+          return false;
+        }
+        var openaiKey = (openaiApiKeyInput.value || "").trim();
+        if (!openaiKey) {
+          showToast("Векторжуулахад OpenAI API түлхүүр хэрэгтэй");
+          openaiApiKeyInput.focus();
+          return false;
+        }
+        if (aiProvider.value !== "claude") {
+          showToast("Баримт бүртгэхийг Claude-аар хийнэ үү");
+          return false;
+        }
+        var access = readSupabaseAccess();
+        if (!access.url) {
+          showToast(access.error);
+          return false;
+        }
+
+        saveApiKey();
+
+        var typedName = (docNameInput.value || "").trim();
+        var files = split.pdfs;
+        var originalLabel = addDocSubmitBtn.textContent;
+        var originalDropText = docDropText ? docDropText.textContent : "";
+        addDocSubmitBtn.disabled = true;
+        addDocToggleBtn.disabled = true;
+        docRegistering = true;
+        var saved = 0;
+        var partial = 0;
+        var failed = 0;
+        var partialError = "";
+        try {
+          for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var name = nameForDocumentFile(file, typedName, files.length);
+            setDocRegisterProgress(
+              "Уншиж байна… (" + (i + 1) + "/" + files.length + ")"
+            );
+            try {
+              var outcome = await storeExtractedDocument(
+                file,
+                name,
+                key,
+                openaiKey,
+                function (current, total) {
+                  setDocRegisterProgress(
+                    "Вектор болгож байна… (" + current + "/" + total + " хэсэг)"
+                  );
+                }
+              );
+              if (!outcome || outcome.status === "rejected") {
+                failed++;
+                if (outcome && outcome.error && !partialError) {
+                  partialError = outcome.error;
+                }
+              } else if (outcome.status === "partial") {
+                saved++;
+                partial++;
+                if (outcome.error && !partialError) partialError = outcome.error;
+              } else if (outcome.status === "saved") {
+                saved++;
+              } else {
+                failed++;
+              }
+            } catch (e) {
+              failed++;
+              console.error("Баримт бүртгэж чадсангүй", e);
+              var msg = e && e.message ? e.message : "Баримт бүртгэж чадсангүй";
+              showToast(msg);
+            }
+          }
+        } finally {
+          docRegistering = false;
+          addDocSubmitBtn.disabled = false;
+          addDocToggleBtn.disabled = false;
+          addDocSubmitBtn.textContent = originalLabel;
+          if (docDropText) docDropText.textContent = originalDropText;
+        }
+
+        if (saved) await refreshSharedDocuments();
+        if (partial) {
+          showToast(
+            partialError || "Зарим хэсгийг хуваалцсан тавиурт хадгалж чадсангүй"
+          );
+          closeAddDocForm();
+          return false;
+        }
+        if (failed && saved) {
+          showToast(partialError || "Зарим баримтыг бүртгэж чадсангүй");
+          closeAddDocForm();
+          return false;
+        }
+        if (failed && !saved && partialError) showToast(partialError);
+        return saved > 0;
+      }
+
+      function bindDocDropZone() {
+        if (!docDropZone) return;
+
+        function zoneIsOpen() {
+          return (
+            addDocForm &&
+            addDocForm.classList.contains("is-open") &&
+            docDropZone
+          );
+        }
+
+        function pointerInDocDropZone(e) {
+          if (!zoneIsOpen()) return false;
+          var rect = docDropZone.getBoundingClientRect();
+          if (!rect.width || !rect.height) return false;
+          return (
+            e.clientX >= rect.left &&
+            e.clientX <= rect.right &&
+            e.clientY >= rect.top &&
+            e.clientY <= rect.bottom
+          );
+        }
+
+        function allowDocDrop(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+          docDropZone.classList.add("is-dragover");
+        }
+
+        function startDroppedRegistration(files) {
+          docDropZone.classList.remove("is-dragover");
+          if (!files || !files.length) return;
+          registerDocuments(files).then(function (ok) {
+            if (ok) {
+              closeAddDocForm();
+              showToast("Баримтыг бүртгэлээ");
+            }
+          });
+        }
+
+        docDropZone.addEventListener("dragenter", function (e) {
+          allowDocDrop(e);
+        });
+        docDropZone.addEventListener("dragover", function (e) {
+          allowDocDrop(e);
+        });
+        docDropZone.addEventListener("dragleave", function (e) {
+          e.preventDefault();
+          if (e.relatedTarget && docDropZone.contains(e.relatedTarget)) return;
+          if (pointerInDocDropZone(e)) return;
+          docDropZone.classList.remove("is-dragover");
+        });
+        docDropZone.addEventListener("drop", function (e) {
+          allowDocDrop(e);
+          var files = e.dataTransfer && e.dataTransfer.files;
+          startDroppedRegistration(files);
+        });
+
+        window.addEventListener(
+          "dragover",
+          function (e) {
+            if (!pointerInDocDropZone(e)) {
+              if (docDropZone.classList.contains("is-dragover")) {
+                docDropZone.classList.remove("is-dragover");
+              }
+              return;
+            }
+            allowDocDrop(e);
+          },
+          true
+        );
+        window.addEventListener(
+          "drop",
+          function (e) {
+            if (!pointerInDocDropZone(e)) return;
+            allowDocDrop(e);
+            var files = e.dataTransfer && e.dataTransfer.files;
+            startDroppedRegistration(files);
+          },
+          true
+        );
+      }
+
+      function showSbTestResult(text) {
+        if (!sbTestResult) return;
+        sbTestResult.hidden = false;
+        sbTestResult.textContent = text;
+      }
+
+      function supabaseProjectUrl() {
+        return (sbUrlInput && sbUrlInput.value ? sbUrlInput.value : "")
+          .trim()
+          .replace(/\/+$/, "");
+      }
+
+      function jwtRole(token) {
+        var parts = String(token || "").split(".");
+        if (parts.length !== 3) return "";
+        try {
+          var b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+          while (b64.length % 4) b64 += "=";
+          var json = JSON.parse(atob(b64));
+          return json && json.role ? String(json.role) : "";
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function isSecretSupabaseKey(key) {
+        if (!key) return false;
+        if (key.indexOf("sb_secret_") === 0) return true;
+        return jwtRole(key) === "service_role";
+      }
+
+      function saveSupabaseSettings() {
+        var url = supabaseProjectUrl();
+        var key = (sbAnonKeyInput && sbAnonKeyInput.value
+          ? sbAnonKeyInput.value
+          : ""
+        ).trim();
+        try {
+          if (url) localStorage.setItem(STORAGE_SUPABASE_URL, url);
+          else localStorage.removeItem(STORAGE_SUPABASE_URL);
+          if (key && !isSecretSupabaseKey(key)) {
+            localStorage.setItem(STORAGE_SUPABASE_ANON_KEY, key);
+          } else {
+            localStorage.removeItem(STORAGE_SUPABASE_ANON_KEY);
+          }
+        } catch (e) {
+          /* localStorage unavailable */
+        }
+      }
+
+      function supabaseErrorText(status, body) {
+        var message = "";
+        if (body && typeof body.message === "string") message = body.message;
+        else if (typeof body === "string") message = body;
+        if (
+          /row-level security/i.test(message) ||
+          /permission denied/i.test(message)
+        ) {
+          return "Тавиурын унших, бичих дүрмээр татгалзлаа. SQL-ийн «туршилтын үед уншиж, бичиж болно» гэсэн дүрэм (policy) хүртэл ажиллуулсан эсэхээ шалгана уу.";
+        }
+        if (status === 401 || /invalid api key/i.test(message)) {
+          return "Түлхүүр буруу байна. anon түлхүүр (зарим дэлгэц дээр publishable түлхүүр) оруулсан эсэхээ шалгана уу. secret болон service_role ашиглах боломжгүй.";
+        }
+        if (
+          status === 404 ||
+          /could not find the table/i.test(message) ||
+          /schema cache/i.test(message)
+        ) {
+          return "Тавиур (document_chunks) олдсонгүй. SQL ажиллуулсан төсөл болон оруулсан URL ижил эсэхийг шалгана уу. Дөнгөж ажиллуулсан бол хэдэн арван секунд хүлээгээд дахин оролдоно уу.";
+        }
+        if (message) return "Амжилтгүй боллоо (" + status + "): " + message;
+        return "Амжилтгүй боллоо (" + status + ").";
+      }
+
+      async function runSupabaseSmokeTest() {
+        var url = supabaseProjectUrl();
+        var key = (sbAnonKeyInput && sbAnonKeyInput.value
+          ? sbAnonKeyInput.value
+          : ""
+        ).trim();
+        if (!url || !key) {
+          showSbTestResult("Төслийн URL болон anon түлхүүрээ оруулаад дарна уу.");
+          return;
+        }
+        if (!/^https:\/\/.+/i.test(url)) {
+          showSbTestResult("Төслийн URL нь https://-ээр эхэлсэн хаяг байх ёстой.");
+          return;
+        }
+        if (isSecretSupabaseKey(key)) {
+          if (sbAnonKeyInput) sbAnonKeyInput.value = "";
+          saveSupabaseSettings();
+          showSbTestResult(
+            "Энэ нууц түлхүүр байна. Хөтөч дээр бүү оруулаарай. anon түлхүүр (эсвэл publishable түлхүүр) ашиглана уу."
+          );
+          return;
+        }
+        if (sbUrlInput) sbUrlInput.value = url;
+        saveSupabaseSettings();
+        if (sbTestBtn) sbTestBtn.disabled = true;
+        showSbTestResult("Хадгалж байна…");
+        var stamp = new Date().toISOString();
+        var payload = {
+          document_name: "Холболтын шалгалт",
+          chunk_index: 0,
+          content: "Холболтын шалгалт " + stamp,
+        };
+        try {
+          var postRes = await fetch(url + "/rest/v1/document_chunks", {
+            method: "POST",
+            headers: {
+              apikey: key,
+              Authorization: "Bearer " + key,
+              "Content-Type": "application/json",
+              Prefer: "return=representation",
+            },
+            body: JSON.stringify(payload),
+          });
+          var postBody = null;
+          try {
+            postBody = await postRes.json();
+          } catch (e) {
+            postBody = null;
+          }
+          if (!postRes.ok) {
+            showSbTestResult(supabaseErrorText(postRes.status, postBody));
+            return;
+          }
+          var saved = Array.isArray(postBody) ? postBody[0] : null;
+          var savedId = saved && saved.id ? String(saved.id) : "";
+          if (!savedId) {
+            showSbTestResult("Хадгалсан хариунаас id-г баталгаажуулж чадсангүй.");
+            return;
+          }
+          showSbTestResult("Хадгаллаа. Уншиж байна…");
+          var getRes = await fetch(
+            url +
+              "/rest/v1/document_chunks?id=eq." +
+              encodeURIComponent(savedId) +
+              "&select=id,document_name,chunk_index,content,created_at",
+            {
+              headers: {
+                apikey: key,
+                Authorization: "Bearer " + key,
+              },
+            }
+          );
+          var getBody = null;
+          try {
+            getBody = await getRes.json();
+          } catch (e2) {
+            getBody = null;
+          }
+          if (!getRes.ok) {
+            showSbTestResult(
+              "Хадгалсан боловч уншиж чадсангүй.\n" +
+                supabaseErrorText(getRes.status, getBody)
+            );
+            return;
+          }
+          var row = Array.isArray(getBody) ? getBody[0] : null;
+          if (!row || row.content !== payload.content) {
+            showSbTestResult(
+              "Хадгалсан боловч яг адилхан агуулгыг уншиж чадсангүй. Унших дүрэм (policy)-ээ шалгана уу."
+            );
+            return;
+          }
+          showSbTestResult(
+            "Амжилттай. Хуваалцсан тавиурт 1 бичлэг хадгалаад, яг адилхан агуулгыг уншлаа.\n" +
+              "Баримтын нэр: " +
+              row.document_name +
+              "\nАгуулга: " +
+              row.content +
+              "\nid: " +
+              row.id +
+              "\n\nЭнэ 1 бичлэг нь холболтын шалгалтад зориулагдсан. Одоогийн баримтын санах ой (хөтөч дотор) руу ороогүй."
+          );
+          showToast("Supabase холболтын шалгалт амжилттай боллоо");
+        } catch (e) {
+          showSbTestResult(
+            "Холбогдож чадсангүй. URL зөв эсэх, хуудсыг файл хэлбэрээр шууд нээгээгүй эсэхээ шалгана уу. Энэ дэлгэцийг http://localhost зэргээр нээнэ үү."
+          );
+        } finally {
+          if (sbTestBtn) sbTestBtn.disabled = false;
+        }
+      }
+
+      function bindSupabaseSmokeTest() {
+        if (!sbTestBtn) return;
+        if (sbUrlInput) {
+          sbUrlInput.addEventListener("change", saveSupabaseSettings);
+        }
+        if (sbAnonKeyInput) {
+          sbAnonKeyInput.addEventListener("change", function () {
+            var key = (sbAnonKeyInput.value || "").trim();
+            if (isSecretSupabaseKey(key)) {
+              sbAnonKeyInput.value = "";
+              saveSupabaseSettings();
+              showSbTestResult(
+                "Энэ нууц түлхүүр байна. Хөтөч дээр бүү оруулаарай. anon түлхүүр (эсвэл publishable түлхүүр) ашиглана уу."
+              );
+              return;
+            }
+            saveSupabaseSettings();
+          });
+        }
+        sbTestBtn.addEventListener("click", function () {
+          runSupabaseSmokeTest();
+        });
+      }
+
+      function vectorLiteral(embedding) {
+        var parts = new Array(embedding.length);
+        for (var i = 0; i < embedding.length; i++) parts[i] = String(embedding[i]);
+        return "[" + parts.join(",") + "]";
+      }
+
+      function bindDocumentsUi() {
+        if (tabDocuments) {
+          tabDocuments.addEventListener("click", function () {
+            setView("documents");
+            refreshSharedDocuments();
+          });
+        }
+        addDocToggleBtn.addEventListener("click", function () {
+          if (addDocForm.classList.contains("is-open")) {
+            closeAddDocForm();
+          } else {
+            openAddDocForm();
+          }
+        });
+        addDocCancelBtn.addEventListener("click", closeAddDocForm);
+        addDocForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          registerDocuments(docFileInput.files).then(function (ok) {
+            if (ok) {
+              closeAddDocForm();
+              showToast("Баримтыг бүртгэлээ");
+            }
+          });
+        });
+        bindDocDropZone();
+      }
+
+      function bindVideoUi() {
+        tabChat.addEventListener("click", function () {
+          setView("chat");
+        });
+        tabVideos.addEventListener("click", function () {
+          setView("videos");
+        });
+        if (openVideosNav) {
+          openVideosNav.addEventListener("click", function () {
+            setView("videos");
+          });
+          openVideosNav.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setView("videos");
+            }
+          });
+        }
+        addVideoToggleBtn.addEventListener("click", function () {
+          if (addVideoForm.classList.contains("is-open")) {
+            closeAddForm();
+          } else {
+            openAddForm();
+          }
+        });
+        addVideoCancelBtn.addEventListener("click", closeAddForm);
+        addVideoForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (addVideo(videoTitleInput.value, videoUrlInput.value)) {
+            closeAddForm();
+            showToast("Видео нэмлээ");
+          }
+        });
+      }
+
+      restoreStoredSettings();
+      restoreTrainingVideos();
+      renderVideoList();
+      bindVideoUi();
+      bindDocumentsUi();
+      bindSupabaseSmokeTest();
+      refreshSharedDocuments();
+      renderWelcome();
+    })();
+  </script>
+</body>
+</html>
