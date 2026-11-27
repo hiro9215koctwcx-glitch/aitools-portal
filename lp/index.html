@@ -1671,6 +1671,12 @@
     .course-steps { display:grid; grid-template-columns:repeat(2,1fr); gap:.5rem 1.2rem; padding-left:1.2rem; margin:0; }
     @media (max-width:700px){ .course-steps { grid-template-columns:1fr; } }
     .course-card h3 { margin:0 0 .5rem; color:var(--brand-navy); }
+    .course-more-title { margin:0.5rem 0 0.75rem; color:var(--brand-navy); font-size:1.05rem; }
+    .course-more { display:grid; grid-template-columns:repeat(2,1fr); gap:1.25rem; margin-bottom:1.25rem; }
+    .course-more .course-card { margin-bottom:0; min-width:0; }
+    .course-more .course-card > p:not(.course-note) { margin:0 0 1rem; }
+    .course-more .course-steps { grid-template-columns:1fr; list-style:none; padding-left:0; }
+    @media (max-width:700px){ .course-more { grid-template-columns:1fr; } }
     .course-apply textarea, .course-apply input { width:100%; box-sizing:border-box; border:1px solid #9fb3c8; border-radius:10px; padding:.8rem; font:inherit; font-size:.92rem; line-height:1.8; background:#f7f9fb; }
     .course-apply textarea { min-height:15rem; }
     .course-apply label { display:block; font-weight:700; font-size:.88rem; margin:.8rem 0 .3rem; }
@@ -1921,6 +1927,31 @@
           <li>ほかのAIとの使い分けと、仕事の仕組みづくり</li>
           <li>毎日使う習慣・安全な使い方と、卒業プラン</li>
         </ol>
+      </div>
+      <h3 class="course-more-title">基本の8回のあとに選べるコース</h3>
+      <div class="course-more">
+        <div class="course-card">
+          <h3>応用編（Cowork実践）</h3>
+          <div class="course-price"><strong>¥20,250</strong><span>90分×3回（合計4.5時間）／オンライン（ビデオ通話）</span></div>
+          <p>こんな方に：Xへの投稿やYouTubeの準備、仕事探しをAIに手伝ってもらいたい方</p>
+          <ul class="course-steps">
+            <li>・第1回　Coworkで、Xの投稿を毎週ラクにする</li>
+            <li>・第2回　Coworkで、YouTubeの準備をまとめて進める</li>
+            <li>・第3回　Coworkで、仕事探しを効率よく進める</li>
+          </ul>
+          <p class="course-note">Claudeの有料プランとデスクトップアプリが必要です。投稿・公開・応募の最後のボタンは、ご自身で押していただきます。</p>
+        </div>
+        <div class="course-card">
+          <h3>開発編（Cursor×Claude Code）</h3>
+          <div class="course-price"><strong>¥20,250</strong><span>90分×3回（合計4.5時間）／オンライン（ビデオ通話）</span></div>
+          <p>こんな方に：自分でホームページやアプリを作れるようになりたい方</p>
+          <ul class="course-steps">
+            <li>・第1回　準備をととのえて、最初のホームページを公開する</li>
+            <li>・第2回　自分の仕事で使えるツールを作る</li>
+            <li>・第3回　安全に続けるための使い方</li>
+          </ul>
+          <p class="course-note">プログラミングの経験は不要です。Claudeの有料プランが必要で、Cursorなどの有料プランが必要になる場合もあります。</p>
+        </div>
       </div>
       <div class="course-card course-apply">
         <h3>お申し込み・ご相談（無料）</h3>
